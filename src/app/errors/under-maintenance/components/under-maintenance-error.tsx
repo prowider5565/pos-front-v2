@@ -2,9 +2,11 @@
 
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 export function UnderMaintenanceError() {
   const navigate = useNavigate()
+  const { t } = useTranslation('errors')
 
   return (
     <div className='mx-auto flex min-h-dvh flex-col items-center justify-center gap-8 p-8 md:gap-12 md:p-16'>
@@ -15,10 +17,10 @@ export function UnderMaintenanceError() {
       />
       <div className='text-center'>
         <h1 className='mb-4 text-3xl font-bold'>503</h1>
-        <h2 className="mb-3 text-2xl font-semibold">Under Maintenance</h2>
-        <p>The service is currently unavailable. Please try again later.</p>
+        <h2 className="mb-3 text-2xl font-semibold">{t('maintenance.title')}</h2>
+        <p>{t('maintenance.description')}</p>
         <div className='mt-6 flex items-center justify-center gap-4 md:mt-8'>
-          <Button className='cursor-pointer' onClick={() => navigate('/dashboard')}>Go Back Home</Button>
+          <Button className='cursor-pointer' onClick={() => navigate('/dashboard')}>{t('maintenance.action')}</Button>
           <Button variant='outline' className='flex cursor-pointer items-center gap-1' onClick={() => navigate('#')}>
             Contact Us
           </Button>

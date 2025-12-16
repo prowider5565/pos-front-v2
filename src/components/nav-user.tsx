@@ -7,7 +7,8 @@ import {
   BellDot,
   CircleUser,
 } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { Logo } from "@/components/logo"
 import {
@@ -25,6 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/contexts/auth-context"
 
 export function NavUser({
   user,
@@ -36,6 +38,14 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+  const { t } = useTranslation(['common', 'settings', 'auth'])
+
+  const handleLogout = () => {
+    logout()
+    navigate("/auth/sign-in", { replace: true })
+  }
 
   return (
     <SidebarMenu>
@@ -82,28 +92,29 @@ export function NavUser({
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link to="/settings/account">
                   <CircleUser />
-                  Account
+                  {t('common:navigation.account')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/settings/billing">
+                <Link to="/settings/user">
                   <CreditCard />
-                  Billing
+                  {t('common:navigation.profile')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link to="/settings/notifications">
                   <BellDot />
-                  Notifications
+                  {t('common:navigation.notifications')}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link to="/auth/sign-in">
-                <LogOut />
-                Log out
-              </Link>
+            <DropdownMenuItem 
+              className="cursor-pointer"
+              onClick={handleLogout}
+            >
+              <LogOut />
+              {t('auth:logout.button')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

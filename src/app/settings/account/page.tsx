@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -30,6 +31,18 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>
 
 export default function AccountSettings() {
+  const { t } = useTranslation(['settings', 'common'])
+  
+  const accountFormSchema = z.object({
+    firstName: z.string().min(1, t('common:form.required')),
+    lastName: z.string().min(1, t('common:form.required')),
+    email: z.string().email(t('common:form.invalidEmail')),
+    username: z.string().min(3, t('common:form.minLength', { min: 3 })),
+    currentPassword: z.string().optional(),
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
@@ -49,7 +62,7 @@ export default function AccountSettings() {
   }
 
   return (
-    <BaseLayout>
+    <BaseLayout title={t('settings:account.title')} description={t('settings:account.description')}>
       <div className="space-y-6 px-4 lg:px-6">
         <div>
           <h1 className="text-3xl font-bold">Account Settings</h1>

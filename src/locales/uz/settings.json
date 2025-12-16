@@ -1,0 +1,54 @@
+{
+  "title": "Sozlamalar",
+  "subtitle": "Hisob sozlamalaringizni va afzalliklaringizni boshqaring",
+  "tabs": {
+    "user": "Foydalanuvchi sozlamalari",
+    "account": "Hisob",
+    "appearance": "Ko'rinish",
+    "notifications": "Bildirishnomalar"
+  },
+  "user": {
+    "title": "Foydalanuvchi sozlamalari",
+    "description": "Foydalanuvchi ma'lumotlarini yangilang",
+    "profile": "Profil ma'lumotlari",
+    "profileDescription": "Profil ma'lumotlarini yangilang"
+  },
+  "account": {
+    "title": "Hisob sozlamalari",
+    "description": "Hisob sozlamalarini boshqaring",
+    "security": "Xavfsizlik",
+    "securityDescription": "Parol va xavfsizlik sozlamalarini boshqaring",
+    "changePassword": "Parolni o'zgartirish",
+    "currentPassword": "Joriy parol",
+    "newPassword": "Yangi parol",
+    "confirmNewPassword": "Yangi parolni tasdiqlang"
+  },
+  "appearance": {
+    "title": "Ko'rinish",
+    "description": "Ilova ko'rinishini sozlang",
+    "theme": "Mavzu",
+    "themeDescription": "Afzal ko'rgan mavzuni tanlang",
+    "light": "Yorug'",
+    "dark": "Qorong'i",
+    "system": "Tizim",
+    "language": "Til",
+    "languageDescription": "Afzal ko'rgan tilni tanlang"
+  },
+  "notifications": {
+    "title": "Bildirishnomalar",
+    "description": "Bildirishnoma sozlamalarini boshqaring",
+    "email": "Elektron pochta bildirshnomalari",
+    "emailDescription": "Elektron pochta orqali bildirishnomalarni qabul qilish",
+    "push": "Push-bildirishnomalar",
+    "pushDescription": "Push-bildirishnomalarni qabul qilish",
+    "marketing": "Marketing xatlari",
+    "marketingDescription": "Reklama xatlarini qabul qilish",
+    "security": "Xavfsizlik ogohlantirishlari",
+    "securityDescription": "Xavfsizlik bilan bog'liq bildirishnomalarni qabul qilish"
+  },
+  "messages": {
+    "settingsSaved": "Sozlamalar muvaffaqiyatli saqlandi",
+    "passwordChanged": "Parol muvaffaqiyatli o'zgartirildi",
+    "errorSaving": "Sozlamalarni saqlab bo'lmadi"
+  }
+}

@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import { Navigate } from 'react-router-dom'
+import { ProtectedRoute } from '@/components/router/protected-route'
 
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('@/app/dashboard/page'))
@@ -35,16 +36,24 @@ export const routes: RouteConfig[] = [
     element: <Navigate to="dashboard" replace />
   },
 
-  // Dashboard Routes
+  // Dashboard Routes (Protected)
   {
     path: "/dashboard",
-    element: <Dashboard />
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    )
   },
 
-  // Content Pages
+  // Content Pages (Protected)
   {
     path: "/users",
-    element: <Users />
+    element: (
+      <ProtectedRoute>
+        <Users />
+      </ProtectedRoute>
+    )
   },
 
   // Authentication Routes
@@ -79,22 +88,38 @@ export const routes: RouteConfig[] = [
     element: <UnderMaintenance />
   },
 
-  // Settings Routes
+  // Settings Routes (Protected)
   {
     path: "/settings/user",
-    element: <UserSettings />
+    element: (
+      <ProtectedRoute>
+        <UserSettings />
+      </ProtectedRoute>
+    )
   },
   {
     path: "/settings/account",
-    element: <AccountSettings />
+    element: (
+      <ProtectedRoute>
+        <AccountSettings />
+      </ProtectedRoute>
+    )
   },
   {
     path: "/settings/appearance",
-    element: <AppearanceSettings />
+    element: (
+      <ProtectedRoute>
+        <AppearanceSettings />
+      </ProtectedRoute>
+    )
   },
   {
     path: "/settings/notifications",
-    element: <NotificationSettings />
+    element: (
+      <ProtectedRoute>
+        <NotificationSettings />
+      </ProtectedRoute>
+    )
   },
 
   // Catch-all route for 404

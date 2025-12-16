@@ -1,0 +1,58 @@
+{
+  "title": "Users",
+  "subtitle": "Manage your users and their accounts",
+  "addUser": "Add User",
+  "editUser": "Edit User",
+  "deleteUser": "Delete User",
+  "userDetails": "User Details",
+  "totalUsers": "Total Users",
+  "activeUsers": "Active Users",
+  "inactiveUsers": "Inactive Users",
+  "table": {
+    "id": "ID",
+    "username": "Username",
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "phoneNumber": "Phone Number",
+    "status": "Status",
+    "role": "Role",
+    "createdAt": "Created At",
+    "lastLogin": "Last Login",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "form": {
+    "username": "Username",
+    "usernamePlaceholder": "Enter username",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "+998901234567",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm password",
+    "role": "Role",
+    "status": "Status"
+  },
+  "messages": {
+    "userCreated": "User created successfully",
+    "userUpdated": "User updated successfully",
+    "userDeleted": "User deleted successfully",
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "stats": {
+    "totalUsers": "Total Users",
+    "paidUsers": "Paid Users",
+    "activeUsers": "Active Users",
+    "pendingUsers": "Pending Users",
+    "from": "from"
+  }
+}

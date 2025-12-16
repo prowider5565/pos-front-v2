@@ -1,0 +1,58 @@
+{
+  "title": "Пользователи",
+  "subtitle": "Управляйте пользователями и их учётными записями",
+  "addUser": "Добавить пользователя",
+  "editUser": "Изменить пользователя",
+  "deleteUser": "Удалить пользователя",
+  "userDetails": "Данные пользователя",
+  "totalUsers": "Всего пользователей",
+  "activeUsers": "Активные пользователи",
+  "inactiveUsers": "Неактивные пользователи",
+  "table": {
+    "id": "ID",
+    "username": "Имя пользователя",
+    "name": "Имя",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Электронная почта",
+    "phone": "Номер телефона",
+    "phoneNumber": "Номер телефона",
+    "status": "Статус",
+    "role": "Роль",
+    "createdAt": "Создан",
+    "lastLogin": "Последний вход",
+    "actions": "Действия",
+    "active": "Активен",
+    "inactive": "Неактивен"
+  },
+  "form": {
+    "username": "Имя пользователя",
+    "usernamePlaceholder": "Введите имя пользователя",
+    "firstName": "Имя",
+    "firstNamePlaceholder": "Введите имя",
+    "lastName": "Фамилия",
+    "lastNamePlaceholder": "Введите фамилию",
+    "phoneNumber": "Номер телефона",
+    "phoneNumberPlaceholder": "+998901234567",
+    "password": "Пароль",
+    "passwordPlaceholder": "Введите пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "confirmPasswordPlaceholder": "Подтвердите пароль",
+    "role": "Роль",
+    "status": "Статус"
+  },
+  "messages": {
+    "userCreated": "Пользователь успешно создан",
+    "userUpdated": "Пользователь успешно обновлён",
+    "userDeleted": "Пользователь успешно удалён",
+    "confirmDelete": "Вы уверены, что хотите удалить этого пользователя?",
+    "deleteWarning": "Это действие нельзя отменить."
+  },
+  "stats": {
+    "totalUsers": "Всего пользователей",
+    "paidUsers": "Платные пользователи",
+    "activeUsers": "Активные пользователи",
+    "pendingUsers": "Ожидающие пользователи",
+    "from": "с"
+  }
+}

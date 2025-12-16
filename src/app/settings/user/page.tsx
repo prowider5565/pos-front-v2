@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent,CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
@@ -40,9 +41,24 @@ const userFormSchema = z.object({
 type UserFormValues = z.infer<typeof userFormSchema>
 
 export default function UserSettingsPage() {
+  const { t } = useTranslation(['settings', 'common'])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [useDefaultIcon, setUseDefaultIcon] = useState(true)
+  
+  const userFormSchema = z.object({
+    firstName: z.string().min(1, t('common:form.required')),
+    lastName: z.string().min(1, t('common:form.required')),
+    email: z.string().email(t('common:form.invalidEmail')),
+    phone: z.string().optional(),
+    website: z.string().optional(),
+    location: z.string().optional(),
+    role: z.string().optional(),
+    bio: z.string().optional(),
+    company: z.string().optional(),
+    timezone: z.string().optional(),
+    language: z.string().optional(),
+  })
   
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -91,7 +107,7 @@ export default function UserSettingsPage() {
   }
 
   return (
-    <BaseLayout title="User Settings" description="Manage your personal information and preferences">
+    <BaseLayout title={t('settings:user.title')} description={t('settings:user.description')}>
       <div className="px-4 lg:px-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

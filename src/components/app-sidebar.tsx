@@ -2,23 +2,12 @@
 
 import * as React from "react"
 import {
-  LayoutPanelLeft,
   LayoutDashboard,
-  Mail,
-  CheckSquare,
-  MessageCircle,
-  Calendar,
-  Shield,
-  AlertTriangle,
-  Settings,
-  HelpCircle,
-  CreditCard,
-  LayoutTemplate,
   Users,
 } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { Logo } from "@/components/logo"
-import { SidebarNotification } from "@/components/sidebar-notification"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -31,108 +20,52 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/contexts/auth-context"
 
-const data = {
-  user: {
-    name: "POS Admin",
-    email: "admin@pos.com",
-    avatar: "",
-  },
-  navGroups: [
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, isAuthenticated } = useAuth()
+  const { t } = useTranslation('common')
+
+  const navGroups = [
     {
-      label: "Dashboard",
+      label: t('navigation.dashboard'),
       items: [
         {
-          title: "Dashboard",
+          title: t('navigation.dashboard'),
           url: "/dashboard",
           icon: LayoutDashboard,
         },
       ],
     },
     {
-      label: "Management",
+      label: t('navigation.management'),
       items: [
         {
-          title: "Users",
+          title: t('navigation.users'),
           url: "/users",
           icon: Users,
         },
       ],
     },
-    {
-      label: "System",
-      items: [
-        {
-          title: "Auth Pages",
-          url: "#",
-          icon: Shield,
-          items: [
-            {
-              title: "Sign In",
-              url: "/auth/sign-in",
-            },
-            {
-              title: "Forgot Password",
-              url: "/auth/forgot-password",
-            }
-          ],
-        },
-        {
-          title: "Errors",
-          url: "#",
-          icon: AlertTriangle,
-          items: [
-            {
-              title: "Unauthorized",
-              url: "/errors/unauthorized",
-            },
-            {
-              title: "Forbidden",
-              url: "/errors/forbidden",
-            },
-            {
-              title: "Not Found",
-              url: "/errors/not-found",
-            },
-            {
-              title: "Internal Server Error",
-              url: "/errors/internal-server-error",
-            },
-            {
-              title: "Under Maintenance",
-              url: "/errors/under-maintenance",
-            },
-          ],
-        },
-        {
-          title: "Settings",
-          url: "#",
-          icon: Settings,
-          items: [
-            {
-              title: "User Settings",
-              url: "/settings/user",
-            },
-            {
-              title: "Account Settings",
-              url: "/settings/account",
-            },
-            {
-              title: "Appearance",
-              url: "/settings/appearance",
-            },
-            {
-              title: "Notifications",
-              url: "/settings/notifications",
-            },
-          ],
-        },
-      ],
-    },
-  ],
-}
+  ]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Generate user display data from auth context
+  const userData = React.useMemo(() => {
+    if (isAuthenticated && user) {
+      const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username
+      return {
+        name: fullName,
+        email: user.phone_number || user.username,
+        avatar: "",
+      }
+    }
+    return {
+      name: "Guest",
+      email: "guest@example.com",
+      avatar: "",
+    }
+  }, [user, isAuthenticated])
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -144,8 +77,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Logo size={24} className="text-current" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">ShadcnStore</span>
-                  <span className="truncate text-xs">Admin Dashboard</span>
+                  <span className="truncate font-medium">{t('app.name')}</span>
+                  <span className="truncate text-xs">{t('app.tagline')}</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -153,13 +86,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {data.navGroups.map((group) => (
+        {navGroups.map((group) => (
           <NavMain key={group.label} label={group.label} items={group.items} />
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <SidebarNotification />
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   )

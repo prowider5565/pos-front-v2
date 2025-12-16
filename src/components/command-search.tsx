@@ -2,23 +2,16 @@
 
 import * as React from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { Command as CommandPrimitive } from "cmdk"
 import {
   Search,
-  LayoutPanelLeft,
   LayoutDashboard,
-  Mail,
-  CheckSquare,
-  MessageCircle,
-  Calendar,
   Shield,
   AlertTriangle,
   Settings,
-  HelpCircle,
-  CreditCard,
   User,
   Bell,
-  Link2,
   Palette,
   type LucideIcon,
 } from "lucide-react"
@@ -123,6 +116,7 @@ interface CommandSearchProps {
 }
 
 export function CommandSearch({ open, onOpenChange }: CommandSearchProps) {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
   const commandRef = React.useRef<HTMLDivElement>(null)
 
@@ -178,7 +172,7 @@ export function CommandSearch({ open, onOpenChange }: CommandSearchProps) {
           ref={commandRef}
           className="transition-transform duration-100 ease-out"
         >
-          <CommandInput placeholder="What do you need?" autoFocus />
+          <CommandInput placeholder={t('search.placeholder')} autoFocus />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             {Object.entries(groupedItems).map(([group, items]) => (

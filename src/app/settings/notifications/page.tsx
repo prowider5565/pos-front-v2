@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -52,6 +54,7 @@ const notificationsFormSchema = z.object({
 type NotificationsFormValues = z.infer<typeof notificationsFormSchema>
 
 export default function NotificationSettings() {
+  const { t } = useTranslation('settings')
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues: {
@@ -90,7 +93,7 @@ export default function NotificationSettings() {
   }
 
   return (
-    <BaseLayout>
+    <BaseLayout title={t('notifications.title')} description={t('notifications.description')}>
       <div className="space-y-6 px-4 lg:px-6">
         <div>
           <h1 className="text-3xl font-bold">Notifications</h1>

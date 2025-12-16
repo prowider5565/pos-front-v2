@@ -1,0 +1,48 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome to your dashboard",
+  "overview": "Overview",
+  "statistics": "Statistics",
+  "recentActivity": "Recent Activity",
+  "quickActions": "Quick Actions",
+  "cards": {
+    "totalRevenue": "Total Revenue",
+    "newCustomers": "New Customers",
+    "activeAccounts": "Active Accounts",
+    "growthRate": "Growth Rate",
+    "trendingUp": "Trending up this month",
+    "trendingDown": "Down 20% this period",
+    "strongRetention": "Strong user retention",
+    "steadyPerformance": "Steady performance increase",
+    "visitorsLast6Months": "Visitors for the last 6 months",
+    "acquisitionNeeds": "Acquisition needs attention",
+    "engagementExceeds": "Engagement exceed targets",
+    "meetsProjections": "Meets growth projections"
+  },
+  "table": {
+    "header": "Header",
+    "sectionType": "Section Type",
+    "status": "Status",
+    "target": "Target",
+    "limit": "Limit",
+    "reviewer": "Reviewer",
+    "assignReviewer": "Assign reviewer",
+    "selectView": "Select a view",
+    "outline": "Outline",
+    "pastPerformance": "Past Performance",
+    "keyPersonnel": "Key Personnel",
+    "focusDocuments": "Focus Documents",
+    "addSection": "Add Section",
+    "type": "Type",
+    "selectType": "Select a type",
+    "selectStatus": "Select a status",
+    "selectReviewer": "Select a reviewer"
+  },
+  "chart": {
+    "visitors": "Visitors",
+    "desktop": "Desktop",
+    "mobile": "Mobile",
+    "last3Months": "Last 3 months",
+    "selectValue": "Select a value"
+  }
+}

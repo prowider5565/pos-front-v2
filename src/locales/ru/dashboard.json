@@ -1,0 +1,48 @@
+{
+  "title": "Панель управления",
+  "welcome": "Добро пожаловать на вашу панель",
+  "overview": "Обзор",
+  "statistics": "Статистика",
+  "recentActivity": "Недавняя активность",
+  "quickActions": "Быстрые действия",
+  "cards": {
+    "totalRevenue": "Общий доход",
+    "newCustomers": "Новые клиенты",
+    "activeAccounts": "Активные аккаунты",
+    "growthRate": "Темп роста",
+    "trendingUp": "Рост в этом месяце",
+    "trendingDown": "Снижение на 20% за период",
+    "strongRetention": "Сильное удержание пользователей",
+    "steadyPerformance": "Стабильное повышение производительности",
+    "visitorsLast6Months": "Посетители за последние 6 месяцев",
+    "acquisitionNeeds": "Привлечение требует внимания",
+    "engagementExceeds": "Вовлеченность превышает цели",
+    "meetsProjections": "Соответствует прогнозам роста"
+  },
+  "table": {
+    "header": "Заголовок",
+    "sectionType": "Тип раздела",
+    "status": "Статус",
+    "target": "Цель",
+    "limit": "Лимит",
+    "reviewer": "Рецензент",
+    "assignReviewer": "Назначить рецензента",
+    "selectView": "Выберите вид",
+    "outline": "Структура",
+    "pastPerformance": "Прошлая эффективность",
+    "keyPersonnel": "Ключевой персонал",
+    "focusDocuments": "Фокусные документы",
+    "addSection": "Добавить раздел",
+    "type": "Тип",
+    "selectType": "Выберите тип",
+    "selectStatus": "Выберите статус",
+    "selectReviewer": "Выберите рецензента"
+  },
+  "chart": {
+    "visitors": "Посетители",
+    "desktop": "Десктоп",
+    "mobile": "Мобильные",
+    "last3Months": "Последние 3 месяца",
+    "selectValue": "Выберите значение"
+  }
+}

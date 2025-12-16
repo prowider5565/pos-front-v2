@@ -1,0 +1,37 @@
+{
+  "401": {
+    "title": "401 - Unauthorized",
+    "description": "You need to be logged in to access this page.",
+    "action": "Go to Login"
+  },
+  "403": {
+    "title": "403 - Forbidden",
+    "description": "You don't have permission to access this resource.",
+    "action": "Go to Dashboard"
+  },
+  "404": {
+    "title": "404 - Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "action": "Go to Home"
+  },
+  "500": {
+    "title": "500 - Internal Server Error",
+    "description": "Something went wrong on our end. Please try again later.",
+    "action": "Try Again"
+  },
+  "maintenance": {
+    "title": "Under Maintenance",
+    "description": "We're currently performing scheduled maintenance. We'll be back soon!",
+    "action": "Check Status"
+  },
+  "network": {
+    "title": "Network Error",
+    "description": "Unable to connect to the server. Please check your internet connection.",
+    "action": "Retry"
+  },
+  "generic": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "action": "Go Back"
+  }
+}

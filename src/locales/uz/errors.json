@@ -1,0 +1,37 @@
+{
+  "401": {
+    "title": "401 - Ruxsat berilmagan",
+    "description": "Ushbu sahifaga kirish uchun tizimga kirishingiz kerak.",
+    "action": "Kirishga o'tish"
+  },
+  "403": {
+    "title": "403 - Kirish taqiqlangan",
+    "description": "Ushbu resursga kirish huquqingiz yo'q.",
+    "action": "Boshqaruv paneliga o'tish"
+  },
+  "404": {
+    "title": "404 - Sahifa topilmadi",
+    "description": "Siz qidirayotgan sahifa mavjud emas yoki ko'chirilgan.",
+    "action": "Bosh sahifaga"
+  },
+  "500": {
+    "title": "500 - Ichki server xatosi",
+    "description": "Bizning tomonimizda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.",
+    "action": "Qayta urinish"
+  },
+  "maintenance": {
+    "title": "Texnik xizmat ko'rsatilmoqda",
+    "description": "Biz hozirda rejalashtirilgan texnik xizmat ko'rsatmoqdamiz. Tez orada qaytamiz!",
+    "action": "Holatni tekshirish"
+  },
+  "network": {
+    "title": "Tarmoq xatosi",
+    "description": "Serverga ulanib bo'lmadi. Iltimos, internet ulanishingizni tekshiring.",
+    "action": "Qayta urinish"
+  },
+  "generic": {
+    "title": "Nimadir noto'g'ri ketdi",
+    "description": "Kutilmagan xato yuz berdi. Iltimos, qayta urinib ko'ring.",
+    "action": "Orqaga"
+  }
+}

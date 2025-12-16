@@ -1,0 +1,58 @@
+{
+  "title": "Foydalanuvchilar",
+  "subtitle": "Foydalanuvchilar va ularning hisoblarini boshqaring",
+  "addUser": "Foydalanuvchi qo'shish",
+  "editUser": "Foydalanuvchini tahrirlash",
+  "deleteUser": "Foydalanuvchini o'chirish",
+  "userDetails": "Foydalanuvchi ma'lumotlari",
+  "totalUsers": "Jami foydalanuvchilar",
+  "activeUsers": "Faol foydalanuvchilar",
+  "inactiveUsers": "Nofaol foydalanuvchilar",
+  "table": {
+    "id": "ID",
+    "username": "Foydalanuvchi nomi",
+    "name": "Ism",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "email": "Elektron pochta",
+    "phone": "Telefon raqami",
+    "phoneNumber": "Telefon raqami",
+    "status": "Holat",
+    "role": "Rol",
+    "createdAt": "Yaratilgan",
+    "lastLogin": "Oxirgi kirish",
+    "actions": "Harakatlar",
+    "active": "Faol",
+    "inactive": "Nofaol"
+  },
+  "form": {
+    "username": "Foydalanuvchi nomi",
+    "usernamePlaceholder": "Foydalanuvchi nomini kiriting",
+    "firstName": "Ism",
+    "firstNamePlaceholder": "Ismni kiriting",
+    "lastName": "Familiya",
+    "lastNamePlaceholder": "Familiyani kiriting",
+    "phoneNumber": "Telefon raqami",
+    "phoneNumberPlaceholder": "+998901234567",
+    "password": "Parol",
+    "passwordPlaceholder": "Parolni kiriting",
+    "confirmPassword": "Parolni tasdiqlang",
+    "confirmPasswordPlaceholder": "Parolni tasdiqlang",
+    "role": "Rol",
+    "status": "Holat"
+  },
+  "messages": {
+    "userCreated": "Foydalanuvchi muvaffaqiyatli yaratildi",
+    "userUpdated": "Foydalanuvchi muvaffaqiyatli yangilandi",
+    "userDeleted": "Foydalanuvchi muvaffaqiyatli o'chirildi",
+    "confirmDelete": "Ushbu foydalanuvchini o'chirishga aminmisiz?",
+    "deleteWarning": "Bu harakatni bekor qilib bo'lmaydi."
+  },
+  "stats": {
+    "totalUsers": "Jami foydalanuvchilar",
+    "paidUsers": "Pullik foydalanuvchilar",
+    "activeUsers": "Faol foydalanuvchilar",
+    "pendingUsers": "Kutilayotgan foydalanuvchilar",
+    "from": "dan"
+  }
+}

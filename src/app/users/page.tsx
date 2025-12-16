@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { StatCards } from "./components/stat-cards"
 import { DataTable } from "./components/data-table"
@@ -30,6 +31,7 @@ interface UserFormValues {
 }
 
 export default function UsersPage() {
+  const { t } = useTranslation('users')
   const [users, setUsers] = useState<User[]>(initialUsersData)
 
   const generateAvatar = (name: string) => {
@@ -68,8 +70,8 @@ export default function UsersPage() {
 
   return (
     <BaseLayout 
-      title="Users" 
-      description="Manage your users and their permissions"
+      title={t('title')} 
+      description={t('subtitle')}
     >
       <div className="flex flex-col gap-4">
         <div className="@container/main px-4 lg:px-6">

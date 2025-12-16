@@ -1,0 +1,48 @@
+{
+  "title": "Boshqaruv paneli",
+  "welcome": "Boshqaruv panelingizga xush kelibsiz",
+  "overview": "Umumiy ko'rinish",
+  "statistics": "Statistika",
+  "recentActivity": "So'nggi faoliyat",
+  "quickActions": "Tezkor harakatlar",
+  "cards": {
+    "totalRevenue": "Umumiy daromad",
+    "newCustomers": "Yangi mijozlar",
+    "activeAccounts": "Faol hisoblar",
+    "growthRate": "O'sish sur'ati",
+    "trendingUp": "Bu oyda o'sish",
+    "trendingDown": "Davrda 20% pasayish",
+    "strongRetention": "Kuchli foydalanuvchilarni ushlab turish",
+    "steadyPerformance": "Barqaror ishlash ko'rsatkichi o'sishi",
+    "visitorsLast6Months": "Oxirgi 6 oy tashrif buyuruvchilari",
+    "acquisitionNeeds": "Jalb qilish e'tibor talab qiladi",
+    "engagementExceeds": "Faollik maqsadlardan oshib ketdi",
+    "meetsProjections": "O'sish prognozlariga javob beradi"
+  },
+  "table": {
+    "header": "Sarlavha",
+    "sectionType": "Bo'lim turi",
+    "status": "Holat",
+    "target": "Maqsad",
+    "limit": "Chegara",
+    "reviewer": "Tekshiruvchi",
+    "assignReviewer": "Tekshiruvchini tayinlash",
+    "selectView": "Ko'rinishni tanlang",
+    "outline": "Tuzilma",
+    "pastPerformance": "O'tgan samaradorlik",
+    "keyPersonnel": "Asosiy xodimlar",
+    "focusDocuments": "Asosiy hujjatlar",
+    "addSection": "Bo'lim qo'shish",
+    "type": "Tur",
+    "selectType": "Turni tanlang",
+    "selectStatus": "Holatni tanlang",
+    "selectReviewer": "Tekshiruvchini tanlang"
+  },
+  "chart": {
+    "visitors": "Tashrif buyuruvchilar",
+    "desktop": "Desktop",
+    "mobile": "Mobil",
+    "last3Months": "Oxirgi 3 oy",
+    "selectValue": "Qiymatni tanlang"
+  }
+}

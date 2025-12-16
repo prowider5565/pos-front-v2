@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   closestCenter,
   DndContext,
@@ -338,6 +339,7 @@ export function DataTable({
   keyPersonnelData?: z.infer<typeof schema>[]
   focusDocumentsData?: z.infer<typeof schema>[]
 }) {
+  const { t } = useTranslation(['dashboard', 'common'])
   const [data, setData] = React.useState(() => initialData)
   const [pastPerformance, setPastPerformance] = React.useState(() => pastPerformanceData)
   const [keyPersonnel, setKeyPersonnel] = React.useState(() => keyPersonnelData)
@@ -590,7 +592,7 @@ export function DataTable({
       <div className="flex items-center justify-between px-4">
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
           {currentTable.getFilteredSelectedRowModel().rows.length} of{" "}
-          {currentTable.getFilteredRowModel().rows.length} row(s) selected.
+          {currentTable.getFilteredRowModel().rows.length} {t('common:table.rowsSelected')}
         </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
           <div className="hidden items-center gap-2 lg:flex">
@@ -682,13 +684,13 @@ export function DataTable({
             size="sm"
             id="view-selector"
           >
-            <SelectValue placeholder="Select a view" />
+            <SelectValue placeholder={t('dashboard:table.selectView')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="outline">Outline</SelectItem>
-            <SelectItem value="past-performance">Past Performance</SelectItem>
-            <SelectItem value="key-personnel">Key Personnel</SelectItem>
-            <SelectItem value="focus-documents">Focus Documents</SelectItem>
+            <SelectItem value="outline">{t('dashboard:table.outline')}</SelectItem>
+            <SelectItem value="past-performance">{t('dashboard:table.pastPerformance')}</SelectItem>
+            <SelectItem value="key-personnel">{t('dashboard:table.keyPersonnel')}</SelectItem>
+            <SelectItem value="focus-documents">{t('dashboard:table.focusDocuments')}</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 sm:flex">
@@ -799,7 +801,7 @@ export function DataTable({
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredRowModel().rows.length} {t('common:table.rowsSelected')}
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">

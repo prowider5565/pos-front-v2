@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,6 +28,7 @@ const appearanceFormSchema = z.object({
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
 export default function AppearanceSettings() {
+  const { t } = useTranslation('settings')
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues: {
@@ -44,12 +46,12 @@ export default function AppearanceSettings() {
   }
 
   return (
-    <BaseLayout>
+    <BaseLayout title={t('appearance.title')} description={t('appearance.description')}>
       <div className="space-y-6 px-4 lg:px-6">
         <div>
-          <h1 className="text-3xl font-bold">Appearance</h1>
+          <h1 className="text-3xl font-bold">{t('appearance.title')}</h1>
           <p className="text-muted-foreground">
-            Customize the appearance of the application.
+            {t('appearance.description')}
           </p>
         </div>
 
@@ -220,9 +222,9 @@ export default function AppearanceSettings() {
 
             <div className="flex space-x-2 mt-12">
               <Button type="submit" className="cursor-pointer">
-                Save Preferences
+                {t('appearance.theme')}
               </Button>
-              <Button variant="outline" type="button" className="cursor-pointer">Cancel</Button>
+              <Button variant="outline" type="button" className="cursor-pointer">{t('appearance.theme')}</Button>
             </div>
           </form>
         </Form>

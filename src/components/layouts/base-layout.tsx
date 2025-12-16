@@ -3,9 +3,7 @@
 import * as React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
-import { ThemeCustomizer, ThemeCustomizerTrigger } from "@/components/theme-customizer"
-import { UpgradeToProButton } from "@/components/upgrade-to-pro-button"
+import { ThemeCustomizer } from "@/components/theme-customizer"
 import { useSidebarConfig } from "@/hooks/use-sidebar-config"
 import {
   SidebarInset,
@@ -41,7 +39,7 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
             side={config.side} 
           />
           <SidebarInset>
-            <SiteHeader />
+            <SiteHeader onThemeCustomizerOpen={() => setThemeCustomizerOpen(true)} />
             <div className="flex flex-1 flex-col">
               <div className="@container/main flex flex-1 flex-col gap-2">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -59,13 +57,12 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
                 </div>
               </div>
             </div>
-            <SiteFooter />
           </SidebarInset>
         </>
       ) : (
         <>
           <SidebarInset>
-            <SiteHeader />
+            <SiteHeader onThemeCustomizerOpen={() => setThemeCustomizerOpen(true)} />
             <div className="flex flex-1 flex-col">
               <div className="@container/main flex flex-1 flex-col gap-2">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -83,7 +80,7 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
                 </div>
               </div>
             </div>
-            <SiteFooter />
+            {/* <SiteFooter /> */}
           </SidebarInset>
           <AppSidebar 
             variant={config.variant} 
@@ -94,12 +91,10 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
       )}
       
       {/* Theme Customizer */}
-      <ThemeCustomizerTrigger onClick={() => setThemeCustomizerOpen(true)} />
       <ThemeCustomizer 
         open={themeCustomizerOpen} 
         onOpenChange={setThemeCustomizerOpen} 
       />
-      <UpgradeToProButton />
     </SidebarProvider>
   )
 }

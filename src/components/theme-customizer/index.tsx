@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Layout, Palette, RotateCcw, Settings, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -20,6 +21,7 @@ interface ThemeCustomizerProps {
 }
 
 export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
+  const { t } = useTranslation('common')
   const { applyImportedTheme, isDarkMode, resetTheme, applyRadius, setBrandColorsValues, applyTheme, applyTweakcnTheme } = useThemeManager()
   const { config: sidebarConfig, updateConfig: updateSidebarConfig } = useSidebarConfig()
 
@@ -96,7 +98,7 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Settings className="h-4 w-4" />
               </div>
-              <SheetTitle className="text-lg font-semibold">Customizer</SheetTitle>
+              <SheetTitle className="text-lg font-semibold">{t('customizer.title')}</SheetTitle>
               <div className="ml-auto flex items-center gap-2">
                 <Button variant="outline" size="icon" onClick={handleReset} className="cursor-pointer h-8 w-8">
                   <RotateCcw className="h-4 w-4" />
@@ -107,7 +109,7 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
               </div>
             </div>
             <SheetDescription className="text-sm text-muted-foreground sr-only">
-              Customize the them and layout of your dashboard.
+              {t('customizer.description')}
             </SheetDescription>
           </SheetHeader>
 
@@ -115,8 +117,8 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               <div className="py-2">
                 <TabsList className="grid w-full grid-cols-2 rounded-none h-12 p-1.5">
-                  <TabsTrigger value="theme" className="cursor-pointer data-[state=active]:bg-background"><Palette className="h-4 w-4 mr-1" /> Theme</TabsTrigger>
-                  <TabsTrigger value="layout" className="cursor-pointer data-[state=active]:bg-background"><Layout className="h-4 w-4 mr-1" /> Layout</TabsTrigger>
+                  <TabsTrigger value="theme" className="cursor-pointer data-[state=active]:bg-background"><Palette className="h-4 w-4 mr-1" /> {t('customizer.theme')}</TabsTrigger>
+                  <TabsTrigger value="layout" className="cursor-pointer data-[state=active]:bg-background"><Layout className="h-4 w-4 mr-1" /> {t('customizer.layout')}</TabsTrigger>
                 </TabsList>
                 {/* <TabsList className="grid w-full grid-cols-2 rounded-none h-12 p-1.5">
                   <TabsTrigger value="theme" className="cursor-pointer data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Palette className="h-4 w-4 mr-1" /> Theme</TabsTrigger>

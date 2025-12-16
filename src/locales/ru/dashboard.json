@@ -8,6 +8,12 @@
   "cards": {
     "totalRevenue": "Общий доход",
     "sellerProfit": "Прибыль продавца",
+    "clientDebt": "Долг клиента",
+    "supplierDebt": "Долг поставщика",
+    "clientDebtDescription": "Общий долг ваших клиентов перед вами",
+    "supplierDebtDescription": "Общий долг перед вашими поставщиками",
+    "growingUpMonth": "Растёт в этом месяце",
+    "fallingDownMonth": "Падает в этом месяце",
     "newCustomers": "Новые клиенты",
     "activeAccounts": "Активные аккаунты",
     "growthRate": "Темп роста",
@@ -41,6 +47,7 @@
   },
   "chart": {
     "visitors": "Посетители",
+    "lastTwoWeeksActivity": "Ваша визуальная активность за последние две недели",
     "desktop": "Десктоп",
     "mobile": "Мобильные",
     "last3Months": "Последние 3 месяца",

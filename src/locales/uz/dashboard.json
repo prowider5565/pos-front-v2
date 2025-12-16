@@ -8,6 +8,12 @@
   "cards": {
     "totalRevenue": "Umumiy daromad",
     "sellerProfit": "Sotuvchi foydasi",
+    "clientDebt": "Mijoz qarzi",
+    "supplierDebt": "Ta'minotchi qarzi",
+    "clientDebtDescription": "Mijozlaringizning sizdan bo'lgan umumiy qarzi",
+    "supplierDebtDescription": "Ta'minotchilaringizdan bo'lgan umumiy qarzingiz",
+    "growingUpMonth": "Ushbu oyda o'sib bormoqda",
+    "fallingDownMonth": "Ushbu oyda kamayib bormoqda",
     "newCustomers": "Yangi mijozlar",
     "activeAccounts": "Faol hisoblar",
     "growthRate": "O'sish sur'ati",
@@ -41,6 +47,7 @@
   },
   "chart": {
     "visitors": "Tashrif buyuruvchilar",
+    "lastTwoWeeksActivity": "So'nggi ikki haftalik vizual faoliyatingiz",
     "desktop": "Desktop",
     "mobile": "Mobil",
     "last3Months": "Oxirgi 3 oy",

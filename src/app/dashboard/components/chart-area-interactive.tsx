@@ -31,7 +31,13 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 
+import type { GraphDataPoint } from "@/types/analytics"
+
 export const description = "An interactive area chart"
+
+interface ChartAreaInteractiveProps {
+  graphData?: GraphDataPoint[]
+}
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
@@ -128,162 +134,115 @@ const chartData = [
 ]
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  income_uzs: {
+    label: "Income UZS",
+    color: "hsl(142, 76%, 36%)", // Green
   },
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
+  income_usd: {
+    label: "Income USD",
+    color: "hsl(142, 76%, 56%)", // Light green
   },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
+  debt_uzs: {
+    label: "Debt UZS",
+    color: "hsl(0, 84%, 60%)", // Red
+  },
+  debt_usd: {
+    label: "Debt USD",
+    color: "hsl(0, 84%, 80%)", // Light red
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+export function ChartAreaInteractive({ graphData }: ChartAreaInteractiveProps) {
   const { t } = useTranslation(['dashboard', 'common'])
-  const isMobile = useIsMobile()
-  const [timeRange, setTimeRange] = React.useState("90d")
 
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
-  }, [isMobile])
+  // Transform graph data from API to chart format
+  const chartDataFromAPI = React.useMemo(() => {
+    if (!graphData || graphData.length === 0) return []
+    
+    return graphData.map((item, index) => ({
+      day: index + 1,
+      income_uzs: parseFloat(item.income.uzs),
+      income_usd: parseFloat(item.income.usd),
+      debt_uzs: parseFloat(item.debt.uzs),
+      debt_usd: parseFloat(item.debt.usd),
+    }))
+  }, [graphData])
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
-    let daysToSubtract = 90
-    if (timeRange === "30d") {
-      daysToSubtract = 30
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7
-    }
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    return date >= startDate
-  })
+  const displayData = chartDataFromAPI.length > 0 ? chartDataFromAPI : []
 
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>{t('dashboard:chart.visitors')}</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Total for the last 3 months
-          </span>
-          <span className="@[540px]/card:hidden">{t('common:date.last3Months')}</span>
-        </CardDescription>
-        <CardAction>
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="90d">{t('common:date.last3Months')}</ToggleGroupItem>
-            <ToggleGroupItem value="30d">{t('common:date.last30Days')}</ToggleGroupItem>
-            <ToggleGroupItem value="7d">{t('common:date.last7Days')}</ToggleGroupItem>
-          </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger
-              className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder={t('common:date.last3Months')} />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">
-                {t('common:date.last3Months')}
-              </SelectItem>
-              <SelectItem value="30d" className="rounded-lg">
-                {t('common:date.last30Days')}
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg">
-                {t('common:date.last7Days')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardAction>
+        <CardTitle>{t('dashboard:chart.lastTwoWeeksActivity')}</CardTitle>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={filteredData}>
+          <AreaChart data={displayData}>
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
+              <linearGradient id="fillIncomeUzs" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-income_uzs)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-income_uzs)" stopOpacity={0.1} />
               </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
-                />
+              <linearGradient id="fillIncomeUsd" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-income_usd)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-income_usd)" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="fillDebtUzs" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-debt_uzs)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-debt_uzs)" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="fillDebtUsd" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-debt_usd)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-debt_usd)" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="date"
+              dataKey="day"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-              }}
             />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }}
+                  labelFormatter={(value) => `Day ${value}`}
                   indicator="dot"
                 />
               }
             />
             <Area
-              dataKey="mobile"
+              dataKey="income_uzs"
               type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
+              fill="url(#fillIncomeUzs)"
+              stroke="var(--color-income_uzs)"
+              strokeWidth={2}
             />
             <Area
-              dataKey="desktop"
+              dataKey="income_usd"
               type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
+              fill="url(#fillIncomeUsd)"
+              stroke="var(--color-income_usd)"
+              strokeWidth={2}
+            />
+            <Area
+              dataKey="debt_uzs"
+              type="natural"
+              fill="url(#fillDebtUzs)"
+              stroke="var(--color-debt_uzs)"
+              strokeWidth={2}
+            />
+            <Area
+              dataKey="debt_usd"
+              type="natural"
+              fill="url(#fillDebtUsd)"
+              stroke="var(--color-debt_usd)"
+              strokeWidth={2}
             />
           </AreaChart>
         </ChartContainer>

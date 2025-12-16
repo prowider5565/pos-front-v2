@@ -25,16 +25,46 @@ export function SectionCards({ data }: SectionCardsProps) {
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
   
+  // Dynamic font size based on number length
+  const getDynamicFontSize = (value: string) => {
+    // Count only digits (remove commas, dots, spaces)
+    const digitCount = value.replace(/[,.\s]/g, '').length
+    
+    // Base sizes for mobile
+    let baseSize = 'text-3xl'
+    // Responsive sizes for larger screens
+    let responsiveSize = 'sm:text-4xl'
+    
+    if (digitCount <= 5) {
+      baseSize = 'text-3xl'
+      responsiveSize = 'sm:text-4xl'
+    } else if (digitCount <= 8) {
+      baseSize = 'text-2xl'
+      responsiveSize = 'sm:text-3xl'
+    } else if (digitCount <= 10) {
+      baseSize = 'text-xl'
+      responsiveSize = 'sm:text-2xl'
+    } else if (digitCount <= 12) {
+      baseSize = 'text-lg'
+      responsiveSize = 'sm:text-xl'
+    } else {
+      baseSize = 'text-base'
+      responsiveSize = 'sm:text-lg'
+    }
+    
+    return `${baseSize} ${responsiveSize}`
+  }
+  
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <Card className="@container/card">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+      <Card className="@container/card min-w-0">
         <CardHeader>
           <CardDescription>{t('cards.totalRevenue')}</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${data ? formatCurrency(data.total_sales_revenue.amounts.usd) : '0.00'}
-          </CardTitle>
-          <div className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-muted-foreground">
+          <CardTitle className="text-xl font-semibold tabular-nums whitespace-nowrap sm:text-2xl">
             {data ? formatCurrency(data.total_sales_revenue.amounts.uzs) : '0.00'} UZS
+          </CardTitle>
+          <div className="text-xl font-semibold tabular-nums text-muted-foreground whitespace-nowrap sm:text-2xl">
+            ${data ? formatCurrency(data.total_sales_revenue.amounts.usd) : '0.00'}
           </div>
           <CardAction>
             <Badge variant="outline">
@@ -52,11 +82,11 @@ export function SectionCards({ data }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             {data?.total_sales_revenue.state.direction === 'Up' ? (
               <>
-                Growing up this month <TrendingUp className="size-4" />
+                {t('cards.growingUpMonth')} <TrendingUp className="size-4" />
               </>
             ) : (
               <>
-                Falling down this month <TrendingDown className="size-4" />
+                {t('cards.fallingDownMonth')} <TrendingDown className="size-4" />
               </>
             )}
           </div>
@@ -65,14 +95,14 @@ export function SectionCards({ data }: SectionCardsProps) {
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+      <Card className="@container/card min-w-0">
         <CardHeader>
           <CardDescription>{t('cards.sellerProfit')}</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${data ? formatCurrency(data.raw_income.amounts.usd) : '0.00'}
-          </CardTitle>
-          <div className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-muted-foreground">
+          <CardTitle className="text-xl font-semibold tabular-nums whitespace-nowrap sm:text-2xl">
             {data ? formatCurrency(data.raw_income.amounts.uzs) : '0.00'} UZS
+          </CardTitle>
+          <div className="text-xl font-semibold tabular-nums text-muted-foreground whitespace-nowrap sm:text-2xl">
+            ${data ? formatCurrency(data.raw_income.amounts.usd) : '0.00'}
           </div>
           <CardAction>
             <Badge variant="outline">
@@ -90,11 +120,11 @@ export function SectionCards({ data }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             {data?.raw_income.state.direction === 'Up' ? (
               <>
-                Growing up this month <TrendingUp className="size-4" />
+                {t('cards.growingUpMonth')} <TrendingUp className="size-4" />
               </>
             ) : (
               <>
-                Falling down this month <TrendingDown className="size-4" />
+                {t('cards.fallingDownMonth')} <TrendingDown className="size-4" />
               </>
             )}
           </div>
@@ -103,44 +133,36 @@ export function SectionCards({ data }: SectionCardsProps) {
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+      <Card className="@container/card min-w-0">
         <CardHeader>
-          <CardDescription>{t('cards.activeAccounts')}</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+          <CardDescription>{t('cards.clientDebt')}</CardDescription>
+          <CardTitle className="text-xl font-semibold tabular-nums whitespace-nowrap sm:text-2xl">
+            {data ? formatCurrency(data.client_debt.amounts.uzs) : '0.00'} UZS
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
+          <div className="text-xl font-semibold tabular-nums text-muted-foreground whitespace-nowrap sm:text-2xl">
+            ${data ? formatCurrency(data.client_debt.amounts.usd) : '0.00'}
+          </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            {t('cards.strongRetention')} <TrendingUp className="size-4" />
+          <div className="text-muted-foreground">
+            {t('cards.clientDebtDescription')}
           </div>
-          <div className="text-muted-foreground">{t('cards.engagementExceeds')}</div>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+      <Card className="@container/card min-w-0">
         <CardHeader>
-          <CardDescription>{t('cards.growthRate')}</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
+          <CardDescription>{t('cards.supplierDebt')}</CardDescription>
+          <CardTitle className="text-xl font-semibold tabular-nums whitespace-nowrap sm:text-2xl">
+            {data ? formatCurrency(data.supplier_debt.amounts.uzs) : '0.00'} UZS
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUp />
-              +4.5%
-            </Badge>
-          </CardAction>
+          <div className="text-xl font-semibold tabular-nums text-muted-foreground whitespace-nowrap sm:text-2xl">
+            ${data ? formatCurrency(data.supplier_debt.amounts.usd) : '0.00'}
+          </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            {t('cards.steadyPerformance')} <TrendingUp className="size-4" />
+          <div className="text-muted-foreground">
+            {t('cards.supplierDebtDescription')}
           </div>
-          <div className="text-muted-foreground">{t('cards.meetsProjections')}</div>
         </CardFooter>
       </Card>
     </div>

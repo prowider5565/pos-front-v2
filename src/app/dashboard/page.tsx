@@ -49,7 +49,7 @@ export default function Page() {
               <QuickActionsBar />
             </div>
             <div className="lg:col-span-2">
-              <ChartAreaInteractive />
+              <ChartAreaInteractive graphData={analyticsData?.graph_data} />
             </div>
           </div>
         </div>

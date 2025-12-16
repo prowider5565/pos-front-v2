@@ -8,6 +8,12 @@
   "cards": {
     "totalRevenue": "Total Revenue",
     "sellerProfit": "Seller Profit",
+    "clientDebt": "Client Debt",
+    "supplierDebt": "Supplier Debt",
+    "clientDebtDescription": "Total debt your clients have from you",
+    "supplierDebtDescription": "Total debt you have from your suppliers",
+    "growingUpMonth": "Growing up this month",
+    "fallingDownMonth": "Falling down this month",
     "newCustomers": "New Customers",
     "activeAccounts": "Active Accounts",
     "growthRate": "Growth Rate",
@@ -41,6 +47,7 @@
   },
   "chart": {
     "visitors": "Visitors",
+    "lastTwoWeeksActivity": "Your last two weeks of visual activity",
     "desktop": "Desktop",
     "mobile": "Mobile",
     "last3Months": "Last 3 months",

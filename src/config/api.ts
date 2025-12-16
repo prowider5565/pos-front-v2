@@ -39,6 +39,11 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/users/clients/${id}/`,
     DELETE: (id: number) => `/api/users/clients/${id}/`,
   },
+  
+  // Analytics endpoints
+  ANALYTICS: {
+    DASHBOARD_METRICS: '/api/analytics/metrics/',
+  },
 } as const
 
 /**

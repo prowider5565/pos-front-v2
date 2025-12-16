@@ -7,6 +7,7 @@
   "quickActions": "Quick Actions",
   "cards": {
     "totalRevenue": "Total Revenue",
+    "sellerProfit": "Seller Profit",
     "newCustomers": "New Customers",
     "activeAccounts": "Active Accounts",
     "growthRate": "Growth Rate",

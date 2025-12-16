@@ -14,9 +14,10 @@ interface BaseLayoutProps {
   children: React.ReactNode
   title?: string
   description?: string
+  actions?: React.ReactNode
 }
 
-export function BaseLayout({ children, title, description }: BaseLayoutProps) {
+export function BaseLayout({ children, title, description, actions }: BaseLayoutProps) {
   const [themeCustomizerOpen, setThemeCustomizerOpen] = React.useState(false)
   const { config } = useSidebarConfig()
 
@@ -45,10 +46,17 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                   {title && (
                     <div className="px-4 lg:px-6">
-                      <div className="flex flex-col gap-2">
-                        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-                        {description && (
-                          <p className="text-muted-foreground">{description}</p>
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-2">
+                          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+                          {description && (
+                            <p className="text-muted-foreground">{description}</p>
+                          )}
+                        </div>
+                        {actions && (
+                          <div className="flex-shrink-0">
+                            {actions}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -68,10 +76,17 @@ export function BaseLayout({ children, title, description }: BaseLayoutProps) {
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                   {title && (
                     <div className="px-4 lg:px-6">
-                      <div className="flex flex-col gap-2">
-                        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-                        {description && (
-                          <p className="text-muted-foreground">{description}</p>
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-2">
+                          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+                          {description && (
+                            <p className="text-muted-foreground">{description}</p>
+                          )}
+                        </div>
+                        {actions && (
+                          <div className="flex-shrink-0">
+                            {actions}
+                          </div>
                         )}
                       </div>
                     </div>

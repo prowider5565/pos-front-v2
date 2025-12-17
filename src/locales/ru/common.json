@@ -28,9 +28,13 @@
   "actions": {
     "loading": "Загрузка...",
     "saving": "Сохранение...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
     "deleting": "Удаление...",
     "processing": "Обработка...",
-    "searching": "Поиск..."
+    "searching": "Поиск...",
+    "edit": "Изменить",
+    "archive": "Архивировать"
   },
   "messages": {
     "success": "Успешно",
@@ -47,6 +51,9 @@
   "navigation": {
     "dashboard": "Панель",
     "users": "Пользователи",
+    "employees": "Сотрудники",
+    "suppliers": "Поставщики",
+    "clients": "Клиенты",
     "settings": "Настройки",
     "profile": "Профиль",
     "account": "Аккаунт",
@@ -65,7 +72,10 @@
     "internalServerError": "Внутренняя ошибка сервера",
     "underMaintenance": "На обслуживании",
     "system": "Система",
-    "management": "Управление"
+    "management": "Пользователи",
+    "savdo": "Торговля",
+    "sotuv": "Продажа",
+    "mahsulotlar": "Продукты"
   },
   "table": {
     "columns": "Столбцы",
@@ -141,5 +151,9 @@
     "copyright": "© {{year}} Savdo Tizimi. Все права защищены.",
     "termsOfService": "Условия использования",
     "privacyPolicy": "Политика конфиденциальности"
-  }
+  },
+  "exchangeRate": "Курс валюты",
+  "exchangeRatePlaceholder": "Введите курс валюты",
+  "exchangeRateSaved": "Курс валюты успешно сохранен",
+  "invalidExchangeRate": "Пожалуйста, введите правильный курс валюты"
 }

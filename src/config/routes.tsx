@@ -5,6 +5,14 @@ import { ProtectedRoute } from '@/components/router/protected-route'
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('@/app/dashboard/page'))
 const Users = lazy(() => import('@/app/users/page'))
+const Suppliers = lazy(() => import('@/app/suppliers/page'))
+const Clients = lazy(() => import('@/app/clients/page'))
+
+// Savdo (Sales) pages
+const Sotuv = lazy(() => import('@/app/savdo/sotuv/page'))
+const ProductsSuppliers = lazy(() => import('@/app/products/page'))
+const ProductsBySupplier = lazy(() => import('@/app/products/[supplierId]/page'))
+const ProductDetail = lazy(() => import('@/app/products/[supplierId]/[productId]/page'))
 
 // Auth pages
 const SignIn = lazy(() => import('@/app/auth/sign-in/page'))
@@ -52,6 +60,58 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <Users />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/suppliers",
+    element: (
+      <ProtectedRoute>
+        <Suppliers />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/clients",
+    element: (
+      <ProtectedRoute>
+        <Clients />
+      </ProtectedRoute>
+    )
+  },
+
+  // Savdo (Sales) Routes (Protected)
+  {
+    path: "/savdo/sotuv",
+    element: (
+      <ProtectedRoute>
+        <Sotuv />
+      </ProtectedRoute>
+    )
+  },
+  
+  // Products Routes (Protected)
+  {
+    path: "/products",
+    element: (
+      <ProtectedRoute>
+        <ProductsSuppliers />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/products/:supplierId",
+    element: (
+      <ProtectedRoute>
+        <ProductsBySupplier />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/products/:supplierId/:productId",
+    element: (
+      <ProtectedRoute>
+        <ProductDetail />
       </ProtectedRoute>
     )
   },

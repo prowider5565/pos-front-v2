@@ -1,0 +1,34 @@
+{
+  "title": "Mijozlar",
+  "subtitle": "Mijozlaringiz va ularning ma'lumotlarini boshqaring",
+  "addClient": "Mijoz qo'shish",
+  "editClient": "Mijozni tahrirlash",
+  "addClientDescription": "Yangi mijoz qo'shish uchun quyidagi ma'lumotlarni to'ldiring",
+  "editClientDescription": "Mijoz ma'lumotlarini quyida yangilang",
+  "searchPlaceholder": "Mijozlarni ism yoki telefon raqami bo'yicha qidiring...",
+  "table": {
+    "fullName": "To'liq ism",
+    "phoneNumber": "Telefon raqami",
+    "oldDebt": "Eski qarz",
+    "actions": "Harakatlar"
+  },
+  "form": {
+    "fullName": "To'liq ism",
+    "fullNamePlaceholder": "To'liq ismni kiriting",
+    "phoneNumber": "Telefon raqami",
+    "phoneNumberPlaceholder": "Telefon raqamini kiriting",
+    "hasOldDebt": "Mijozning eski qarzi bor",
+    "oldDebtDetails": "Eski qarz ma'lumotlari",
+    "amount": "Miqdor",
+    "amountPlaceholder": "Miqdorni kiriting",
+    "currency": "Valyuta",
+    "currencyPlaceholder": "Valyutani tanlang",
+    "exchangeRate": "Valyuta kursi",
+    "exchangeRatePlaceholder": "Valyuta kursini kiriting"
+  },
+  "messages": {
+    "clientCreated": "Mijoz muvaffaqiyatli yaratildi",
+    "clientUpdated": "Mijoz muvaffaqiyatli yangilandi",
+    "clientDeleted": "Mijoz muvaffaqiyatli o'chirildi"
+  }
+}

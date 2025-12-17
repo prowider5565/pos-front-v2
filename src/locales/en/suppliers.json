@@ -1,0 +1,54 @@
+{
+  "title": "Suppliers",
+  "subtitle": "Manage your suppliers and their information",
+  "addSupplier": "Add Supplier",
+  "editSupplier": "Edit Supplier",
+  "deleteSupplier": "Delete Supplier",
+  "supplierDetails": "Supplier Details",
+  "totalSuppliers": "Total Suppliers",
+  "activeSuppliers": "Active Suppliers",
+  "inactiveSuppliers": "Inactive Suppliers",
+  "searchPlaceholder": "Search by name or company...",
+  "table": {
+    "companyName": "Company Name",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "oldDebt": "Old Debt",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "form": {
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "Enter company name",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter full name",
+    "phoneNumber": "Phone Number",
+    "oldDebt": "Old Debt",
+    "amount": "Amount",
+    "amountPlaceholder": "Enter amount",
+    "exchangeRate": "Exchange Rate",
+    "exchangeRatePlaceholder": "Enter exchange rate",
+    "currency": "Currency"
+  },
+  "messages": {
+    "supplierCreated": "Supplier created successfully",
+    "supplierUpdated": "Supplier updated successfully",
+    "supplierDeleted": "Supplier deleted successfully"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "plan": {
+    "free": "Free",
+    "pro": "Pro",
+    "enterprise": "Enterprise"
+  },
+  "role": {
+    "admin": "Admin",
+    "user": "User",
+    "viewer": "Viewer"
+  }
+}

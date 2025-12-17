@@ -53,3 +53,81 @@ export interface AnalyticsDashboard {
   suppliers_count: number
   archived_counts: ArchivedCounts
 }
+
+export interface LowStockProduct {
+  id: number
+  name: string
+  image: string
+  product_type: string
+  category: number
+  category_name: string
+  total_quantity: number
+  created_at: string
+}
+
+export interface LowStockResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: LowStockProduct[]
+}
+
+export interface PendingSale {
+  id: number
+  client: number
+  client_name: string
+  total_amount: string
+  discount_amount: string
+  status: string
+  exchange_rate: string
+  needs_cheque: boolean
+  notes: string
+  created_at: string
+}
+
+export interface PendingSalesResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: PendingSale[]
+}
+
+export interface PartiallyPaidSale {
+  id: number
+  client: number
+  client_name: string
+  total_amount: string
+  discount_amount: string
+  status: string
+  exchange_rate: string
+  needs_cheque: boolean
+  notes: string
+  created_at: string
+}
+
+export interface PartiallyPaidSalesResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: PartiallyPaidSale[]
+}
+
+export interface FullyPaidSale {
+  id: number
+  client: number
+  client_name: string
+  total_amount: string
+  discount_amount: string
+  status: string
+  exchange_rate: string
+  needs_cheque: boolean
+  notes: string | null
+  created_at: string
+}
+
+export interface FullyPaidSalesResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: FullyPaidSale[]
+}

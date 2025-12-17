@@ -28,9 +28,13 @@
   "actions": {
     "loading": "Yuklanmoqda...",
     "saving": "Saqlanmoqda...",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
     "deleting": "O'chirilmoqda...",
     "processing": "Qayta ishlanmoqda...",
-    "searching": "Qidirilmoqda..."
+    "searching": "Qidirilmoqda...",
+    "edit": "Tahrirlash",
+    "archive": "Arxivlash"
   },
   "messages": {
     "success": "Muvaffaqiyatli",
@@ -47,6 +51,9 @@
   "navigation": {
     "dashboard": "Boshqaruv paneli",
     "users": "Foydalanuvchilar",
+    "employees": "Ishchilar",
+    "suppliers": "Yetkazib beruvchilar",
+    "clients": "Mijozlar",
     "settings": "Sozlamalar",
     "profile": "Profil",
     "account": "Hisob",
@@ -65,7 +72,10 @@
     "internalServerError": "Ichki server xatosi",
     "underMaintenance": "Texnik xizmat ko'rsatilmoqda",
     "system": "Tizim",
-    "management": "Boshqaruv"
+    "management": "Foydalanuvchilar",
+    "savdo": "Savdo",
+    "sotuv": "Sotuv",
+    "mahsulotlar": "Mahsulotlar"
   },
   "table": {
     "columns": "Ustunlar",
@@ -141,5 +151,9 @@
     "copyright": "© {{year}} Savdo Tizimi. Barcha huquqlar himoyalangan.",
     "termsOfService": "Foydalanish shartlari",
     "privacyPolicy": "Maxfiylik siyosati"
-  }
+  },
+  "exchangeRate": "Valyuta kursi",
+  "exchangeRatePlaceholder": "Valyuta kursini kiriting",
+  "exchangeRateSaved": "Valyuta kursi muvaffaqiyatli saqlandi",
+  "invalidExchangeRate": "Iltimos, to'g'ri valyuta kursini kiriting"
 }

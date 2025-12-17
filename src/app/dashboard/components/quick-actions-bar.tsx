@@ -1,4 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card'
+import { useTranslation } from 'react-i18next'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
   Package, 
   PackageOpen, 
@@ -11,58 +12,63 @@ import {
   ClipboardList
 } from 'lucide-react'
 
-const quickActions = [
-  {
-    icon: Package,
-    label: 'Add New Product',
-    onClick: () => console.log('Add new product'),
-  },
-  {
-    icon: PackageOpen,
-    label: 'Import New Batch',
-    onClick: () => console.log('Import new batch'),
-  },
-  {
-    icon: Store,
-    label: 'Add New Supplier',
-    onClick: () => console.log('Add new supplier'),
-  },
-  {
-    icon: Users,
-    label: 'Add New Client',
-    onClick: () => console.log('Add new client'),
-  },
-  {
-    icon: UserPlus,
-    label: 'Add New Staff',
-    onClick: () => console.log('Add new staff'),
-  },
-  {
-    icon: Wallet,
-    label: 'Pay Client Debt',
-    onClick: () => console.log('Pay client debt'),
-  },
-  {
-    icon: CreditCard,
-    label: 'Pay Supplier Debt',
-    onClick: () => console.log('Pay supplier debt'),
-  },
-  {
-    icon: FileText,
-    label: 'Add Old Client Debt',
-    onClick: () => console.log('Add old client debt'),
-  },
-  {
-    icon: ClipboardList,
-    label: 'Add Old Seller Debt',
-    onClick: () => console.log('Add old seller debt'),
-  },
-]
-
 export function QuickActionsBar() {
+  const { t } = useTranslation('dashboard')
+  
+  const quickActions = [
+    {
+      icon: Package,
+      labelKey: 'quickActions.addProduct',
+      onClick: () => console.log('Add new product'),
+    },
+    {
+      icon: PackageOpen,
+      labelKey: 'quickActions.importBatch',
+      onClick: () => console.log('Import new batch'),
+    },
+    {
+      icon: Store,
+      labelKey: 'quickActions.addSupplier',
+      onClick: () => console.log('Add new supplier'),
+    },
+    {
+      icon: Users,
+      labelKey: 'quickActions.addClient',
+      onClick: () => console.log('Add new client'),
+    },
+    {
+      icon: UserPlus,
+      labelKey: 'quickActions.addStaff',
+      onClick: () => console.log('Add new staff'),
+    },
+    {
+      icon: Wallet,
+      labelKey: 'quickActions.payClientDebt',
+      onClick: () => console.log('Pay client debt'),
+    },
+    {
+      icon: CreditCard,
+      labelKey: 'quickActions.paySupplierDebt',
+      onClick: () => console.log('Pay supplier debt'),
+    },
+    {
+      icon: FileText,
+      labelKey: 'quickActions.addOldClientDebt',
+      onClick: () => console.log('Add old client debt'),
+    },
+    {
+      icon: ClipboardList,
+      labelKey: 'quickActions.addOldSellerDebt',
+      onClick: () => console.log('Add old seller debt'),
+    },
+  ]
+
   return (
     <Card className="h-full">
-      <CardContent className="p-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">{t('quickActions.title')}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
         <div className="grid grid-cols-3 gap-3">
           {quickActions.map((action, index) => {
             const Icon = action.icon
@@ -74,7 +80,7 @@ export function QuickActionsBar() {
               >
                 <Icon className="h-8 w-8" />
                 <span className="text-center text-xs font-medium leading-tight">
-                  {action.label}
+                  {t(action.labelKey)}
                 </span>
               </button>
             )

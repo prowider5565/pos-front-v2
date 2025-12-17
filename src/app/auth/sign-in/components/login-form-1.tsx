@@ -6,6 +6,7 @@ import { z } from "zod"
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +44,7 @@ export function LoginForm1({
   const { t } = useTranslation('auth')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string>("")
+  const [showPassword, setShowPassword] = useState(false)
 
   const loginFormSchema = z.object({
     login: z.string().min(1, t('login.errors.usernameTooShort')),
@@ -151,12 +153,31 @@ export function LoginForm1({
                           </a>
                         </div>
                         <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder={t('login.passwordPlaceholder')}
-                            disabled={isLoading}
-                            {...field} 
-                          />
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"}
+                              placeholder={t('login.passwordPlaceholder')}
+                              disabled={isLoading}
+                              {...field} 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                              disabled={isLoading}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <span className="sr-only">
+                                {showPassword ? "Hide password" : "Show password"}
+                              </span>
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

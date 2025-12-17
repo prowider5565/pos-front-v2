@@ -4,6 +4,8 @@ import * as React from "react"
 import {
   LayoutDashboard,
   Users,
+  ShoppingCart,
+  Package,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -41,9 +43,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       label: t('navigation.management'),
       items: [
         {
-          title: t('navigation.users'),
+          title: t('navigation.clients'),
+          url: "/clients",
+          icon: Users,
+        },
+        {
+          title: t('navigation.suppliers'),
+          url: "/suppliers",
+          icon: Users,
+        },
+        {
+          title: t('navigation.employees'),
           url: "/users",
           icon: Users,
+        },
+      ],
+    },
+    {
+      label: t('navigation.savdo'),
+      items: [
+        {
+          title: t('navigation.sotuv'),
+          url: "/savdo/sotuv",
+          icon: ShoppingCart,
+        },
+        {
+          title: t('navigation.mahsulotlar'),
+          url: "/products",
+          icon: Package,
         },
       ],
     },

@@ -4,7 +4,10 @@
  */
 
 // Get API base URL from environment variable with fallback
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+
+// Media base URL for serving static files (with /api prefix for media endpoint)
+export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://localhost:8080/api'
 
 /**
  * API Endpoints
@@ -13,36 +16,47 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 export const API_ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
-    LOGIN: '/api/users/auth/login/',
-    REFRESH_TOKEN: '/api/users/auth/token/refresh/',
-    ME: '/api/users/auth/me/',
-    ADD_USER: '/api/users/auth/add-user/',
-    LIST_USERS: '/api/users/auth/list/',
-    DISABLE_USER: (userId: number) => `/api/users/auth/disable-user/${userId}/`,
+    LOGIN: '/users/auth/login/',
+    REFRESH_TOKEN: '/users/auth/token/refresh/',
+    ME: '/users/auth/me/',
+    ADD_USER: '/users/auth/add-user/',
+    LIST_USERS: '/users/auth/list/',
+    DISABLE_USER: (userId: number) => `/users/auth/disable-user/${userId}/`,
   },
   
   // Supplier endpoints
   SUPPLIERS: {
-    LIST: '/api/users/suppliers/',
-    DETAIL: (id: number) => `/api/users/suppliers/${id}/`,
-    CREATE: '/api/users/suppliers/',
-    UPDATE: (id: number) => `/api/users/suppliers/${id}/`,
-    DELETE: (id: number) => `/api/users/suppliers/${id}/`,
-    DEBTS: (id: number) => `/api/users/suppliers/${id}/debts/`,
+    LIST: '/users/suppliers/',
+    DETAIL: (id: number) => `/users/suppliers/${id}/`,
+    CREATE: '/users/suppliers/',
+    UPDATE: (id: number) => `/users/suppliers/${id}/`,
+    DELETE: (id: number) => `/users/suppliers/${id}/`,
+    DEBTS: (id: number) => `/users/suppliers/${id}/debts/`,
   },
   
   // Client endpoints
   CLIENTS: {
-    LIST: '/api/users/clients/',
-    DETAIL: (id: number) => `/api/users/clients/${id}/`,
-    CREATE: '/api/users/clients/',
-    UPDATE: (id: number) => `/api/users/clients/${id}/`,
-    DELETE: (id: number) => `/api/users/clients/${id}/`,
+    LIST: '/users/clients/',
+    DETAIL: (id: number) => `/users/clients/${id}/`,
+    CREATE: '/users/clients/',
+    UPDATE: (id: number) => `/users/clients/${id}/`,
+    DELETE: (id: number) => `/users/clients/${id}/`,
+  },
+  
+  // Product endpoints
+  PRODUCTS: {
+    BY_SUPPLIER: (supplierId: number) => `/products/suppliers/${supplierId}/products/`,
+    DETAIL: (productId: number) => `/products/products/${productId}/`,
+    BATCHES: (productId: number) => `/products/products/${productId}/batches/`,
   },
   
   // Analytics endpoints
   ANALYTICS: {
-    DASHBOARD_METRICS: '/api/analytics/metrics/',
+    DASHBOARD_METRICS: '/analytics/metrics/',
+    LOW_STOCK: '/analytics/lists/low-stock/',
+    SALES_PENDING: '/analytics/lists/sales-pending/',
+    SALES_PARTIALLY_PAID: '/analytics/lists/sales-partially-paid/',
+    SALES_FULLY_PAID: '/analytics/lists/sales-paid/',
   },
 } as const
 

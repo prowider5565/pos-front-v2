@@ -1,0 +1,34 @@
+{
+  "title": "Clients",
+  "subtitle": "Manage your clients and their information",
+  "addClient": "Add Client",
+  "editClient": "Edit Client",
+  "addClientDescription": "Fill in the information below to add a new client",
+  "editClientDescription": "Update the client information below",
+  "searchPlaceholder": "Search clients by name or phone...",
+  "table": {
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "oldDebt": "Old Debt",
+    "actions": "Actions"
+  },
+  "form": {
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter full name",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Enter phone number",
+    "hasOldDebt": "Client has old debt",
+    "oldDebtDetails": "Old Debt Details",
+    "amount": "Amount",
+    "amountPlaceholder": "Enter amount",
+    "currency": "Currency",
+    "currencyPlaceholder": "Select currency",
+    "exchangeRate": "Exchange Rate",
+    "exchangeRatePlaceholder": "Enter exchange rate"
+  },
+  "messages": {
+    "clientCreated": "Client created successfully",
+    "clientUpdated": "Client updated successfully",
+    "clientDeleted": "Client deleted successfully"
+  }
+}

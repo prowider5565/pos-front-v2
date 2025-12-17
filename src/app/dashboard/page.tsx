@@ -6,6 +6,7 @@ import { DataTable } from "./components/data-table"
 import { SectionCards } from "./components/section-cards"
 import { SectionCardsSkeleton } from "./components/section-cards-skeleton"
 import { QuickActionsBar } from "./components/quick-actions-bar"
+import { MetricsCards } from "./components/metrics-cards"
 import { DashboardFilter } from "./components/dashboard-filter"
 import type { DateFilterParams, FilterType } from "./components/dashboard-filter"
 import { useAnalyticsDashboard } from "@/hooks/use-analytics"
@@ -52,6 +53,7 @@ export default function Page() {
               <ChartAreaInteractive graphData={analyticsData?.graph_data} />
             </div>
           </div>
+          <MetricsCards data={analyticsData} />
         </div>
         <div className="@container/main">
           <DataTable 
@@ -59,6 +61,7 @@ export default function Page() {
             pastPerformanceData={pastPerformanceData}
             keyPersonnelData={keyPersonnelData}
             focusDocumentsData={focusDocumentsData}
+            filterParams={filterParams}
           />
         </div>
     </BaseLayout>

@@ -116,6 +116,13 @@ async function processResponse<T>(response: Response): Promise<T> {
       ? await response.json() 
       : { detail: response.statusText }
     
+    console.error('API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      errorData
+    })
+    
     throw new ApiException(response.status, errorData)
   }
 

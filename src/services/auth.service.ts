@@ -79,12 +79,13 @@ export const authService = {
 
   /**
    * List all users with optional filtering (superuser only)
-   * @param params - Query parameters (is_active, page)
+   * @param params - Query parameters (is_active, page, search)
    * @returns Promise with paginated user list
    */
   listUsers: async (params?: {
     is_active?: boolean
     page?: number
+    search?: string
   }): Promise<{
     count: number
     current_page: number
@@ -100,6 +101,9 @@ export const authService = {
     }
     if (params?.page) {
       queryParams.append('page', String(params.page))
+    }
+    if (params?.search) {
+      queryParams.append('search', params.search)
     }
     
     const endpoint = queryParams.toString()

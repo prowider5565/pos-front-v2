@@ -1,0 +1,54 @@
+{
+  "title": "Yetkazib beruvchilar",
+  "subtitle": "Yetkazib beruvchilar va ularning ma'lumotlarini boshqaring",
+  "addSupplier": "Yetkazib beruvchi qo'shish",
+  "editSupplier": "Yetkazib beruvchini tahrirlash",
+  "deleteSupplier": "Yetkazib beruvchini o'chirish",
+  "supplierDetails": "Yetkazib beruvchi ma'lumotlari",
+  "totalSuppliers": "Jami yetkazib beruvchilar",
+  "activeSuppliers": "Faol yetkazib beruvchilar",
+  "inactiveSuppliers": "Nofaol yetkazib beruvchilar",
+  "searchPlaceholder": "Ism yoki kompaniya bo'yicha qidirish...",
+  "table": {
+    "companyName": "Kompaniya nomi",
+    "fullName": "To'liq ism",
+    "phoneNumber": "Telefon raqami",
+    "oldDebt": "Eski qarz",
+    "status": "Holati",
+    "actions": "Amallar",
+    "active": "Faol",
+    "inactive": "Nofaol"
+  },
+  "form": {
+    "companyName": "Kompaniya nomi",
+    "companyNamePlaceholder": "Kompaniya nomini kiriting",
+    "fullName": "To'liq ism",
+    "fullNamePlaceholder": "To'liq ismni kiriting",
+    "phoneNumber": "Telefon raqami",
+    "oldDebt": "Eski qarz",
+    "amount": "Miqdor",
+    "amountPlaceholder": "Miqdorni kiriting",
+    "exchangeRate": "Valyuta kursi",
+    "exchangeRatePlaceholder": "Valyuta kursini kiriting",
+    "currency": "Valyuta"
+  },
+  "messages": {
+    "supplierCreated": "Yetkazib beruvchi muvaffaqiyatli yaratildi",
+    "supplierUpdated": "Yetkazib beruvchi muvaffaqiyatli yangilandi",
+    "supplierDeleted": "Yetkazib beruvchi muvaffaqiyatli o'chirildi"
+  },
+  "status": {
+    "active": "Faol",
+    "inactive": "Nofaol"
+  },
+  "plan": {
+    "free": "Bepul",
+    "pro": "Pro",
+    "enterprise": "Korporativ"
+  },
+  "role": {
+    "admin": "Administrator",
+    "user": "Foydalanuvchi",
+    "viewer": "Kuzatuvchi"
+  }
+}

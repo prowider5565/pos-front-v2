@@ -28,9 +28,13 @@
   "actions": {
     "loading": "Loading...",
     "saving": "Saving...",
+    "save": "Save",
+    "cancel": "Cancel",
     "deleting": "Deleting...",
     "processing": "Processing...",
-    "searching": "Searching..."
+    "searching": "Searching...",
+    "edit": "Edit",
+    "archive": "Archive"
   },
   "messages": {
     "success": "Success",
@@ -47,6 +51,9 @@
   "navigation": {
     "dashboard": "Dashboard",
     "users": "Users",
+    "employees": "Employees",
+    "suppliers": "Suppliers",
+    "clients": "Clients",
     "settings": "Settings",
     "profile": "Profile",
     "account": "Account",
@@ -65,7 +72,10 @@
     "internalServerError": "Internal Server Error",
     "underMaintenance": "Under Maintenance",
     "system": "System",
-    "management": "Management"
+    "management": "Users",
+    "savdo": "Sales",
+    "sotuv": "Sale",
+    "mahsulotlar": "Products"
   },
   "table": {
     "columns": "Columns",
@@ -141,5 +151,9 @@
     "copyright": "© {{year}} Savdo Tizimi. All rights reserved.",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy"
-  }
+  },
+  "exchangeRate": "Exchange Rate",
+  "exchangeRatePlaceholder": "Enter exchange rate",
+  "exchangeRateSaved": "Exchange rate saved successfully",
+  "invalidExchangeRate": "Please enter a valid exchange rate"
 }

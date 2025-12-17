@@ -91,7 +91,7 @@ export function SectionCards({ data }: SectionCardsProps) {
             )}
           </div>
           <div className="text-muted-foreground">
-            {t('cards.visitorsLast6Months')}
+            {t('cards.revenueDescription')}
           </div>
         </CardFooter>
       </Card>
@@ -129,7 +129,7 @@ export function SectionCards({ data }: SectionCardsProps) {
             )}
           </div>
           <div className="text-muted-foreground">
-            {t('cards.visitorsLast6Months')}
+            {t('cards.profitDescription')}
           </div>
         </CardFooter>
       </Card>

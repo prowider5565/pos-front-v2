@@ -13,6 +13,11 @@ import {
   type DragEndEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core"
+import { LowStockTable } from "./low-stock-table"
+import { PendingSalesTable } from "./pending-sales-table"
+import { PartiallyPaidSalesTable } from "./partially-paid-sales-table"
+import { FullyPaidSalesTable } from "./fully-paid-sales-table"
+import type { DateFilterParams } from "./dashboard-filter"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import {
   arrayMove,
@@ -333,11 +338,13 @@ export function DataTable({
   pastPerformanceData = [],
   keyPersonnelData = [],
   focusDocumentsData = [],
+  filterParams,
 }: {
   data: z.infer<typeof schema>[]
   pastPerformanceData?: z.infer<typeof schema>[]
   keyPersonnelData?: z.infer<typeof schema>[]
   focusDocumentsData?: z.infer<typeof schema>[]
+  filterParams?: DateFilterParams
 }) {
   const { t } = useTranslation(['dashboard', 'common'])
   const [data, setData] = React.useState(() => initialData)
@@ -671,14 +678,14 @@ export function DataTable({
 
   return (
     <Tabs
-      defaultValue="outline"
+      defaultValue="low-stock"
       className="w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between px-4 lg:px-6 flex-wrap gap-3">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select defaultValue="outline">
+        <Select defaultValue="low-stock">
           <SelectTrigger
             className="flex w-fit sm:hidden cursor-pointer"
             size="sm"
@@ -687,64 +694,51 @@ export function DataTable({
             <SelectValue placeholder={t('dashboard:table.selectView')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="outline">{t('dashboard:table.outline')}</SelectItem>
-            <SelectItem value="past-performance">{t('dashboard:table.pastPerformance')}</SelectItem>
-            <SelectItem value="key-personnel">{t('dashboard:table.keyPersonnel')}</SelectItem>
-            <SelectItem value="focus-documents">{t('dashboard:table.focusDocuments')}</SelectItem>
+            <SelectItem value="low-stock">{t('dashboard:table.lowStock')}</SelectItem>
+            <SelectItem value="pending-sales">{t('dashboard:table.pendingSales')}</SelectItem>
+            <SelectItem value="partially-paid-sales">{t('dashboard:table.partiallyPaidSales')}</SelectItem>
+            <SelectItem value="fully-paid-sales">{t('dashboard:table.fullyPaidSales')}</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 sm:flex">
-          <TabsTrigger value="outline" className="cursor-pointer">Outline</TabsTrigger>
-          <TabsTrigger value="past-performance" className="cursor-pointer">
-            Past Performance <Badge variant="secondary">3</Badge>
+          <TabsTrigger value="low-stock" className="cursor-pointer">{t('dashboard:table.lowStock')}</TabsTrigger>
+          <TabsTrigger value="pending-sales" className="cursor-pointer">
+            {t('dashboard:table.pendingSales')}
           </TabsTrigger>
-          <TabsTrigger value="key-personnel" className="cursor-pointer">
-            Key Personnel <Badge variant="secondary">2</Badge>
+          <TabsTrigger value="partially-paid-sales" className="cursor-pointer">
+            {t('dashboard:table.partiallyPaidSales')}
           </TabsTrigger>
-          <TabsTrigger value="focus-documents" className="cursor-pointer">Focus Documents</TabsTrigger>
+          <TabsTrigger value="fully-paid-sales" className="cursor-pointer">
+            {t('dashboard:table.fullyPaidSales')}
+          </TabsTrigger>
         </TabsList>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="cursor-pointer">
-                <Columns2 />
-                <span className="hidden lg:inline">Customize Columns</span>
-                <span className="lg:hidden">Columns</span>
-                <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {table
-                .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" size="sm" className="cursor-pointer">
-            <Plus />
-            <span className="hidden lg:inline">Add Section</span>
-          </Button>
-        </div>
       </div>
       <TabsContent
-        value="outline"
+        value="low-stock"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <LowStockTable />
+      </TabsContent>
+      <TabsContent
+        value="pending-sales"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <PendingSalesTable filterParams={filterParams} />
+      </TabsContent>
+      <TabsContent
+        value="partially-paid-sales"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <PartiallyPaidSalesTable filterParams={filterParams} />
+      </TabsContent>
+      <TabsContent
+        value="fully-paid-sales"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <FullyPaidSalesTable filterParams={filterParams} />
+      </TabsContent>
+      <TabsContent
+        value="outline-old"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="overflow-hidden rounded-lg border">

@@ -1,0 +1,54 @@
+{
+  "title": "Поставщики",
+  "subtitle": "Управляйте поставщиками и их информацией",
+  "addSupplier": "Добавить поставщика",
+  "editSupplier": "Изменить поставщика",
+  "deleteSupplier": "Удалить поставщика",
+  "supplierDetails": "Данные поставщика",
+  "totalSuppliers": "Всего поставщиков",
+  "activeSuppliers": "Активные поставщики",
+  "inactiveSuppliers": "Неактивные поставщики",
+  "searchPlaceholder": "Поиск по имени или компании...",
+  "table": {
+    "companyName": "Название компании",
+    "fullName": "Полное имя",
+    "phoneNumber": "Номер телефона",
+    "oldDebt": "Старый долг",
+    "status": "Статус",
+    "actions": "Действия",
+    "active": "Активный",
+    "inactive": "Неактивный"
+  },
+  "form": {
+    "companyName": "Название компании",
+    "companyNamePlaceholder": "Введите название компании",
+    "fullName": "Полное имя",
+    "fullNamePlaceholder": "Введите полное имя",
+    "phoneNumber": "Номер телефона",
+    "oldDebt": "Старый долг",
+    "amount": "Сумма",
+    "amountPlaceholder": "Введите сумму",
+    "exchangeRate": "Курс обмена",
+    "exchangeRatePlaceholder": "Введите курс обмена",
+    "currency": "Валюта"
+  },
+  "messages": {
+    "supplierCreated": "Поставщик успешно создан",
+    "supplierUpdated": "Поставщик успешно обновлён",
+    "supplierDeleted": "Поставщик успешно удалён"
+  },
+  "status": {
+    "active": "Активный",
+    "inactive": "Неактивный"
+  },
+  "plan": {
+    "free": "Бесплатный",
+    "pro": "Про",
+    "enterprise": "Корпоративный"
+  },
+  "role": {
+    "admin": "Администратор",
+    "user": "Пользователь",
+    "viewer": "Наблюдатель"
+  }
+}

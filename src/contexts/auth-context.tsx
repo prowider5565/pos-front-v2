@@ -62,11 +62,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const login = async (credentials: LoginRequest): Promise<void> => {
     try {
+      console.log('Attempting login with:', { login: credentials.login })
       const response = await authService.login(credentials)
+      console.log('Login successful:', { user: response.user })
       setUser(response.user)
       setIsAuthenticated(true)
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error('Login error:', error)
+      if (error instanceof ApiException) {
+        console.error('API Exception details:', {
+          status: error.status,
+          data: error.data,
+          message: error.message
+        })
+      }
       throw error
     }
   }

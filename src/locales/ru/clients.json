@@ -1,0 +1,34 @@
+{
+  "title": "Клиенты",
+  "subtitle": "Управляйте клиентами и их информацией",
+  "addClient": "Добавить клиента",
+  "editClient": "Изменить клиента",
+  "addClientDescription": "Заполните информацию ниже, чтобы добавить нового клиента",
+  "editClientDescription": "Обновите информацию о клиенте ниже",
+  "searchPlaceholder": "Поиск клиентов по имени или телефону...",
+  "table": {
+    "fullName": "Полное имя",
+    "phoneNumber": "Номер телефона",
+    "oldDebt": "Старый долг",
+    "actions": "Действия"
+  },
+  "form": {
+    "fullName": "Полное имя",
+    "fullNamePlaceholder": "Введите полное имя",
+    "phoneNumber": "Номер телефона",
+    "phoneNumberPlaceholder": "Введите номер телефона",
+    "hasOldDebt": "У клиента есть старый долг",
+    "oldDebtDetails": "Детали старого долга",
+    "amount": "Сумма",
+    "amountPlaceholder": "Введите сумму",
+    "currency": "Валюта",
+    "currencyPlaceholder": "Выберите валюту",
+    "exchangeRate": "Курс валюты",
+    "exchangeRatePlaceholder": "Введите курс валюты"
+  },
+  "messages": {
+    "clientCreated": "Клиент успешно создан",
+    "clientUpdated": "Клиент успешно обновлен",
+    "clientDeleted": "Клиент успешно удален"
+  }
+}

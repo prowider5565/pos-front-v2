@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ interface DashboardFilterProps {
 }
 
 export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
+  const { t } = useTranslation('dashboard')
   const [activeFilter, setActiveFilter] = useState<FilterType>('monthly')
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({})
 
@@ -81,7 +83,7 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
             className="gap-2"
           >
             <CalendarIcon className="h-4 w-4" />
-            Custom Date Period
+            {t('dateFilter.customDatePeriod')}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
@@ -107,21 +109,21 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
         variant={activeFilter === 'daily' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('daily')}
       >
-        Daily
+        {t('dateFilter.daily')}
       </Button>
 
       <Button
         variant={activeFilter === 'weekly' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('weekly')}
       >
-        Weekly
+        {t('dateFilter.weekly')}
       </Button>
 
       <Button
         variant={activeFilter === 'monthly' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('monthly')}
       >
-        Monthly
+        {t('dateFilter.monthly')}
       </Button>
     </div>
   )

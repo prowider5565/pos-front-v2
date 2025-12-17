@@ -171,7 +171,7 @@ export function ChartAreaInteractive({ graphData }: ChartAreaInteractiveProps) {
   const displayData = chartDataFromAPI.length > 0 ? chartDataFromAPI : []
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card h-full">
       <CardHeader>
         <CardTitle>{t('dashboard:chart.lastTwoWeeksActivity')}</CardTitle>
       </CardHeader>

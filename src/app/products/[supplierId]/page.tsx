@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
-import { ArrowLeft, Package, Search, Pencil, Archive } from "lucide-react"
+import { ArrowLeft, Package, Search, Pencil, Archive, Plus } from "lucide-react"
 
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { productsService, type Product, type ProductsListResponse, type SupplierInfo } from "@/services/products.service"
 import { MEDIA_BASE_URL } from "@/config/api"
+import { ProductCreateDialog } from "../components/product-create-dialog"
 
 export default function MahsulotlarProductsPage() {
   const { t } = useTranslation(['products', 'common'])
@@ -35,6 +36,7 @@ export default function MahsulotlarProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   // Memoized fetch function with search support
   const fetchProducts = useCallback(async (page: number, search?: string) => {
@@ -118,15 +120,24 @@ export default function MahsulotlarProductsPage() {
             </div>
           </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={t('searchProducts')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        {/* Search and Create Button */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={t('searchProducts')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button 
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <Plus className="mr-2 size-4" />
+            {t('createProduct')}
+          </Button>
         </div>
       </div>
 
@@ -194,7 +205,7 @@ export default function MahsulotlarProductsPage() {
 
               <CardHeader className="cursor-pointer" onClick={() => handleProductClick(product.id)}>
                 <CardTitle className="line-clamp-2">{product.name}</CardTitle>
-                <CardDescription className="line-clamp-1">{product.category.name}</CardDescription>
+                <CardDescription className="line-clamp-1">{product.category?.name || product.category_name || 'N/A'}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-3">
@@ -207,36 +218,6 @@ export default function MahsulotlarProductsPage() {
                     <span className="text-sm text-muted-foreground">{t('quantity')}:</span>
                     <span className="text-sm font-medium">{product.quantity}</span>
                   </div>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // TODO: Implement edit functionality
-                      toast.info(t('common:messages.comingSoon'))
-                    }}
-                  >
-                    <Pencil className="size-3 mr-1" />
-                    {t('common:actions.edit')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // TODO: Implement archive functionality
-                      toast.info(t('common:messages.comingSoon'))
-                    }}
-                  >
-                    <Archive className="size-3 mr-1" />
-                    {t('common:actions.archive')}
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -275,6 +256,17 @@ export default function MahsulotlarProductsPage() {
         </div>
       )}
       </div>
+
+      {/* Product Create Dialog */}
+      <ProductCreateDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        supplierId={supplierId ? parseInt(supplierId) : undefined}
+        onSuccess={() => {
+          // Refresh products list after product creation
+          fetchProducts(currentPage, searchQuery)
+        }}
+      />
     </BaseLayout>
   )
 }

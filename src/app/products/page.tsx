@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { Package, Phone, Building2, Search } from "lucide-react"
+import { Package, Phone, Building2, Search, Plus } from "lucide-react"
 
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +18,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { suppliersService, type Supplier, type SuppliersListResponse } from "@/services/suppliers.service"
+import { ProductCreateDialog } from "./components/product-create-dialog"
 
 export default function MahsulotlarSuppliersPage() {
   const { t } = useTranslation(['products', 'common'])
@@ -28,6 +29,7 @@ export default function MahsulotlarSuppliersPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   // Memoized fetch function with search support
   const fetchSuppliers = useCallback(async (page: number, search?: string) => {
@@ -87,15 +89,24 @@ export default function MahsulotlarSuppliersPage() {
             <p className="text-muted-foreground">{t('selectSupplierDescription')}</p>
           </div>
 
-          {/* Search */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t('searchSuppliers')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+          {/* Search and Create Button */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t('searchSuppliers')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="cursor-pointer"
+            >
+              <Plus className="mr-2 size-4" />
+              {t('createProduct')}
+            </Button>
           </div>
         </div>
 
@@ -177,6 +188,16 @@ export default function MahsulotlarSuppliersPage() {
         </div>
       )}
       </div>
+
+      {/* Product Create Dialog */}
+      <ProductCreateDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSuccess={() => {
+          // Refresh suppliers list after product creation
+          fetchSuppliers(currentPage, searchQuery)
+        }}
+      />
     </BaseLayout>
   )
 }

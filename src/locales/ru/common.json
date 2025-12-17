@@ -75,7 +75,10 @@
     "management": "Пользователи",
     "savdo": "Торговля",
     "sotuv": "Продажа",
-    "mahsulotlar": "Продукты"
+    "mahsulotlar": "Продукты",
+    "debts": "Долги",
+    "supplierDebts": "Долги поставщикам",
+    "clientDebts": "Долги клиентов"
   },
   "table": {
     "columns": "Столбцы",

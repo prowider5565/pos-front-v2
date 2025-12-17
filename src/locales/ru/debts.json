@@ -1,0 +1,38 @@
+{
+  "title": "Долги",
+  "suppliers": {
+    "title": "Долги поставщикам",
+    "description": "Управление долгами поставщикам"
+  },
+  "clients": {
+    "title": "Долги клиентов",
+    "description": "Управление долгами клиентов"
+  },
+  "tabs": {
+    "newDebts": "Новые долги",
+    "oldDebts": "Старые долги"
+  },
+  "summary": {
+    "totalDebt": "Общий долг",
+    "totalPaid": "Оплачено",
+    "totalRemaining": "Остаток"
+  },
+  "table": {
+    "supplier": "Поставщик",
+    "fullName": "ФИО",
+    "companyName": "Компания",
+    "phone": "Телефон",
+    "totalDebt": "Общий долг",
+    "totalPaid": "Оплачено",
+    "remaining": "Остаток",
+    "actions": "Действия",
+    "noResults": "Долги не найдены",
+    "loading": "Загрузка..."
+  },
+  "actions": {
+    "makePayment": "Оплатить"
+  },
+  "search": {
+    "placeholder": "Поиск поставщиков..."
+  }
+}

@@ -75,7 +75,10 @@
     "management": "Foydalanuvchilar",
     "savdo": "Savdo",
     "sotuv": "Sotuv",
-    "mahsulotlar": "Mahsulotlar"
+    "mahsulotlar": "Mahsulotlar",
+    "debts": "Qarzlar",
+    "supplierDebts": "Yetkazib beruvchi qarzlari",
+    "clientDebts": "Mijoz qarzlari"
   },
   "table": {
     "columns": "Ustunlar",

@@ -14,6 +14,9 @@ const ProductsSuppliers = lazy(() => import('@/app/products/page'))
 const ProductsBySupplier = lazy(() => import('@/app/products/[supplierId]/page'))
 const ProductDetail = lazy(() => import('@/app/products/[supplierId]/[productId]/page'))
 
+// Debts pages
+const SupplierDebts = lazy(() => import('@/app/debts/suppliers/page'))
+
 // Auth pages
 const SignIn = lazy(() => import('@/app/auth/sign-in/page'))
 const ForgotPassword = lazy(() => import('@/app/auth/forgot-password/page'))
@@ -86,6 +89,16 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <Sotuv />
+      </ProtectedRoute>
+    )
+  },
+
+  // Debts Routes (Protected)
+  {
+    path: "/debts/suppliers",
+    element: (
+      <ProtectedRoute>
+        <SupplierDebts />
       </ProtectedRoute>
     )
   },

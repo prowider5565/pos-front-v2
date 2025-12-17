@@ -1,0 +1,38 @@
+{
+  "title": "Qarzlar",
+  "suppliers": {
+    "title": "Yetkazib beruvchi qarzlari",
+    "description": "Yetkazib beruvchilarga qarzlarni boshqarish"
+  },
+  "clients": {
+    "title": "Mijoz qarzlari",
+    "description": "Mijoz qarzlarini boshqarish"
+  },
+  "tabs": {
+    "newDebts": "Yangi qarzlar",
+    "oldDebts": "Eski qarzlar"
+  },
+  "summary": {
+    "totalDebt": "Jami qarz",
+    "totalPaid": "To'langan",
+    "totalRemaining": "Qoldiq"
+  },
+  "table": {
+    "supplier": "Yetkazib beruvchi",
+    "fullName": "To'liq ism",
+    "companyName": "Kompaniya",
+    "phone": "Telefon",
+    "totalDebt": "Jami qarz",
+    "totalPaid": "To'langan",
+    "remaining": "Qoldiq",
+    "actions": "Amallar",
+    "noResults": "Qarzlar topilmadi",
+    "loading": "Yuklanmoqda..."
+  },
+  "actions": {
+    "makePayment": "To'lov qilish"
+  },
+  "search": {
+    "placeholder": "Yetkazib beruvchilarni qidirish..."
+  }
+}

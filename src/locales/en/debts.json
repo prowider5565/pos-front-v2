@@ -1,0 +1,38 @@
+{
+  "title": "Debts",
+  "suppliers": {
+    "title": "Supplier Debts",
+    "description": "Manage debts to suppliers"
+  },
+  "clients": {
+    "title": "Client Debts",
+    "description": "Manage client debts"
+  },
+  "tabs": {
+    "newDebts": "New Debts",
+    "oldDebts": "Old Debts"
+  },
+  "summary": {
+    "totalDebt": "Total Debt",
+    "totalPaid": "Total Paid",
+    "totalRemaining": "Remaining"
+  },
+  "table": {
+    "supplier": "Supplier",
+    "fullName": "Full Name",
+    "companyName": "Company",
+    "phone": "Phone",
+    "totalDebt": "Total Debt",
+    "totalPaid": "Total Paid",
+    "remaining": "Remaining",
+    "actions": "Actions",
+    "noResults": "No debts found",
+    "loading": "Loading..."
+  },
+  "actions": {
+    "makePayment": "Make Payment"
+  },
+  "search": {
+    "placeholder": "Search suppliers..."
+  }
+}

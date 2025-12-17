@@ -6,6 +6,7 @@ import {
   Users,
   ShoppingCart,
   Package,
+  Wallet,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -71,6 +72,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: t('navigation.mahsulotlar'),
           url: "/products",
           icon: Package,
+        },
+      ],
+    },
+    {
+      label: t('navigation.debts'),
+      items: [
+        {
+          title: t('navigation.supplierDebts'),
+          url: "/debts/suppliers",
+          icon: Wallet,
+        },
+        {
+          title: t('navigation.clientDebts'),
+          url: "/debts/clients",
+          icon: Wallet,
         },
       ],
     },

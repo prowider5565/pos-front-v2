@@ -75,7 +75,10 @@
     "management": "Users",
     "savdo": "Sales",
     "sotuv": "Sale",
-    "mahsulotlar": "Products"
+    "mahsulotlar": "Products",
+    "debts": "Debts",
+    "supplierDebts": "Supplier Debts",
+    "clientDebts": "Client Debts"
   },
   "table": {
     "columns": "Columns",

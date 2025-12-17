@@ -50,6 +50,13 @@ export const API_ENDPOINTS = {
     BATCHES: (productId: number) => `/products/products/${productId}/batches/`,
   },
   
+  // Debts endpoints
+  DEBTS: {
+    SUPPLIERS_NEW: '/debts/suppliers/new-debts/',
+    SUPPLIERS_OLD: '/debts/suppliers/old-debts/',
+    CLIENTS: '/debts/clients/',
+  },
+
   // Analytics endpoints
   ANALYTICS: {
     DASHBOARD_METRICS: '/analytics/metrics/',

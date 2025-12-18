@@ -9,22 +9,16 @@
   "table": {
     "fullName": "To'liq ism",
     "phoneNumber": "Telefon raqami",
-    "oldDebt": "Eski qarz",
-    "actions": "Harakatlar"
+    "isActive": "Holati",
+    "active": "Faol",
+    "inactive": "Nofaol",
+    "actions": "Amallar"
   },
   "form": {
     "fullName": "To'liq ism",
     "fullNamePlaceholder": "To'liq ismni kiriting",
     "phoneNumber": "Telefon raqami",
-    "phoneNumberPlaceholder": "Telefon raqamini kiriting",
-    "hasOldDebt": "Mijozning eski qarzi bor",
-    "oldDebtDetails": "Eski qarz ma'lumotlari",
-    "amount": "Miqdor",
-    "amountPlaceholder": "Miqdorni kiriting",
-    "currency": "Valyuta",
-    "currencyPlaceholder": "Valyutani tanlang",
-    "exchangeRate": "Valyuta kursi",
-    "exchangeRatePlaceholder": "Valyuta kursini kiriting"
+    "phoneNumberPlaceholder": "Telefon raqamini kiriting"
   },
   "messages": {
     "clientCreated": "Mijoz muvaffaqiyatli yaratildi",

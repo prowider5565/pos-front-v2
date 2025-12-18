@@ -10,7 +10,8 @@
   },
   "tabs": {
     "newDebts": "Yangi qarzlar",
-    "oldDebts": "Eski qarzlar"
+    "oldDebts": "Eski qarzlar",
+    "saleDebts": "Sotuv qarzlari"
   },
   "summary": {
     "totalDebt": "Jami qarz",
@@ -19,6 +20,7 @@
   },
   "table": {
     "supplier": "Yetkazib beruvchi",
+    "client": "Mijoz",
     "fullName": "To'liq ism",
     "companyName": "Kompaniya",
     "phone": "Telefon",
@@ -33,6 +35,42 @@
     "makePayment": "To'lov qilish"
   },
   "search": {
-    "placeholder": "Yetkazib beruvchilarni qidirish..."
+    "placeholder": "Yetkazib beruvchilarni qidirish...",
+    "clientPlaceholder": "Mijozlarni qidirish..."
+  },
+  "payment": {
+    "title": "To'lov qilish",
+    "description": "{{name}} uchun to'lov",
+    "amount": "Miqdor",
+    "currency": "Valyuta",
+    "method": "To'lov usuli",
+    "distributionStrategy": "Taqsimlash strategiyasi",
+    "submit": "To'lov qilish",
+    "success": "To'lov muvaffaqiyatli",
+    "failed": "To'lov xatosi",
+    "exceededDebt": "To'lov miqdori qarz miqdoridan oshib ketdi!",
+    "currentDebt": "Joriy qarz",
+    "remainingDebt": "Qolgan qarz",
+    "overpayment": "Ortiqcha to'lov",
+    "methods": {
+      "cash": "Naqd",
+      "card": "Karta",
+      "transfer": "O'tkazma"
+    },
+    "strategies": {
+      "oldest": "Avval eskilari",
+      "newest": "Avval yangilari",
+      "leastAmount": "Avval kichik summalar",
+      "largestAmount": "Avval katta summalar"
+    }
+  },
+  "paymentHistory": {
+    "title": "To'lovlar tarixi - {{name}}",
+    "totalPaid": "Jami to'langan",
+    "amount": "Miqdor",
+    "currency": "Valyuta",
+    "method": "Usul",
+    "date": "Sana",
+    "noPayments": "To'lovlar topilmadi"
   }
 }

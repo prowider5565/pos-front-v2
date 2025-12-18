@@ -303,19 +303,18 @@ export default function MahsulotlarProductDetailPage() {
         header: "",
         cell: ({ row }) => (
           <div className="flex justify-end">
-            {hoveredRowId === row.original.id && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setEditingBatch(row.original)
-                  setIsEditDialogOpen(true)
-                }}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={hoveredRowId === row.original.id ? "opacity-100" : "opacity-0"}
+              onClick={(e) => {
+                e.stopPropagation()
+                setEditingBatch(row.original)
+                setIsEditDialogOpen(true)
+              }}
+            >
+              <Pencil className="size-4" />
+            </Button>
           </div>
         ),
       },

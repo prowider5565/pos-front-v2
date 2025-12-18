@@ -14,6 +14,7 @@ export interface User {
   last_name: string
   is_superuser?: boolean
   is_active?: boolean
+  deleted?: boolean
 }
 
 /**

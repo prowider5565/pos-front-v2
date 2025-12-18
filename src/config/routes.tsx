@@ -16,6 +16,7 @@ const ProductDetail = lazy(() => import('@/app/products/[supplierId]/[productId]
 
 // Debts pages
 const SupplierDebts = lazy(() => import('@/app/debts/suppliers/page'))
+const ClientDebts = lazy(() => import('@/app/debts/clients/page'))
 
 // Auth pages
 const SignIn = lazy(() => import('@/app/auth/sign-in/page'))
@@ -99,6 +100,14 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <SupplierDebts />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/debts/clients",
+    element: (
+      <ProtectedRoute>
+        <ClientDebts />
       </ProtectedRoute>
     )
   },

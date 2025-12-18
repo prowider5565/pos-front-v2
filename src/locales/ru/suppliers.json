@@ -13,7 +13,7 @@
     "companyName": "Название компании",
     "fullName": "Полное имя",
     "phoneNumber": "Номер телефона",
-    "oldDebt": "Старый долг",
+    "productsDelivered": "Доставлено товаров",
     "status": "Статус",
     "actions": "Действия",
     "active": "Активный",

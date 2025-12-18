@@ -1,0 +1,262 @@
+// http://localhost:8080/api/payments/old-seller-debt-payments/supplier-payments/?supplier_id=1
+{
+    "supplier": {
+        "id": 1,
+        "full_name": "makon teasdasd",
+        "company_name": "makon tea",
+        "phone_number": "+998 90 599 99 97"
+    },
+    "total_paid": "2776357.35",
+    "payments": [
+        {
+            "id": 33,
+            "old_seller_debt": 2,
+            "amount_display": {
+                "uzs_amount": "1192000.00",
+                "usd_amount": "100.00"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 34,
+            "old_seller_debt": 2,
+            "amount_display": {
+                "uzs_amount": "1017372.00",
+                "usd_amount": "85.35"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 35,
+            "old_seller_debt": 2,
+            "amount_display": {
+                "uzs_amount": "391572.00",
+                "usd_amount": "32.85"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 36,
+            "old_seller_debt": 2,
+            "amount_display": {
+                "uzs_amount": "3576000.00",
+                "usd_amount": "300.00"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 37,
+            "old_seller_debt": 1,
+            "amount_display": {
+                "uzs_amount": "1192000.00",
+                "usd_amount": "100.00"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 38,
+            "old_seller_debt": 1,
+            "amount_display": {
+                "uzs_amount": "3576000.00",
+                "usd_amount": "300.00"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 39,
+            "old_seller_debt": 1,
+            "amount_display": {
+                "uzs_amount": "1192000.00",
+                "usd_amount": "100.00"
+            },
+            "exchange_rate": "11920.00",
+            "currency": "UZS",
+            "seller": 1
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+// http://localhost:8080/api/payments/new-seller-debt-payments/entity-payments/?supplier_id=12
+{
+    "supplier": {
+        "id": 12,
+        "full_name": "Tess tea",
+        "company_name": "Tess tea",
+        "phone_number": "+998 90 555 32 57"
+    },
+    "total_paid": "1404.00",
+    "payments": [
+        {
+            "id": 69,
+            "new_seller_debt": 12,
+            "amount_display": {
+                "uzs_amount": "1200000.00",
+                "usd_amount": "100.00"
+            },
+            "amount": "100.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 70,
+            "new_seller_debt": 15,
+            "amount_display": {
+                "uzs_amount": "13500000.00",
+                "usd_amount": "1000.00"
+            },
+            "amount": "1000.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 71,
+            "new_seller_debt": 18,
+            "amount_display": {
+                "uzs_amount": "100.00",
+                "usd_amount": "1.00"
+            },
+            "amount": "100.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 74,
+            "new_seller_debt": 23,
+            "amount_display": {
+                "uzs_amount": "100.00",
+                "usd_amount": "0.01"
+            },
+            "amount": "100.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 75,
+            "new_seller_debt": 24,
+            "amount_display": {
+                "uzs_amount": "4.00",
+                "usd_amount": "2.00"
+            },
+            "amount": "4.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 76,
+            "new_seller_debt": 25,
+            "amount_display": {
+                "uzs_amount": "89.00",
+                "usd_amount": "0.01"
+            },
+            "amount": "89.00",
+            "currency": "UZS",
+            "seller": 1
+        },
+        {
+            "id": 77,
+            "new_seller_debt": 26,
+            "amount_display": {
+                "uzs_amount": "11.00",
+                "usd_amount": "0.00"
+            },
+            "amount": "11.00",
+            "currency": "UZS",
+            "seller": 1
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//For clients:
+// http://localhost:8080/api/payments/old-client-debt-payments/client-payments/?client_id=4
+{
+    "client": {
+        "id": 4,
+        "full_name": "sadasdasd",
+        "phone_number": "+998234234234"
+    },
+    "total_paid": "50060.00",
+    "payments": [
+        {
+            "id": 1,
+            "old_client_debt": 1,
+            "amount_display": {
+                "uzs_amount": "750000.00",
+                "usd_amount": "60.00"
+            },
+            "exchange_rate": "12500.00",
+            "currency": "USD",
+            "seller": 1
+        },
+        {
+            "id": 2,
+            "old_client_debt": 1,
+            "amount_display": {
+                "uzs_amount": "50000.00",
+                "usd_amount": "4.00"
+            },
+            "exchange_rate": "12500.00",
+            "currency": "UZS",
+            "seller": 1
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+// http://localhost:8080/api/payments/sale-payments/11/payments/
+[
+    {
+        "id": 4,
+        "sale": 11,
+        "amount": "133.00",
+        "currency": "UZS",
+        "payment_method": "cash",
+        "created_at": "2025-12-18T15:03:55.809054+05:00"
+    },
+    {
+        "id": 3,
+        "sale": 11,
+        "amount": "100.00",
+        "currency": "UZS",
+        "payment_method": "cash",
+        "created_at": "2025-12-18T14:40:00.656340+05:00"
+    }
+]

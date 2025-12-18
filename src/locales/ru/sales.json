@@ -1,0 +1,110 @@
+{
+  "title": "Продажи",
+  "subtitle": "Создание и управление транзакциями продаж",
+  "searchPlaceholder": "Поиск товаров...",
+  "allCategories": "Все категории",
+  "noProducts": "Товары не найдены",
+  "noProductsDescription": "Попробуйте изменить поиск или фильтры",
+  "loading": "Загрузка...",
+  
+  "cart": {
+    "title": "Корзина",
+    "empty": "Ваша корзина пуста",
+    "emptyDescription": "Добавьте товары для начала продажи",
+    "items": "Товары",
+    "subtotal": "Итого",
+    "discount": "Скидка",
+    "total": "Общая сумма",
+    "payments": "Платежи",
+    "remaining": "Остаток",
+    "debt": "Долг"
+  },
+  
+  "product": {
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "lowStock": "Мало на складе",
+    "addToCart": "В корзину",
+    "price": "Цена",
+    "stock": "На складе",
+    "sku": "Артикул"
+  },
+  
+  "cartItem": {
+    "quantity": "Количество",
+    "remove": "Удалить",
+    "price": "Цена",
+    "total": "Итого",
+    "stockError": "На складе только {{stock}} шт.",
+    "invalidQuantity": "Пожалуйста, введите корректное количество"
+  },
+  
+  "discount": {
+    "label": "Сумма скидки",
+    "placeholder": "Введите сумму скидки"
+  },
+  
+  "payment": {
+    "title": "Оплата",
+    "method": "Способ оплаты",
+    "currency": "Валюта",
+    "amount": "Сумма",
+    "addPayment": "Добавить платеж",
+    "quickActions": "Быстрые действия",
+    "fullCashUZS": "Полная оплата налич. (UZS)",
+    "fullCashUSD": "Полная оплата налич. (USD)",
+    "fullCardUZS": "Полная оплата картой (UZS)",
+    "fullCardUSD": "Полная оплата картой (USD)",
+    "removePayment": "Удалить платеж",
+    "noPayments": "Платежи не добавлены",
+    "totalPayments": "Всего платежей",
+    
+    "methods": {
+      "CASH": "Наличные",
+      "CARD": "Карта",
+      "BANK_TRANSFER": "Банковский перевод"
+    }
+  },
+  
+  "client": {
+    "selectClient": "Выберите клиента",
+    "selectPlaceholder": "Найдите и выберите клиента...",
+    "required": "Клиент обязателен при наличии остатка долга",
+    "noClient": "Клиент не выбран",
+    "searchPlaceholder": "Поиск клиентов..."
+  },
+  
+  "validation": {
+    "cartEmpty": "Пожалуйста, добавьте хотя бы один товар в корзину",
+    "invalidQuantity": "Неверное количество для товара: {{productName}}",
+    "stockExceeded": "Превышен остаток на складе для товара: {{productName}}. Доступно: {{stock}}",
+    "clientRequired": "Пожалуйста, выберите клиента для остатка долга",
+    "invalidPaymentAmount": "Неверная сумма платежа",
+    "exchangeRateRequired": "Требуется курс валюты",
+    "itemsRequired": "Требуется хотя бы один товар",
+    "quantityMin": "Количество должно быть не менее 1"
+  },
+  
+  "actions": {
+    "submit": "Завершить продажу",
+    "submitAndPrint": "Завершить и печать",
+    "clearCart": "Очистить корзину",
+    "cancel": "Отмена"
+  },
+  
+  "messages": {
+    "saleCreated": "Продажа успешно создана!",
+    "saleCreatedWithDebt": "Продажа создана с остатком долга",
+    "productAdded": "{{productName}} добавлен в корзину",
+    "productRemoved": "Товар удален из корзины",
+    "cartCleared": "Корзина очищена",
+    "error": "Не удалось создать продажу. Попробуйте снова.",
+    "loadError": "Не удалось загрузить товары. Попробуйте снова."
+  },
+  
+  "summary": {
+    "inUZS": "в UZS",
+    "inUSD": "в USD",
+    "exchangeRate": "Курс валюты"
+  }
+}

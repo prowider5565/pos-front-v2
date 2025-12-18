@@ -1,0 +1,110 @@
+{
+  "title": "Sales",
+  "subtitle": "Create and manage sales transactions",
+  "searchPlaceholder": "Search products...",
+  "allCategories": "All Categories",
+  "noProducts": "No products found",
+  "noProductsDescription": "Try adjusting your search or filters",
+  "loading": "Loading...",
+  
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "emptyDescription": "Add products to start a sale",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "payments": "Payments",
+    "remaining": "Remaining",
+    "debt": "Debt"
+  },
+  
+  "product": {
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "lowStock": "Low Stock",
+    "addToCart": "Add to Cart",
+    "price": "Price",
+    "stock": "Stock",
+    "sku": "SKU"
+  },
+  
+  "cartItem": {
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "price": "Price",
+    "total": "Total",
+    "stockError": "Only {{stock}} items available in stock",
+    "invalidQuantity": "Please enter a valid quantity"
+  },
+  
+  "discount": {
+    "label": "Discount Amount",
+    "placeholder": "Enter discount amount"
+  },
+  
+  "payment": {
+    "title": "Payment",
+    "method": "Payment Method",
+    "currency": "Currency",
+    "amount": "Amount",
+    "addPayment": "Add Payment",
+    "quickActions": "Quick Actions",
+    "fullCashUZS": "Full Cash (UZS)",
+    "fullCashUSD": "Full Cash (USD)",
+    "fullCardUZS": "Full Card (UZS)",
+    "fullCardUSD": "Full Card (USD)",
+    "removePayment": "Remove Payment",
+    "noPayments": "No payments added",
+    "totalPayments": "Total Payments",
+    
+    "methods": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "BANK_TRANSFER": "Bank Transfer"
+    }
+  },
+  
+  "client": {
+    "selectClient": "Select Client",
+    "selectPlaceholder": "Search and select client...",
+    "required": "Client is required when there is remaining debt",
+    "noClient": "No client selected",
+    "searchPlaceholder": "Search clients..."
+  },
+  
+  "validation": {
+    "cartEmpty": "Please add at least one product to cart",
+    "invalidQuantity": "Invalid quantity for product: {{productName}}",
+    "stockExceeded": "Stock exceeded for product: {{productName}}. Available: {{stock}}",
+    "clientRequired": "Please select a client for remaining debt",
+    "invalidPaymentAmount": "Invalid payment amount",
+    "exchangeRateRequired": "Exchange rate is required",
+    "itemsRequired": "At least one item is required",
+    "quantityMin": "Quantity must be at least 1"
+  },
+  
+  "actions": {
+    "submit": "Complete Sale",
+    "submitAndPrint": "Complete & Print",
+    "clearCart": "Clear Cart",
+    "cancel": "Cancel"
+  },
+  
+  "messages": {
+    "saleCreated": "Sale created successfully!",
+    "saleCreatedWithDebt": "Sale created with remaining debt",
+    "productAdded": "{{productName}} added to cart",
+    "productRemoved": "Product removed from cart",
+    "cartCleared": "Cart cleared",
+    "error": "Failed to create sale. Please try again.",
+    "loadError": "Failed to load products. Please try again."
+  },
+  
+  "summary": {
+    "inUZS": "in UZS",
+    "inUSD": "in USD",
+    "exchangeRate": "Exchange Rate"
+  }
+}

@@ -18,6 +18,7 @@ import productsEN from '@/locales/en/products.json'
 import settingsEN from '@/locales/en/settings.json'
 import errorsEN from '@/locales/en/errors.json'
 import debtsEN from '@/locales/en/debts.json'
+import salesEN from '@/locales/en/sales.json'
 
 import commonRU from '@/locales/ru/common.json'
 import authRU from '@/locales/ru/auth.json'
@@ -29,6 +30,7 @@ import productsRU from '@/locales/ru/products.json'
 import settingsRU from '@/locales/ru/settings.json'
 import errorsRU from '@/locales/ru/errors.json'
 import debtsRU from '@/locales/ru/debts.json'
+import salesRU from '@/locales/ru/sales.json'
 
 import commonUZ from '@/locales/uz/common.json'
 import authUZ from '@/locales/uz/auth.json'
@@ -40,6 +42,7 @@ import productsUZ from '@/locales/uz/products.json'
 import settingsUZ from '@/locales/uz/settings.json'
 import errorsUZ from '@/locales/uz/errors.json'
 import debtsUZ from '@/locales/uz/debts.json'
+import salesUZ from '@/locales/uz/sales.json'
 
 // Language resources
 const resources = {
@@ -54,6 +57,7 @@ const resources = {
     settings: settingsEN,
     errors: errorsEN,
     debts: debtsEN,
+    sales: salesEN,
   },
   ru: {
     common: commonRU,
@@ -66,6 +70,7 @@ const resources = {
     settings: settingsRU,
     errors: errorsRU,
     debts: debtsRU,
+    sales: salesRU,
   },
   uz: {
     common: commonUZ,
@@ -78,6 +83,7 @@ const resources = {
     settings: settingsUZ,
     errors: errorsUZ,
     debts: debtsUZ,
+    sales: salesUZ,
   },
 }
 

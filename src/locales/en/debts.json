@@ -10,7 +10,8 @@
   },
   "tabs": {
     "newDebts": "New Debts",
-    "oldDebts": "Old Debts"
+    "oldDebts": "Old Debts",
+    "saleDebts": "Sale Debts"
   },
   "summary": {
     "totalDebt": "Total Debt",
@@ -19,6 +20,7 @@
   },
   "table": {
     "supplier": "Supplier",
+    "client": "Client",
     "fullName": "Full Name",
     "companyName": "Company",
     "phone": "Phone",
@@ -33,6 +35,42 @@
     "makePayment": "Make Payment"
   },
   "search": {
-    "placeholder": "Search suppliers..."
+    "placeholder": "Search suppliers...",
+    "clientPlaceholder": "Search clients..."
+  },
+  "payment": {
+    "title": "Make Payment",
+    "description": "Make a payment for {{name}}",
+    "amount": "Amount",
+    "currency": "Currency",
+    "method": "Payment Method",
+    "distributionStrategy": "Distribution Strategy",
+    "submit": "Make Payment",
+    "success": "Payment successful",
+    "failed": "Payment failed",
+    "exceededDebt": "Payment amount exceeds the debt amount!",
+    "currentDebt": "Current Debt",
+    "remainingDebt": "Remaining Debt",
+    "overpayment": "Overpayment",
+    "methods": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer"
+    },
+    "strategies": {
+      "oldest": "Oldest first",
+      "newest": "Newest first",
+      "leastAmount": "Least amount first",
+      "largestAmount": "Largest amount first"
+    }
+  },
+  "paymentHistory": {
+    "title": "Payment History - {{name}}",
+    "totalPaid": "Total Paid",
+    "amount": "Amount",
+    "currency": "Currency",
+    "method": "Method",
+    "date": "Date",
+    "noPayments": "No payments found"
   }
 }

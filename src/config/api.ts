@@ -54,7 +54,8 @@ export const API_ENDPOINTS = {
   DEBTS: {
     SUPPLIERS_NEW: '/debts/suppliers/new-debts/',
     SUPPLIERS_OLD: '/debts/suppliers/old-debts/',
-    CLIENTS: '/debts/clients/',
+    CLIENTS_SALE: '/debts/clients/sale-debts/',
+    CLIENTS_OLD: '/debts/clients/old-debts/',
   },
 
   // Analytics endpoints
@@ -64,6 +65,12 @@ export const API_ENDPOINTS = {
     SALES_PENDING: '/analytics/lists/sales-pending/',
     SALES_PARTIALLY_PAID: '/analytics/lists/sales-partially-paid/',
     SALES_FULLY_PAID: '/analytics/lists/sales-paid/',
+  },
+
+  // Sales endpoints
+  SALES: {
+    PRODUCTS_FOR_SALE: '/products/products/for-sale/',
+    CREATE: '/sales/create/',
   },
 } as const
 

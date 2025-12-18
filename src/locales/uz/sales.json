@@ -1,0 +1,110 @@
+{
+  "title": "Sotuvlar",
+  "subtitle": "Sotuv operatsiyalarini yaratish va boshqarish",
+  "searchPlaceholder": "Mahsulotlarni qidirish...",
+  "allCategories": "Barcha kategoriyalar",
+  "noProducts": "Mahsulotlar topilmadi",
+  "noProductsDescription": "Qidiruvni yoki filtrlarni o'zgartiring",
+  "loading": "Yuklanmoqda...",
+  
+  "cart": {
+    "title": "Savatcha",
+    "empty": "Savatchingiz bo'sh",
+    "emptyDescription": "Sotuvni boshlash uchun mahsulot qo'shing",
+    "items": "Mahsulotlar",
+    "subtotal": "Jami",
+    "discount": "Chegirma",
+    "total": "Umumiy summa",
+    "payments": "To'lovlar",
+    "remaining": "Qolgan",
+    "debt": "Qarz"
+  },
+  
+  "product": {
+    "inStock": "Omborda bor",
+    "outOfStock": "Tugagan",
+    "lowStock": "Kam qolgan",
+    "addToCart": "Savatga qo'shish",
+    "price": "Narxi",
+    "stock": "Omborda",
+    "sku": "Artikul"
+  },
+  
+  "cartItem": {
+    "quantity": "Miqdori",
+    "remove": "O'chirish",
+    "price": "Narxi",
+    "total": "Jami",
+    "stockError": "Omborda faqat {{stock}} dona bor",
+    "invalidQuantity": "Iltimos, to'g'ri miqdor kiriting"
+  },
+  
+  "discount": {
+    "label": "Chegirma summasi",
+    "placeholder": "Chegirma summasini kiriting"
+  },
+  
+  "payment": {
+    "title": "To'lov",
+    "method": "To'lov usuli",
+    "currency": "Valyuta",
+    "amount": "Summa",
+    "addPayment": "To'lov qo'shish",
+    "quickActions": "Tezkor amallar",
+    "fullCashUZS": "To'liq naqd (UZS)",
+    "fullCashUSD": "To'liq naqd (USD)",
+    "fullCardUZS": "To'liq karta (UZS)",
+    "fullCardUSD": "To'liq karta (USD)",
+    "removePayment": "To'lovni o'chirish",
+    "noPayments": "To'lovlar qo'shilmagan",
+    "totalPayments": "Jami to'lovlar",
+    
+    "methods": {
+      "CASH": "Naqd pul",
+      "CARD": "Karta",
+      "BANK_TRANSFER": "Bank o'tkazmasi"
+    }
+  },
+  
+  "client": {
+    "selectClient": "Mijozni tanlang",
+    "selectPlaceholder": "Mijozni qidiring va tanlang...",
+    "required": "Qarz qolganda mijoz tanlanishi shart",
+    "noClient": "Mijoz tanlanmagan",
+    "searchPlaceholder": "Mijozlarni qidirish..."
+  },
+  
+  "validation": {
+    "cartEmpty": "Iltimos, savatchaga kamida bitta mahsulot qo'shing",
+    "invalidQuantity": "Mahsulot uchun noto'g'ri miqdor: {{productName}}",
+    "stockExceeded": "Mahsulot uchun ombor miqdori oshib ketdi: {{productName}}. Mavjud: {{stock}}",
+    "clientRequired": "Iltimos, qarz uchun mijozni tanlang",
+    "invalidPaymentAmount": "Noto'g'ri to'lov summasi",
+    "exchangeRateRequired": "Valyuta kursi talab qilinadi",
+    "itemsRequired": "Kamida bitta mahsulot talab qilinadi",
+    "quantityMin": "Miqdor kamida 1 bo'lishi kerak"
+  },
+  
+  "actions": {
+    "submit": "Sotuvni yakunlash",
+    "submitAndPrint": "Yakunlash va chop etish",
+    "clearCart": "Savatchani tozalash",
+    "cancel": "Bekor qilish"
+  },
+  
+  "messages": {
+    "saleCreated": "Sotuv muvaffaqiyatli yaratildi!",
+    "saleCreatedWithDebt": "Sotuv qarz bilan yaratildi",
+    "productAdded": "{{productName}} savatchaga qo'shildi",
+    "productRemoved": "Mahsulot savatchadan o'chirildi",
+    "cartCleared": "Savatcha tozalandi",
+    "error": "Sotuvni yaratishda xatolik. Qaytadan urinib ko'ring.",
+    "loadError": "Mahsulotlarni yuklashda xatolik. Qaytadan urinib ko'ring."
+  },
+  
+  "summary": {
+    "inUZS": "UZS da",
+    "inUSD": "USD da",
+    "exchangeRate": "Valyuta kursi"
+  }
+}

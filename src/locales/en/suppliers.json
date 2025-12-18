@@ -13,7 +13,7 @@
     "companyName": "Company Name",
     "fullName": "Full Name",
     "phoneNumber": "Phone Number",
-    "oldDebt": "Old Debt",
+    "productsDelivered": "Products delivered",
     "status": "Status",
     "actions": "Actions",
     "active": "Active",

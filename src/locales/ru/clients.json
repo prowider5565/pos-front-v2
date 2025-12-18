@@ -9,22 +9,16 @@
   "table": {
     "fullName": "Полное имя",
     "phoneNumber": "Номер телефона",
-    "oldDebt": "Старый долг",
+    "isActive": "Активен",
+    "active": "Активный",
+    "inactive": "Неактивный",
     "actions": "Действия"
   },
   "form": {
     "fullName": "Полное имя",
     "fullNamePlaceholder": "Введите полное имя",
     "phoneNumber": "Номер телефона",
-    "phoneNumberPlaceholder": "Введите номер телефона",
-    "hasOldDebt": "У клиента есть старый долг",
-    "oldDebtDetails": "Детали старого долга",
-    "amount": "Сумма",
-    "amountPlaceholder": "Введите сумму",
-    "currency": "Валюта",
-    "currencyPlaceholder": "Выберите валюту",
-    "exchangeRate": "Курс валюты",
-    "exchangeRatePlaceholder": "Введите курс валюты"
+    "phoneNumberPlaceholder": "Введите номер телефона"
   },
   "messages": {
     "clientCreated": "Клиент успешно создан",

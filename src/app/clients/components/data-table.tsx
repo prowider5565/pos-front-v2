@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 import {
   Pencil,
-  Trash2,
+  Archive,
   Search,
   Plus,
 } from "lucide-react"
@@ -24,16 +24,7 @@ import { toast } from "sonner"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -52,7 +43,6 @@ export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -131,44 +121,8 @@ export function DataTable() {
     fetchClients()
   }
 
-  const formatDebt = useCallback((client: Client) => {
-    if (!client.old_debt || !client.old_debt.amount) {
-      return "-"
-    }
-    const amount = parseFloat(client.old_debt.amount)
-    const currency = client.old_debt.currency
-    return `${amount.toLocaleString()} ${currency}`
-  }, [])
-
   // Memoized columns - only recreate when translation changes
   const columns = useMemo<ColumnDef<Client>[]>(() => [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <div className="flex items-center justify-center px-2">
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-          />
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center px-2">
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 50,
-    },
     {
       accessorKey: "full_name",
       header: t('table.fullName'),
@@ -195,11 +149,23 @@ export function DataTable() {
       },
     },
     {
-      accessorKey: "old_debt",
-      header: t('table.oldDebt'),
+      accessorKey: "deleted",
+      header: t('table.isActive'),
       cell: ({ row }) => {
         const client = row.original
-        return <span className="text-sm">{formatDebt(client)}</span>
+        const isActive = !client.deleted
+        return (
+          <Badge 
+            variant="secondary" 
+            className={
+              isActive
+                ? "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20"
+                : "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-900/20"
+            }
+          >
+            {isActive ? t('table.active') : t('table.inactive')}
+          </Badge>
+        )
       },
     },
     {
@@ -214,24 +180,26 @@ export function DataTable() {
               size="icon"
               className="h-8 w-8 cursor-pointer"
               onClick={() => handleEditClient(client)}
+              title={t('common:actions.edit')}
             >
               <Pencil className="size-4" />
-              <span className="sr-only">Edit client</span>
+              <span className="sr-only">{t('common:actions.edit')}</span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
               onClick={() => handleDeleteClient(client.id)}
+              title={t('common:actions.archive')}
             >
-              <Trash2 className="size-4" />
-              <span className="sr-only">Delete client</span>
+              <Archive className="size-4" />
+              <span className="sr-only">{t('common:actions.archive')}</span>
             </Button>
           </div>
         )
       },
     },
-  ], [t, handleEditClient, handleDeleteClient, formatDebt])
+  ], [t, handleEditClient, handleDeleteClient])
 
   const table = useReactTable({
     data,
@@ -242,12 +210,10 @@ export function DataTable() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
     globalFilterFn: (row, columnId, filterValue: string) => {
       const searchValue = filterValue.toLowerCase()
@@ -357,8 +323,7 @@ export function DataTable() {
 
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground hidden sm:block">
-          {table.getFilteredSelectedRowModel().rows.length} {t('common:table.of')}{" "}
-          {totalCount} {t('common:table.rowsSelected')}
+          {totalCount} {t('common:table.totalRecords')}
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2 hidden sm:flex">

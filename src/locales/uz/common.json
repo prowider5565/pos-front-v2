@@ -94,7 +94,7 @@
     "lastPage": "Oxirgi sahifa",
     "selectAll": "Barchasini tanlash",
     "selectRow": "Qatorni tanlash",
-    "actions": "Harakatlar",
+    "actions": "Amallar",
     "edit": "Tahrirlash",
     "delete": "O'chirish",
     "view": "Ko'rish",
@@ -104,7 +104,8 @@
     "customizeColumns": "Ustunlarni sozlash",
     "addNew": "Yangi qo'shish",
     "rowsSelected": "qator tanlangan",
-    "ofRows": "dan"
+    "ofRows": "dan",
+    "totalRecords": "Jami yozuvlar"
   },
   "search": {
     "placeholder": "Sizga nima kerak?",

@@ -9,22 +9,16 @@
   "table": {
     "fullName": "Full Name",
     "phoneNumber": "Phone Number",
-    "oldDebt": "Old Debt",
+    "isActive": "Is Active",
+    "active": "Active",
+    "inactive": "Inactive",
     "actions": "Actions"
   },
   "form": {
     "fullName": "Full Name",
     "fullNamePlaceholder": "Enter full name",
     "phoneNumber": "Phone Number",
-    "phoneNumberPlaceholder": "Enter phone number",
-    "hasOldDebt": "Client has old debt",
-    "oldDebtDetails": "Old Debt Details",
-    "amount": "Amount",
-    "amountPlaceholder": "Enter amount",
-    "currency": "Currency",
-    "currencyPlaceholder": "Select currency",
-    "exchangeRate": "Exchange Rate",
-    "exchangeRatePlaceholder": "Enter exchange rate"
+    "phoneNumberPlaceholder": "Enter phone number"
   },
   "messages": {
     "clientCreated": "Client created successfully",

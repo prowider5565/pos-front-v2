@@ -104,7 +104,8 @@
     "customizeColumns": "Настроить столбцы",
     "addNew": "Добавить новый",
     "rowsSelected": "строк выбрано",
-    "ofRows": "из"
+    "ofRows": "из",
+    "totalRecords": "Всего записей"
   },
   "search": {
     "placeholder": "Что вам нужно?",

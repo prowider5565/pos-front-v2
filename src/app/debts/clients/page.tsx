@@ -4,24 +4,24 @@ import { BaseLayout } from '@/components/layouts/base-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DataTable } from './components/data-table'
 import { SummaryCards } from './components/summary-cards'
-import { useNewSupplierDebts, useOldSupplierDebts } from '@/hooks/use-debts'
+import { useSaleClientDebts, useOldClientDebts } from '@/hooks/use-debts'
 
-export default function SupplierDebtsPage() {
+export default function ClientDebtsPage() {
   const { t } = useTranslation('debts')
-  const [activeTab, setActiveTab] = useState<'new' | 'old'>('new')
+  const [activeTab, setActiveTab] = useState<'sale' | 'old'>('sale')
   
-  const [newPage, setNewPage] = useState(1)
-  const [newSearch, setNewSearch] = useState('')
-  const [newDebouncedSearch, setNewDebouncedSearch] = useState('')
+  const [salePage, setSalePage] = useState(1)
+  const [saleSearch, setSaleSearch] = useState('')
+  const [saleDebouncedSearch, setSaleDebouncedSearch] = useState('')
   const [oldPage, setOldPage] = useState(1)
   const [oldSearch, setOldSearch] = useState('')
   const [oldDebouncedSearch, setOldDebouncedSearch] = useState('')
 
-  // Debounce new search
+  // Debounce sale search
   useEffect(() => {
-    const timer = setTimeout(() => setNewDebouncedSearch(newSearch), 400)
+    const timer = setTimeout(() => setSaleDebouncedSearch(saleSearch), 400)
     return () => clearTimeout(timer)
-  }, [newSearch])
+  }, [saleSearch])
 
   // Debounce old search
   useEffect(() => {
@@ -29,40 +29,40 @@ export default function SupplierDebtsPage() {
     return () => clearTimeout(timer)
   }, [oldSearch])
 
-  const newDebts = useNewSupplierDebts(newPage, newDebouncedSearch)
-  const oldDebts = useOldSupplierDebts(oldPage, oldDebouncedSearch)
+  const saleDebts = useSaleClientDebts(salePage, saleDebouncedSearch)
+  const oldDebts = useOldClientDebts(oldPage, oldDebouncedSearch)
 
-  const currentData = activeTab === 'new' ? newDebts : oldDebts
+  const currentData = activeTab === 'sale' ? saleDebts : oldDebts
 
   return (
     <BaseLayout
-      title={t('suppliers.title')}
-      description={t('suppliers.description')}
+      title={t('clients.title')}
+      description={t('clients.description')}
     >
       <div className="px-4 lg:px-6 space-y-6">
         <SummaryCards metadata={currentData.data?.metadata} isLoading={currentData.isLoading} />
         
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'new' | 'old')}>
-          <TabsContent value="new" className="mt-0 space-y-4">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'sale' | 'old')}>
+          <TabsContent value="sale" className="mt-0 space-y-4">
             <TabsList className="w-full">
-              <TabsTrigger value="new" className="flex-1">{t('tabs.newDebts')}</TabsTrigger>
+              <TabsTrigger value="sale" className="flex-1">{t('tabs.saleDebts')}</TabsTrigger>
               <TabsTrigger value="old" className="flex-1">{t('tabs.oldDebts')}</TabsTrigger>
             </TabsList>
             <DataTable
-              data={newDebts.data}
-              isLoading={newDebts.isLoading}
-              page={newPage}
-              search={newSearch}
-              debtType="new"
-              onPageChange={setNewPage}
-              onSearchChange={setNewSearch}
-              onPaymentSuccess={() => newDebts.refetch()}
+              data={saleDebts.data}
+              isLoading={saleDebts.isLoading}
+              page={salePage}
+              search={saleSearch}
+              debtType="sale"
+              onPageChange={setSalePage}
+              onSearchChange={setSaleSearch}
+              onPaymentSuccess={() => saleDebts.refetch()}
             />
           </TabsContent>
           
           <TabsContent value="old" className="mt-0 space-y-4">
             <TabsList className="w-full">
-              <TabsTrigger value="new" className="flex-1">{t('tabs.newDebts')}</TabsTrigger>
+              <TabsTrigger value="sale" className="flex-1">{t('tabs.saleDebts')}</TabsTrigger>
               <TabsTrigger value="old" className="flex-1">{t('tabs.oldDebts')}</TabsTrigger>
             </TabsList>
             <DataTable

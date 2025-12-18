@@ -1,39 +1,250 @@
 "use client"
 
+import { useState, useEffect, useCallback } from "react"
 import { useTranslation } from "react-i18next"
-import { ShoppingCart } from "lucide-react"
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import { ThemeCustomizer } from "@/components/theme-customizer"
+import { useSidebarConfig } from "@/hooks/use-sidebar-config"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { ProductGrid } from "./components/product-grid"
+import { CartSidebar } from "./components/cart-sidebar"
+import { useSalesCart } from "@/hooks/use-sales-cart"
+import { useSalesPayments } from "@/hooks/use-sales-payments"
+import { salesService } from "@/services/sales.service"
+import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
+import type { SaleProduct, PaymentMethod, Currency } from "@/types/sales"
 
 export default function SotuvPage() {
-  const { t } = useTranslation(['common'])
+  const [themeCustomizerOpen, setThemeCustomizerOpen] = useState(false)
+  const { config } = useSidebarConfig()
+  const { t } = useTranslation('sales')
+  
+  // Cart management
+  const {
+    cartItems,
+    addToCart,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    subtotal,
+    isInCart,
+  } = useSalesCart()
+
+  // Payment management
+  const {
+    payments,
+    addPayment,
+    removePayment,
+    clearPayments,
+    addFullPayment,
+    totalPayments,
+    calculateRemaining,
+  } = useSalesPayments()
+
+  // Form state
+  const [discount, setDiscount] = useState("0")
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
+  const [exchangeRate, setExchangeRate] = useState<number>(12600)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Load exchange rate on mount
+  useEffect(() => {
+    const rate = getExchangeRateNumber()
+    if (rate) {
+      setExchangeRate(rate)
+    }
+  }, [])
+
+  // Handle add product to cart
+  const handleAddToCart = useCallback((product: SaleProduct) => {
+    addToCart(product)
+    toast.success(t('messages.productAdded', { productName: product.name }))
+  }, [addToCart, t])
+
+  // Handle exchange rate change
+  const handleExchangeRateChange = useCallback((rate: number) => {
+    setExchangeRate(rate)
+  }, [])
+
+  // Handle clear cart
+  const handleClearCart = useCallback(() => {
+    clearCart()
+    clearPayments()
+    setDiscount("0")
+    setSelectedClientId(null)
+    toast.success(t('messages.cartCleared'))
+  }, [clearCart, clearPayments, t])
+
+  // Handle remove item
+  const handleRemoveItem = useCallback((productId: number) => {
+    removeItem(productId)
+    toast.success(t('messages.productRemoved'))
+  }, [removeItem, t])
+
+  // Handle add full payment
+  const handleAddFullPayment = useCallback((method: string, currency: string) => {
+    const discountAmount = parseFloat(discount) || 0
+    const total = Math.max(0, subtotal - discountAmount)
+    addFullPayment(method as PaymentMethod, currency as Currency, total, exchangeRate)
+  }, [addFullPayment, discount, subtotal, exchangeRate])
+
+  // Calculate totals
+  const discountAmount = parseFloat(discount) || 0
+  const total = Math.max(0, subtotal - discountAmount)
+  const totalPaid = totalPayments(exchangeRate)
+  const remaining = calculateRemaining(total, exchangeRate)
+
+  // Handle form submission
+  const handleSubmit = useCallback(async () => {
+    // Validation
+    if (cartItems.length === 0) {
+      toast.error(t('validation.cartEmpty'))
+      return
+    }
+
+    // Check stock
+    const hasStockErrors = cartItems.some(item => item.quantity > item.product.quantity)
+    if (hasStockErrors) {
+      const errorItem = cartItems.find(item => item.quantity > item.product.quantity)
+      toast.error(t('validation.stockExceeded', { 
+        productName: errorItem?.product.name,
+        stock: errorItem?.product.quantity
+      }))
+      return
+    }
+
+    // Check client requirement
+    if (remaining > 0 && !selectedClientId) {
+      toast.error(t('validation.clientRequired'))
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      // Prepare request data
+      const saleData = {
+        items: cartItems.map(item => ({
+          product_id: item.product.id,
+          quantity: item.quantity,
+        })),
+        payments: payments.map(payment => ({
+          method: payment.method,
+          currency: payment.currency,
+          amount: payment.amount,
+        })),
+        exchange_rate: exchangeRate.toString(),
+        client_id: selectedClientId || undefined,
+        discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
+      }
+
+      // Submit sale
+      await salesService.createSale(saleData)
+
+      // Success
+      if (remaining > 0) {
+        toast.success(t('messages.saleCreatedWithDebt'))
+      } else {
+        toast.success(t('messages.saleCreated'))
+      }
+
+      // Clear form
+      handleClearCart()
+
+    } catch (error: any) {
+      console.error('Failed to create sale:', error)
+      toast.error(error.response?.data?.message || t('messages.error'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [
+    cartItems,
+    payments,
+    exchangeRate,
+    selectedClientId,
+    discountAmount,
+    remaining,
+    t,
+    handleClearCart,
+  ])
+
+  // Handle submit and print (placeholder for now)
+  const handleSubmitAndPrint = useCallback(async () => {
+    await handleSubmit()
+    // TODO: Implement print functionality later
+  }, [handleSubmit])
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('navigation.sotuv')}</h1>
-        <p className="text-muted-foreground">Sales and transactions management</p>
-      </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "16rem",
+          "--sidebar-width-icon": "3rem",
+          "--header-height": "calc(var(--spacing) * 14)",
+        } as React.CSSProperties
+      }
+      className={config.collapsible === "none" ? "sidebar-none-mode" : ""}
+    >
+      {/* Left Sidebar */}
+      <AppSidebar
+        variant={config.variant}
+        collapsible={config.collapsible}
+        side={config.side}
+      />
 
-      <Card className="mx-auto max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="rounded-full bg-muted p-6">
-              <ShoppingCart className="size-12 text-muted-foreground" />
+      {/* Main Content */}
+      <SidebarInset className="overflow-hidden">
+        <SiteHeader onThemeCustomizerOpen={() => setThemeCustomizerOpen(true)} />
+        <div className="flex flex-col h-[calc(100vh-var(--header-height))]">
+          {/* Header */}
+          <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+            <div className="flex h-16 items-center px-4 lg:px-6">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+                <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+              </div>
             </div>
           </div>
-          <CardTitle className="text-2xl">Coming Soon</CardTitle>
-          <CardDescription>
-            This feature is under development and will be available soon.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center text-sm text-muted-foreground">
-          <p>
-            The sales management system will allow you to create and manage sales transactions,
-            track payments, and generate invoices.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+
+          {/* Product Grid - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-4">
+            <ProductGrid
+              onAddToCart={handleAddToCart}
+              isInCart={isInCart}
+              exchangeRate={exchangeRate}
+            />
+          </div>
+        </div>
+      </SidebarInset>
+
+      {/* Right Cart Sidebar */}
+      <CartSidebar
+        cartItems={cartItems}
+        payments={payments}
+        discount={discount}
+        selectedClientId={selectedClientId}
+        exchangeRate={exchangeRate}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={handleRemoveItem}
+        onClearCart={handleClearCart}
+        onDiscountChange={setDiscount}
+        onAddPayment={addPayment}
+        onRemovePayment={removePayment}
+        onAddFullPayment={handleAddFullPayment}
+        onClientSelect={setSelectedClientId}
+        onExchangeRateChange={handleExchangeRateChange}
+        onSubmit={handleSubmit}
+        onSubmitAndPrint={handleSubmitAndPrint}
+        isSubmitting={isSubmitting}
+      />
+
+      {/* Theme Customizer */}
+      <ThemeCustomizer
+        open={themeCustomizerOpen}
+        onOpenChange={setThemeCustomizerOpen}
+      />
+    </SidebarProvider>
   )
 }

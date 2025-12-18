@@ -104,7 +104,8 @@
     "customizeColumns": "Customize Columns",
     "addNew": "Add New",
     "rowsSelected": "row(s) selected",
-    "ofRows": "of"
+    "ofRows": "of",
+    "totalRecords": "Total records"
   },
   "search": {
     "placeholder": "What do you need?",

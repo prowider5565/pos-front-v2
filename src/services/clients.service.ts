@@ -13,6 +13,7 @@ export interface Client {
   full_name: string
   phone_number: string
   old_debt?: ClientOldDebt | null
+  deleted?: boolean
   created_at: string
   updated_at: string
 }

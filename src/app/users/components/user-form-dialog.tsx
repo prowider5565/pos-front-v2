@@ -72,15 +72,21 @@ interface UserFormDialogProps {
   user?: User
   onSuccess?: () => void
   trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function UserFormDialog({ user, onSuccess, trigger }: UserFormDialogProps) {
+export function UserFormDialog({ user, onSuccess, trigger, open: controlledOpen, onOpenChange }: UserFormDialogProps) {
   const { t } = useTranslation(['users', 'common'])
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const isEditMode = !!user
+  
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
+  const setOpen = isControlled ? onOpenChange! : setInternalOpen
 
   const form = useForm<CreateUserFormValues | EditUserFormValues>({
     resolver: zodResolver(isEditMode ? editUserFormSchema : createUserFormSchema),
@@ -174,19 +180,15 @@ export function UserFormDialog({ user, onSuccess, trigger }: UserFormDialogProps
     </Button>
   )
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>{isEditMode ? t('editUser') : t('addUser')}</DialogTitle>
-          <DialogDescription>
-            {t('subtitle')}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
+  const dialogContent = (
+    <DialogContent className="sm:max-w-[500px]">
+      <DialogHeader>
+        <DialogTitle>{isEditMode ? t('editUser') : t('addUser')}</DialogTitle>
+        <DialogDescription>
+          {t('subtitle')}
+        </DialogDescription>
+      </DialogHeader>
+      <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
@@ -353,6 +355,22 @@ export function UserFormDialog({ user, onSuccess, trigger }: UserFormDialogProps
           </form>
         </Form>
       </DialogContent>
+  )
+
+  if (isControlled) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        {dialogContent}
+      </Dialog>
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || defaultTrigger}
+      </DialogTrigger>
+      {dialogContent}
     </Dialog>
   )
 }

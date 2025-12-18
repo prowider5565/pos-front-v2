@@ -2,13 +2,12 @@
 
 import { useEffect, lazy, Suspense } from "react"
 import { useTranslation } from "react-i18next"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import 'react-phone-number-input/style.css'
 
-// Lazy-load PhoneInput to reduce initial bundle size (Vite/React.lazy)
 const PhoneInput = lazy(() => import('react-phone-number-input'))
 
 import { Button } from "@/components/ui/button"
@@ -28,24 +27,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { clientsService, type Client } from "@/services/clients.service"
-import { getExchangeRate } from "@/lib/exchange-rate-storage"
 
 const clientFormSchema = z.object({
   full_name: z.string().min(1, "Full name is required"),
   phone_number: z.string().min(1, "Phone number is required"),
-  has_old_debt: z.boolean().default(false),
-  old_debt_amount: z.string().optional(),
-  old_debt_exchange_rate: z.string().optional(),
-  old_debt_currency: z.enum(["UZS", "USD"]).optional(),
 })
 
 type ClientFormValues = z.infer<typeof clientFormSchema>
@@ -65,42 +51,20 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
     defaultValues: {
       full_name: "",
       phone_number: "",
-      has_old_debt: false,
-      old_debt_amount: "",
-      old_debt_exchange_rate: getExchangeRate(),
-      old_debt_currency: "UZS",
     },
   })
 
-  // Use useWatch instead of form.watch to avoid re-render storms
-  const hasOldDebt = useWatch({
-    control: form.control,
-    name: "has_old_debt",
-    defaultValue: false,
-  })
-
-  // Reset form when dialog opens
   useEffect(() => {
     if (open) {
       if (client) {
-        // Edit mode - populate with client data
         form.reset({
           full_name: client.full_name,
           phone_number: client.phone_number,
-          has_old_debt: !!client.old_debt,
-          old_debt_amount: client.old_debt?.amount || "",
-          old_debt_exchange_rate: client.old_debt?.exchange_rate || getExchangeRate(),
-          old_debt_currency: client.old_debt?.currency || "UZS",
         })
       } else {
-        // Create mode - reset to defaults
         form.reset({
           full_name: "",
           phone_number: "",
-          has_old_debt: false,
-          old_debt_amount: "",
-          old_debt_exchange_rate: getExchangeRate(),
-          old_debt_currency: "UZS",
         })
       }
     }
@@ -108,18 +72,9 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
 
   const onSubmit = async (data: ClientFormValues) => {
     try {
-      const payload: any = {
+      const payload = {
         full_name: data.full_name,
         phone_number: data.phone_number,
-      }
-
-      // Only include old_debt if checkbox is checked and amount is provided
-      if (data.has_old_debt && data.old_debt_amount && parseFloat(data.old_debt_amount) > 0) {
-        payload.old_debt = {
-          amount: data.old_debt_amount,
-          exchange_rate: data.old_debt_exchange_rate || "1",
-          currency: data.old_debt_currency || "UZS",
-        }
       }
 
       if (client) {
@@ -140,7 +95,6 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
     }
   }
 
-  // Only render dialog when open to free memory when closed
   if (!open) return null
 
   return (
@@ -191,92 +145,6 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="has_old_debt"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      {t('form.hasOldDebt')}
-                    </FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            {hasOldDebt && (
-              <div className="space-y-4 rounded-md border p-4 bg-muted/50">
-                <h4 className="text-sm font-medium">{t('form.oldDebtDetails')}</h4>
-                
-                <FormField
-                  control={form.control}
-                  name="old_debt_amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('form.amount')}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number"
-                          step="0.01"
-                          placeholder={t('form.amountPlaceholder')} 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="old_debt_currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('form.currency')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="cursor-pointer">
-                            <SelectValue placeholder={t('form.currencyPlaceholder')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="UZS">UZS</SelectItem>
-                          <SelectItem value="USD">USD</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="old_debt_exchange_rate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('form.exchangeRate')}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number"
-                          step="0.01"
-                          placeholder={t('form.exchangeRatePlaceholder')} 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button

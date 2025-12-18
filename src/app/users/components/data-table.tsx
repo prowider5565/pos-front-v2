@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 import {
   Pencil,
-  Trash2,
+  Archive,
   Search,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -23,7 +23,6 @@ import { toast } from "sonner"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -62,7 +61,6 @@ export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
   
   // Pagination and filters
   const [currentPage, setCurrentPage] = useState(1)
@@ -172,33 +170,6 @@ export function DataTable() {
 
   const columns: ColumnDef<User>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <div className="flex items-center justify-center px-2">
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-          />
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center px-2">
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 50,
-    },
-    {
       accessorKey: "username",
       header: t('table.username'),
       cell: ({ row }) => {
@@ -227,10 +198,11 @@ export function DataTable() {
       },
     },
     {
-      accessorKey: "is_active",
+      accessorKey: "deleted",
       header: t('table.status'),
       cell: ({ row }) => {
-        const isActive = row.getValue("is_active") as boolean
+        const user = row.original
+        const isActive = !user.deleted
         return (
           <Badge 
             variant="secondary" 
@@ -257,18 +229,20 @@ export function DataTable() {
               size="icon"
               className="h-8 w-8 cursor-pointer"
               onClick={() => handleEditUser(user)}
+              title={t('common:actions.edit')}
             >
               <Pencil className="size-4" />
-              <span className="sr-only">Edit user</span>
+              <span className="sr-only">{t('common:actions.edit')}</span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 cursor-pointer text-destructive hover:text-destructive"
               onClick={() => handleDeleteUser(user.id)}
+              title={t('common:actions.archive')}
             >
-              <Trash2 className="size-4" />
-              <span className="sr-only">Delete user</span>
+              <Archive className="size-4" />
+              <span className="sr-only">{t('common:actions.archive')}</span>
             </Button>
           </div>
         )
@@ -285,12 +259,10 @@ export function DataTable() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
     manualPagination: true,
     pageCount: totalPages,
@@ -310,21 +282,10 @@ export function DataTable() {
             />
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <UserFormDialog onSuccess={fetchUsers} />
-          {/* Hidden edit dialog - opens when edit button is clicked */}
-          {editDialogOpen && (
-            <UserFormDialog 
-              user={editingUser} 
-              onSuccess={handleEditSuccess}
-              trigger={<div style={{ display: 'none' }} />}
-            />
-          )}
-        </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
-        <div className="space-y-2">
+      <div className="flex items-end gap-4">
+        <div className="space-y-2 flex-1 max-w-xs">
           <Label htmlFor="status-filter" className="text-sm font-medium">
             {t('table.status')}
           </Label>
@@ -345,6 +306,13 @@ export function DataTable() {
             </SelectContent>
           </Select>
         </div>
+        <UserFormDialog onSuccess={fetchUsers} />
+        <UserFormDialog 
+          user={editingUser} 
+          onSuccess={handleEditSuccess}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
       </div>
 
       <div className="rounded-md border">

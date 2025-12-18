@@ -21,3 +21,21 @@ export interface SupplierDebtsResponse {
   results: SupplierDebt[]
   metadata: DebtAmounts
 }
+
+export interface ClientDebt {
+  id: number
+  full_name?: string
+  phone_number?: string
+  client?: number
+  debt_amounts: DebtAmounts
+}
+
+export interface ClientDebtsResponse {
+  count: number
+  current_page: number
+  next: string | null
+  previous: string | null
+  total_pages: number
+  results: ClientDebt[]
+  metadata: DebtAmounts
+}

@@ -14,16 +14,16 @@ import {
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BulkPaymentDialog } from '@/components/bulk-payment-dialog'
+import { SalePaymentDialog } from '@/components/sale-payment-dialog'
 import { PaymentHistoryDialog } from '@/components/payment-history-dialog'
-import type { PaymentType } from '@/services/payments.service'
-import type { SupplierDebt, SupplierDebtsResponse } from '@/types/debts'
+import type { ClientDebt, ClientDebtsResponse } from '@/types/debts'
 
 interface DataTableProps {
-  data?: SupplierDebtsResponse
+  data?: ClientDebtsResponse
   isLoading: boolean
   page: number
   search: string
-  debtType: 'new' | 'old'
+  debtType: 'sale' | 'old'
   onPageChange: (page: number) => void
   onSearchChange: (search: string) => void
   onPaymentSuccess?: () => void
@@ -42,32 +42,30 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
   const { t } = useTranslation('debts')
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
-  const [selectedSupplier, setSelectedSupplier] = useState<SupplierDebt | null>(null)
+  const [selectedClient, setSelectedClient] = useState<ClientDebt | null>(null)
 
   const handleSearchChange = (value: string) => {
     onSearchChange(value)
     onPageChange(1)
   }
 
-  const handleMakePayment = (e: React.MouseEvent, supplier: SupplierDebt) => {
+  const handleMakePayment = (e: React.MouseEvent, client: ClientDebt) => {
     e.stopPropagation()
-    setSelectedSupplier(supplier)
+    setSelectedClient(client)
     setPaymentDialogOpen(true)
   }
 
-  const handleRowClick = (supplier: SupplierDebt) => {
-    setSelectedSupplier(supplier)
+  const handleRowClick = (client: ClientDebt) => {
+    setSelectedClient(client)
     setHistoryDialogOpen(true)
   }
-
-  const paymentType: PaymentType = debtType === 'new' ? 'new-supplier' : 'old-supplier'
 
   return (
     <div className="space-y-4">
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder={t('search.placeholder')}
+          placeholder={t('search.clientPlaceholder')}
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="pl-9"
@@ -78,7 +76,7 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('table.supplier')}</TableHead>
+              <TableHead>{t('table.client')}</TableHead>
               <TableHead>{t('table.phone')}</TableHead>
               <TableHead>{t('table.totalDebt')}</TableHead>
               <TableHead>{t('table.totalPaid')}</TableHead>
@@ -102,31 +100,28 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
                 </TableCell>
               </TableRow>
             ) : (
-              data?.results.map((supplier) => {
-                const remaining = parseFloat(supplier.debt_amounts.total_remaining.uzs_amount) + parseFloat(supplier.debt_amounts.total_remaining.usd_amount)
+              data?.results.map((client) => {
+                const remaining = parseFloat(client.debt_amounts.total_remaining.uzs_amount) + parseFloat(client.debt_amounts.total_remaining.usd_amount)
                 return (
-                  <TableRow key={supplier.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(supplier)}>
+                  <TableRow key={client.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(client)}>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{supplier.full_name}</div>
-                        <div className="text-sm text-muted-foreground">{supplier.company_name}</div>
-                      </div>
+                      <div className="font-medium">{client.full_name || `Client #${client.client || client.id}`}</div>
                     </TableCell>
-                    <TableCell>{supplier.phone_number}</TableCell>
+                    <TableCell>{client.phone_number || '—'}</TableCell>
                     <TableCell>
-                      {formatCurrency(supplier.debt_amounts.total_debt.uzs_amount, supplier.debt_amounts.total_debt.usd_amount)}
+                      {formatCurrency(client.debt_amounts.total_debt.uzs_amount, client.debt_amounts.total_debt.usd_amount)}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(supplier.debt_amounts.total_paid.uzs_amount, supplier.debt_amounts.total_paid.usd_amount)}
+                      {formatCurrency(client.debt_amounts.total_paid.uzs_amount, client.debt_amounts.total_paid.usd_amount)}
                     </TableCell>
                     <TableCell>
                       <span className={remaining > 0 ? 'text-destructive font-medium' : remaining < 0 ? 'text-green-600 font-medium' : ''}>
-                        {formatCurrency(supplier.debt_amounts.total_remaining.uzs_amount, supplier.debt_amounts.total_remaining.usd_amount)}
+                        {formatCurrency(client.debt_amounts.total_remaining.uzs_amount, client.debt_amounts.total_remaining.usd_amount)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       {remaining > 0 && (
-                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
+                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, client)}>
                           <CreditCard className="h-4 w-4 mr-1" />
                           {t('actions.makePayment')}
                         </Button>
@@ -148,24 +143,36 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
         />
       )}
 
-      {selectedSupplier && (
-        <BulkPaymentDialog
+      {selectedClient && debtType === 'sale' && (
+        <SalePaymentDialog
           open={paymentDialogOpen}
           onOpenChange={setPaymentDialogOpen}
-          type={paymentType}
-          entityId={selectedSupplier.id}
-          entityName={selectedSupplier.full_name || selectedSupplier.company_name}
+          saleId={selectedClient.id}
+          clientName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+          debtUzs={parseFloat(selectedClient.debt_amounts.total_remaining.uzs_amount)}
+          debtUsd={parseFloat(selectedClient.debt_amounts.total_remaining.usd_amount)}
           onSuccess={onPaymentSuccess}
         />
       )}
 
-      {selectedSupplier && (
+      {selectedClient && debtType === 'old' && (
+        <BulkPaymentDialog
+          open={paymentDialogOpen}
+          onOpenChange={setPaymentDialogOpen}
+          type="old-client"
+          entityId={selectedClient.client || selectedClient.id}
+          entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+          onSuccess={onPaymentSuccess}
+        />
+      )}
+
+      {selectedClient && (
         <PaymentHistoryDialog
           open={historyDialogOpen}
           onOpenChange={setHistoryDialogOpen}
-          type={debtType === 'new' ? 'new-supplier' : 'old-supplier'}
-          entityId={selectedSupplier.id}
-          entityName={selectedSupplier.full_name || selectedSupplier.company_name}
+          type={debtType === 'sale' ? 'sale' : 'old-client'}
+          entityId={debtType === 'sale' ? selectedClient.id : (selectedClient.client || selectedClient.id)}
+          entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
         />
       )}
     </div>

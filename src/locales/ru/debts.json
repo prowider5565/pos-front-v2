@@ -10,7 +10,8 @@
   },
   "tabs": {
     "newDebts": "Новые долги",
-    "oldDebts": "Старые долги"
+    "oldDebts": "Старые долги",
+    "saleDebts": "Долги по продажам"
   },
   "summary": {
     "totalDebt": "Общий долг",
@@ -19,6 +20,7 @@
   },
   "table": {
     "supplier": "Поставщик",
+    "client": "Клиент",
     "fullName": "ФИО",
     "companyName": "Компания",
     "phone": "Телефон",
@@ -33,6 +35,42 @@
     "makePayment": "Оплатить"
   },
   "search": {
-    "placeholder": "Поиск поставщиков..."
+    "placeholder": "Поиск поставщиков...",
+    "clientPlaceholder": "Поиск клиентов..."
+  },
+  "payment": {
+    "title": "Оплата",
+    "description": "Оплата для {{name}}",
+    "amount": "Сумма",
+    "currency": "Валюта",
+    "method": "Способ оплаты",
+    "distributionStrategy": "Стратегия распределения",
+    "submit": "Оплатить",
+    "success": "Оплата успешна",
+    "failed": "Ошибка оплаты",
+    "exceededDebt": "Сумма оплаты превышает сумму долга!",
+    "currentDebt": "Текущий долг",
+    "remainingDebt": "Остаток долга",
+    "overpayment": "Переплата",
+    "methods": {
+      "cash": "Наличные",
+      "card": "Карта",
+      "transfer": "Перевод"
+    },
+    "strategies": {
+      "oldest": "Сначала старые",
+      "newest": "Сначала новые",
+      "leastAmount": "Сначала меньшие суммы",
+      "largestAmount": "Сначала большие суммы"
+    }
+  },
+  "paymentHistory": {
+    "title": "История платежей - {{name}}",
+    "totalPaid": "Всего оплачено",
+    "amount": "Сумма",
+    "currency": "Валюта",
+    "method": "Способ",
+    "date": "Дата",
+    "noPayments": "Платежи не найдены"
   }
 }

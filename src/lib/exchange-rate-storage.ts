@@ -19,6 +19,13 @@ export function getExchangeRate(): string {
 export function setExchangeRate(rate: string): void {
   try {
     localStorage.setItem(EXCHANGE_RATE_KEY, rate)
+
+    // Notify same-tab listeners immediately (storage event doesn't fire in same tab)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('exchange-rate:changed', { detail: { rate } })
+      )
+    }
   } catch (error) {
     console.error('Failed to save exchange rate:', error)
   }

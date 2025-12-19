@@ -39,3 +39,60 @@ export interface ClientDebtsResponse {
   results: ClientDebt[]
   metadata: DebtAmounts
 }
+
+/**
+ * Create old supplier debt request
+ */
+export interface CreateOldSupplierDebtRequest {
+  supplier: number
+  amount: string
+  exchange_rate: string
+  currency: 'UZS' | 'USD'
+}
+
+/**
+ * Create old client debt request
+ */
+export interface CreateOldClientDebtRequest {
+  client: number
+  amount: string
+  exchange_rate: string
+  currency: 'UZS' | 'USD'
+}
+
+/**
+ * Old debt item (for detail view)
+ */
+export interface OldDebtItem {
+  id: number
+  exchange_rate: string
+  currency: 'UZS' | 'USD'
+  status: 'PENDING' | 'PARTIALLY_PAID' | 'PAID'
+  debt_amounts: {
+    total_debt: {
+      usd_amount: string
+      uzs_amount: string
+    }
+    total_paid: {
+      usd_amount: string
+      uzs_amount: string
+    }
+    total_remaining: {
+      usd_amount: string
+      uzs_amount: string
+    }
+  }
+}
+
+/**
+ * Supplier old debts detail response
+ */
+export interface SupplierOldDebtsDetailResponse {
+  count: number
+  current_page: number
+  next: string | null
+  previous: string | null
+  total_pages: number
+  results: OldDebtItem[]
+  metadata: DebtAmounts
+}

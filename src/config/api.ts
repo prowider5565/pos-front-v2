@@ -52,10 +52,13 @@ export const API_ENDPOINTS = {
   
   // Debts endpoints
   DEBTS: {
-    SUPPLIERS_NEW: '/debts/suppliers/new-debts/',
-    SUPPLIERS_OLD: '/debts/suppliers/old-debts/',
+    SUPPLIERS_NEW: '/debts/suppliers/new/list/',
+    SUPPLIERS_OLD: '/debts/suppliers/old/list/',
     CLIENTS_SALE: '/debts/clients/sale-debts/',
-    CLIENTS_OLD: '/debts/clients/old-debts/',
+    CLIENTS_OLD: '/debts/clients/old/list/',
+    CREATE_OLD_SUPPLIER: '/debts/old-seller-debts/',
+    CREATE_OLD_CLIENT: '/debts/old-client-debts/',
+    SUPPLIER_OLD_DEBTS_DETAIL: (supplierId: number) => `/debts/suppliers/${supplierId}/old-debts/`,
   },
 
   // Analytics endpoints
@@ -71,6 +74,8 @@ export const API_ENDPOINTS = {
   SALES: {
     PRODUCTS_FOR_SALE: '/products/products/for-sale/',
     CREATE: '/sales/create/',
+    LIST: '/sales/list/',
+    DETAIL: '/sales/',
   },
 } as const
 

@@ -74,8 +74,9 @@
     "system": "Система",
     "management": "Пользователи",
     "savdo": "Торговля",
-    "sotuv": "Продажа",
     "mahsulotlar": "Продукты",
+    "soldProducts": "Проданные товары",
+    "sotuv": "Продажа",
     "debts": "Долги",
     "supplierDebts": "Долги поставщикам",
     "clientDebts": "Долги клиентов"

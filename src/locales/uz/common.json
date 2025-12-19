@@ -74,8 +74,9 @@
     "system": "Tizim",
     "management": "Foydalanuvchilar",
     "savdo": "Savdo",
-    "sotuv": "Sotuv",
     "mahsulotlar": "Mahsulotlar",
+    "soldProducts": "Sotilgan mahsulotlar",
+    "sotuv": "Sotuv",
     "debts": "Qarzlar",
     "supplierDebts": "Yetkazib beruvchi qarzlari",
     "clientDebts": "Mijoz qarzlari"

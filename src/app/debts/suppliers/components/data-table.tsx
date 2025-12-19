@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, CreditCard } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Search, CreditCard, Eye } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,6 +41,7 @@ function formatCurrency(uzs: string, usd: string) {
 
 export function DataTable({ data, isLoading, page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
   const { t } = useTranslation('debts')
+  const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierDebt | null>(null)
@@ -58,6 +60,11 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
   const handleRowClick = (supplier: SupplierDebt) => {
     setSelectedSupplier(supplier)
     setHistoryDialogOpen(true)
+  }
+
+  const handleViewDetails = (e: React.MouseEvent, supplierId: number) => {
+    e.stopPropagation()
+    navigate(`/debts/suppliers/${supplierId}/old-debts`)
   }
 
   const paymentType: PaymentType = debtType === 'new' ? 'new-supplier' : 'old-supplier'
@@ -125,12 +132,19 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      {remaining > 0 && (
-                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
-                          <CreditCard className="h-4 w-4 mr-1" />
-                          {t('actions.makePayment')}
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {debtType === 'old' && (
+                          <Button size="sm" variant="ghost" onClick={(e) => handleViewDetails(e, supplier.id)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {remaining > 0 && (
+                          <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
+                            <CreditCard className="h-4 w-4 mr-1" />
+                            {t('actions.makePayment')}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )

@@ -8,19 +8,15 @@ export function useSalesCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   /**
-   * Add a product to cart or increase quantity if already exists
+   * Add a product to cart or remove if already exists (toggle behavior)
    */
   const addToCart = useCallback((product: SaleProduct) => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.product.id === product.id)
       
       if (existingItem) {
-        // Increase quantity if product already in cart
-        return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
+        // Remove product if already in cart (unselect behavior)
+        return prev.filter(item => item.product.id !== product.id)
       } else {
         // Add new product with quantity 1
         return [...prev, { product, quantity: 1 }]

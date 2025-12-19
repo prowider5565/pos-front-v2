@@ -32,7 +32,10 @@
     "loading": "Yuklanmoqda..."
   },
   "actions": {
-    "makePayment": "To'lov qilish"
+    "makePayment": "To'lov qilish",
+    "cancel": "Bekor qilish",
+    "submit": "Qarz qo'shish",
+    "submitting": "Qo'shilmoqda..."
   },
   "search": {
     "placeholder": "Yetkazib beruvchilarni qidirish...",
@@ -72,5 +75,41 @@
     "method": "Usul",
     "date": "Sana",
     "noPayments": "To'lovlar topilmadi"
+  },
+
+  "addOldDebt": {
+    "title": "Eski qarz qo'shish",
+    "button": "Eski qarz qo'shish",
+    "selectSupplier": "Ta'minotchini tanlang...",
+    "selectClient": "Mijozni tanlang...",
+    "forSupplier": "Ta'minotchi uchun",
+    "forClient": "Mijoz uchun",
+    "amount": "Summa",
+    "amountPlaceholder": "Qarz summasini kiriting",
+    "currency": "Valyuta",
+    "exchangeRate": "Valyuta kursi (1 USD = ... UZS)",
+    "success": "Eski qarz muvaffaqiyatli qo'shildi",
+    "error": "Eski qarzni qo'shib bo'lmadi"
+  },
+
+  "supplierOldDebtsDetail": {
+    "title": "Ta'minotchi eski qarzlari",
+    "backToList": "Qarzlarga qaytish",
+    "supplierInfo": "Ta'minotchi ma'lumotlari",
+    "fullName": "To'liq ism",
+    "companyName": "Kompaniya nomi",
+    "phone": "Telefon",
+    "totalDebt": "Jami qarz",
+    "totalPaid": "Jami to'langan",
+    "totalRemaining": "Qolgan",
+    "oldDebtsList": "Eski qarzlar ro'yxati",
+    "debtId": "Qarz ID",
+    "status": "Holat",
+    "currency": "Valyuta",
+    "originalAmount": "Dastlabki summa",
+    "paidAmount": "To'langan",
+    "remainingAmount": "Qolgan",
+    "exchangeRate": "Valyuta kursi",
+    "noDebts": "Eski qarzlar topilmadi"
   }
 }

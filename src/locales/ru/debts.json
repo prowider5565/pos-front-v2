@@ -32,7 +32,10 @@
     "loading": "Загрузка..."
   },
   "actions": {
-    "makePayment": "Оплатить"
+    "makePayment": "Оплатить",
+    "cancel": "Отмена",
+    "submit": "Добавить долг",
+    "submitting": "Добавление..."
   },
   "search": {
     "placeholder": "Поиск поставщиков...",
@@ -72,5 +75,41 @@
     "method": "Способ",
     "date": "Дата",
     "noPayments": "Платежи не найдены"
+  },
+
+  "addOldDebt": {
+    "title": "Добавить старый долг",
+    "button": "Добавить старый долг",
+    "selectSupplier": "Выберите поставщика...",
+    "selectClient": "Выберите клиента...",
+    "forSupplier": "Для поставщика",
+    "forClient": "Для клиента",
+    "amount": "Сумма",
+    "amountPlaceholder": "Введите сумму долга",
+    "currency": "Валюта",
+    "exchangeRate": "Курс валюты (1 USD = ... UZS)",
+    "success": "Старый долг успешно добавлен",
+    "error": "Не удалось добавить старый долг"
+  },
+
+  "supplierOldDebtsDetail": {
+    "title": "Старые долги поставщика",
+    "backToList": "Назад к долгам",
+    "supplierInfo": "Информация о поставщике",
+    "fullName": "ФИО",
+    "companyName": "Название компании",
+    "phone": "Телефон",
+    "totalDebt": "Общий долг",
+    "totalPaid": "Всего оплачено",
+    "totalRemaining": "Остаток",
+    "oldDebtsList": "Список старых долгов",
+    "debtId": "ID долга",
+    "status": "Статус",
+    "currency": "Валюта",
+    "originalAmount": "Исходная сумма",
+    "paidAmount": "Оплачено",
+    "remainingAmount": "Остаток",
+    "exchangeRate": "Курс валюты",
+    "noDebts": "Старые долги не найдены"
   }
 }

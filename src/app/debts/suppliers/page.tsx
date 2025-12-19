@@ -1,10 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 import { BaseLayout } from '@/components/layouts/base-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { DataTable } from './components/data-table'
 import { SummaryCards } from './components/summary-cards'
+import { AddOldDebtDialog } from '@/components/add-old-debt-dialog'
 import { useNewSupplierDebts, useOldSupplierDebts } from '@/hooks/use-debts'
+import { suppliersService } from '@/services/suppliers.service'
 
 export default function SupplierDebtsPage() {
   const { t } = useTranslation('debts')
@@ -16,6 +28,9 @@ export default function SupplierDebtsPage() {
   const [oldPage, setOldPage] = useState(1)
   const [oldSearch, setOldSearch] = useState('')
   const [oldDebouncedSearch, setOldDebouncedSearch] = useState('')
+
+  const [selectedSupplierId, setSelectedSupplierId] = useState<number | null>(null)
+  const [addDebtDialogOpen, setAddDebtDialogOpen] = useState(false)
 
   // Debounce new search
   useEffect(() => {
@@ -33,6 +48,19 @@ export default function SupplierDebtsPage() {
   const oldDebts = useOldSupplierDebts(oldPage, oldDebouncedSearch)
 
   const currentData = activeTab === 'new' ? newDebts : oldDebts
+
+  // Fetch suppliers list for the selector
+  const { data: suppliersData } = useQuery({
+    queryKey: ['suppliers-list'],
+    queryFn: () => suppliersService.listSuppliers({ is_active: true }),
+  })
+
+  const selectedSupplier = suppliersData?.results.find(s => s.id === selectedSupplierId)
+
+  const handleAddOldDebt = () => {
+    if (!selectedSupplierId) return
+    setAddDebtDialogOpen(true)
+  }
 
   return (
     <BaseLayout
@@ -65,6 +93,34 @@ export default function SupplierDebtsPage() {
               <TabsTrigger value="new" className="flex-1">{t('tabs.newDebts')}</TabsTrigger>
               <TabsTrigger value="old" className="flex-1">{t('tabs.oldDebts')}</TabsTrigger>
             </TabsList>
+            
+            {/* Supplier selector + Add Old Debt button */}
+            <div className="flex items-center gap-3">
+              <Select
+                value={selectedSupplierId?.toString() || ""}
+                onValueChange={(value) => setSelectedSupplierId(Number(value))}
+              >
+                <SelectTrigger className="w-[300px]">
+                  <SelectValue placeholder={t('addOldDebt.selectSupplier')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {suppliersData?.results.map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                      {supplier.full_name} {supplier.company_name ? `(${supplier.company_name})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={handleAddOldDebt}
+                disabled={!selectedSupplierId}
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t('addOldDebt.button')}
+              </Button>
+            </div>
+
             <DataTable
               data={oldDebts.data}
               isLoading={oldDebts.isLoading}
@@ -77,6 +133,17 @@ export default function SupplierDebtsPage() {
             />
           </TabsContent>
         </Tabs>
+
+        {selectedSupplier && (
+          <AddOldDebtDialog
+            open={addDebtDialogOpen}
+            onOpenChange={setAddDebtDialogOpen}
+            entityType="supplier"
+            entityId={selectedSupplier.id}
+            entityName={selectedSupplier.full_name || selectedSupplier.company_name}
+            onSuccess={() => oldDebts.refetch()}
+          />
+        )}
       </div>
     </BaseLayout>
   )

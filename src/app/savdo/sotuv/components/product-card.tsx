@@ -14,8 +14,8 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps) {
   const handleClick = () => {
-    // Only add to cart if not already in cart and has stock
-    if (!isInCart && product.quantity > 0) {
+    // Allow toggle - add if not in cart, or trigger remove if already in cart
+    if (product.quantity > 0) {
       onAddToCart(product)
     }
   }
@@ -23,13 +23,22 @@ export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps
   return (
     <Card
       key={product.id}
-      className="overflow-hidden transition-all hover:shadow-lg hover:border-primary group p-0 pb-4"
+      role={product.quantity > 0 ? "button" : undefined}
+      tabIndex={product.quantity > 0 ? 0 : -1}
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (product.quantity <= 0) return
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
+      className={`overflow-hidden transition-all hover:shadow-lg hover:border-primary group p-0 pb-4 ${
+        product.quantity > 0 ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'
+      } ${isInCart ? 'border-2 border-primary' : ''}`}
     >
       {/* Product Image - flush with card top */}
-      <div 
-        className="relative aspect-square overflow-hidden bg-muted cursor-pointer"
-        onClick={handleClick}
-      >
+      <div className="relative aspect-square overflow-hidden bg-muted">
         {product.cover_image ? (
           <>
             <img
@@ -64,7 +73,7 @@ export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps
         </Badge>
       </div>
 
-      <CardHeader className="cursor-pointer" onClick={handleClick}>
+      <CardHeader>
         <CardTitle className="line-clamp-2">{product.name}</CardTitle>
         <CardDescription className="line-clamp-1">{product.category?.name || 'N/A'}</CardDescription>
       </CardHeader>

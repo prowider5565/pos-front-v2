@@ -66,6 +66,10 @@
     }
   },
   
+  "comment": {
+    "placeholder": "Comment (optional)"
+  },
+
   "client": {
     "selectClient": "Select Client",
     "selectPlaceholder": "Search and select client...",
@@ -76,6 +80,7 @@
   
   "validation": {
     "cartEmpty": "Please add at least one product to cart",
+    "discountTooHigh": "Final total cannot be higher than the original total", 
     "invalidQuantity": "Invalid quantity for product: {{productName}}",
     "stockExceeded": "Stock exceeded for product: {{productName}}. Available: {{stock}}",
     "clientRequired": "Please select a client for remaining debt",
@@ -106,5 +111,52 @@
     "inUZS": "in UZS",
     "inUSD": "in USD",
     "exchangeRate": "Exchange Rate"
+  },
+
+  "history": {
+    "title": "Sales History",
+    "subtitle": "View all completed sales transactions",
+    
+    "columns": {
+      "id": "ID",
+      "date": "Date",
+      "status": "Status",
+      "client": "Client",
+      "items": "Items",
+      "total": "Total",
+      "discount": "Discount",
+      "afterDiscount": "After Discount",
+      "paid": "Paid",
+      "remaining": "Remaining"
+    },
+
+    "status": {
+      "PENDING": "Pending",
+      "PARTIALLY_PAID": "Partially Paid",
+      "PAID": "Paid"
+    },
+
+    "detail": {
+      "title": "Sale #{{id}}",
+      "backToList": "Back to List",
+      "summary": "Sale Summary",
+      "clientInfo": "Client Information",
+      "saleInfo": "Sale Information",
+      "financialSummary": "Financial Summary",
+      "items": "Sale Items",
+      "payments": "Payments",
+      "exchangeRate": "Exchange Rate",
+      "product": "Product",
+      "type": "Type",
+      "quantity": "Qty",
+      "unitPrice": "Unit Price",
+      "subtotal": "Subtotal",
+      "paymentMethod": "Method",
+      "currency": "Currency",
+      "amount": "Amount",
+      "date": "Date",
+      "noPayments": "No payments recorded",
+      "loadError": "Failed to load sale details"
+    }
   }
 }

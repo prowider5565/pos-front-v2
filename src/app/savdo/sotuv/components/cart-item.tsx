@@ -4,17 +4,15 @@ import { useTranslation } from "react-i18next"
 import { Trash2, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MEDIA_BASE_URL } from "@/config/api"
 import type { CartItem as CartItemType } from "@/types/sales"
 
 interface CartItemProps {
   item: CartItemType
   onUpdateQuantity: (productId: number, quantity: number) => void
   onRemove: (productId: number) => void
-  exchangeRate: number
 }
 
-export function CartItem({ item, onUpdateQuantity, onRemove, exchangeRate }: CartItemProps) {
+export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
   const { t } = useTranslation('sales')
   
   const { product, quantity } = item
@@ -52,31 +50,18 @@ export function CartItem({ item, onUpdateQuantity, onRemove, exchangeRate }: Car
 
   return (
     <tr className={`border-b ${hasStockError ? 'bg-destructive/5' : ''}`}>
-      {/* Product Image & Name */}
+      {/* Product Name & Price */}
       <td className="p-2">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
-            {product.cover_image ? (
-              <img
-                src={`${MEDIA_BASE_URL}${product.cover_image}`}
-                alt={product.name}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm line-clamp-1">{product.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {product.sell_price.toLocaleString()} UZS
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm line-clamp-1">{product.name}</p>
+          <p className="text-xs text-muted-foreground">
+            {product.sell_price.toLocaleString()} UZS
+          </p>
+          {hasStockError && (
+            <p className="text-xs text-destructive">
+              {t('cartItem.stockError', { stock: product.quantity })}
             </p>
-            {hasStockError && (
-              <p className="text-xs text-destructive">
-                {t('cartItem.stockError', { stock: product.quantity })}
-              </p>
-            )}
-          </div>
+          )}
         </div>
       </td>
 

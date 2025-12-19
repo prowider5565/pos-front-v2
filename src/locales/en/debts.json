@@ -32,7 +32,10 @@
     "loading": "Loading..."
   },
   "actions": {
-    "makePayment": "Make Payment"
+    "makePayment": "Make Payment",
+    "cancel": "Cancel",
+    "submit": "Add Debt",
+    "submitting": "Adding..."
   },
   "search": {
     "placeholder": "Search suppliers...",
@@ -72,5 +75,41 @@
     "method": "Method",
     "date": "Date",
     "noPayments": "No payments found"
+  },
+
+  "addOldDebt": {
+    "title": "Add Old Debt",
+    "button": "Add Old Debt",
+    "selectSupplier": "Select supplier...",
+    "selectClient": "Select client...",
+    "forSupplier": "For Supplier",
+    "forClient": "For Client",
+    "amount": "Amount",
+    "amountPlaceholder": "Enter debt amount",
+    "currency": "Currency",
+    "exchangeRate": "Exchange Rate (1 USD = ... UZS)",
+    "success": "Old debt added successfully",
+    "error": "Failed to add old debt"
+  },
+
+  "supplierOldDebtsDetail": {
+    "title": "Supplier Old Debts",
+    "backToList": "Back to Debts",
+    "supplierInfo": "Supplier Information",
+    "fullName": "Full Name",
+    "companyName": "Company Name",
+    "phone": "Phone",
+    "totalDebt": "Total Debt",
+    "totalPaid": "Total Paid",
+    "totalRemaining": "Total Remaining",
+    "oldDebtsList": "Old Debts List",
+    "debtId": "Debt ID",
+    "status": "Status",
+    "currency": "Currency",
+    "originalAmount": "Original Amount",
+    "paidAmount": "Paid Amount",
+    "remainingAmount": "Remaining Amount",
+    "exchangeRate": "Exchange Rate",
+    "noDebts": "No old debts found"
   }
 }

@@ -3,7 +3,10 @@ import { API_ENDPOINTS } from '@/config/api'
 import type { 
   SaleProductsResponse, 
   CreateSaleRequest, 
-  CreateSaleResponse 
+  CreateSaleResponse,
+  SalesListResponse,
+  SaleDetail,
+  SalesListQueryParams
 } from '@/types/sales'
 
 /**
@@ -34,6 +37,27 @@ class SalesService {
     const response = await apiClient.post<CreateSaleResponse>(
       API_ENDPOINTS.SALES.CREATE,
       saleData
+    )
+    return response.data
+  }
+
+  /**
+   * Get paginated list of sales
+   */
+  async getSalesList(params?: SalesListQueryParams): Promise<SalesListResponse> {
+    const response = await apiClient.get<SalesListResponse>(
+      API_ENDPOINTS.SALES.LIST,
+      { params }
+    )
+    return response.data
+  }
+
+  /**
+   * Get detailed information about a specific sale
+   */
+  async getSaleDetail(saleId: number): Promise<SaleDetail> {
+    const response = await apiClient.get<SaleDetail>(
+      `${API_ENDPOINTS.SALES.DETAIL}${saleId}/`
     )
     return response.data
   }

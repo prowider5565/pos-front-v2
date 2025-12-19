@@ -10,12 +10,15 @@ const Clients = lazy(() => import('@/app/clients/page'))
 
 // Savdo (Sales) pages
 const Sotuv = lazy(() => import('@/app/savdo/sotuv/page'))
+const SalesList = lazy(() => import('@/app/sales/page'))
+const SaleDetail = lazy(() => import('@/app/sales/[id]/page'))
 const ProductsSuppliers = lazy(() => import('@/app/products/page'))
 const ProductsBySupplier = lazy(() => import('@/app/products/[supplierId]/page'))
 const ProductDetail = lazy(() => import('@/app/products/[supplierId]/[productId]/page'))
 
 // Debts pages
 const SupplierDebts = lazy(() => import('@/app/debts/suppliers/page'))
+const SupplierOldDebtsDetail = lazy(() => import('@/app/debts/suppliers/[supplierId]/old-debts/page'))
 const ClientDebts = lazy(() => import('@/app/debts/clients/page'))
 
 // Auth pages
@@ -93,6 +96,22 @@ export const routes: RouteConfig[] = [
       </ProtectedRoute>
     )
   },
+  {
+    path: "/sales",
+    element: (
+      <ProtectedRoute>
+        <SalesList />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/sales/:id",
+    element: (
+      <ProtectedRoute>
+        <SaleDetail />
+      </ProtectedRoute>
+    )
+  },
 
   // Debts Routes (Protected)
   {
@@ -100,6 +119,14 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <SupplierDebts />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/debts/suppliers/:supplierId/old-debts",
+    element: (
+      <ProtectedRoute>
+        <SupplierOldDebtsDetail />
       </ProtectedRoute>
     )
   },

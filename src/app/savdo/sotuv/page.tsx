@@ -14,7 +14,7 @@ import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
-import type { SaleProduct, PaymentMethod, Currency } from "@/types/sales"
+import type { SaleProduct } from "@/types/sales"
 
 export default function SotuvPage() {
   const [themeCustomizerOpen, setThemeCustomizerOpen] = useState(false)
@@ -38,22 +38,45 @@ export default function SotuvPage() {
     addPayment,
     removePayment,
     clearPayments,
-    addFullPayment,
-    totalPayments,
     calculateRemaining,
   } = useSalesPayments()
 
   // Form state
-  const [discount, setDiscount] = useState("0")
+  const [finalTotalUZS, setFinalTotalUZS] = useState<string>('')
+  const [isFinalTotalDirty, setIsFinalTotalDirty] = useState(false)
+  const [notes, setNotes] = useState('')
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
   const [exchangeRate, setExchangeRate] = useState<number>(12600)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Load exchange rate on mount
+  // Load + subscribe to exchange rate changes (from navbar input)
   useEffect(() => {
-    const rate = getExchangeRateNumber()
-    if (rate) {
-      setExchangeRate(rate)
+    const applyRate = (next: number) => {
+      if (!Number.isFinite(next) || next <= 0) return
+      setExchangeRate(next)
+    }
+
+    applyRate(getExchangeRateNumber())
+
+    // Same-tab updates
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent<{ rate: string }>).detail
+      if (detail?.rate) applyRate(parseFloat(detail.rate))
+    }
+
+    // Cross-tab updates
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'exchange_rate' && e.newValue) {
+        applyRate(parseFloat(e.newValue))
+      }
+    }
+
+    window.addEventListener('exchange-rate:changed', onCustom)
+    window.addEventListener('storage', onStorage)
+
+    return () => {
+      window.removeEventListener('exchange-rate:changed', onCustom)
+      window.removeEventListener('storage', onStorage)
     }
   }, [])
 
@@ -63,16 +86,20 @@ export default function SotuvPage() {
     toast.success(t('messages.productAdded', { productName: product.name }))
   }, [addToCart, t])
 
-  // Handle exchange rate change
-  const handleExchangeRateChange = useCallback((rate: number) => {
-    setExchangeRate(rate)
-  }, [])
+  // Keep final total in sync with subtotal unless user overrides it
+  useEffect(() => {
+    if (!isFinalTotalDirty) {
+      setFinalTotalUZS(subtotal.toString())
+    }
+  }, [subtotal, isFinalTotalDirty])
 
   // Handle clear cart
   const handleClearCart = useCallback(() => {
     clearCart()
     clearPayments()
-    setDiscount("0")
+    setFinalTotalUZS('')
+    setIsFinalTotalDirty(false)
+    setNotes('')
     setSelectedClientId(null)
     toast.success(t('messages.cartCleared'))
   }, [clearCart, clearPayments, t])
@@ -83,18 +110,15 @@ export default function SotuvPage() {
     toast.success(t('messages.productRemoved'))
   }, [removeItem, t])
 
-  // Handle add full payment
-  const handleAddFullPayment = useCallback((method: string, currency: string) => {
-    const discountAmount = parseFloat(discount) || 0
-    const total = Math.max(0, subtotal - discountAmount)
-    addFullPayment(method as PaymentMethod, currency as Currency, total, exchangeRate)
-  }, [addFullPayment, discount, subtotal, exchangeRate])
+  const finalTotalNumber = parseFloat(finalTotalUZS)
+  const isFinalTotalValidNumber = !Number.isNaN(finalTotalNumber)
+  const isFinalTotalTooHigh = isFinalTotalValidNumber && finalTotalNumber > subtotal
+
+  const computedTotal = isFinalTotalValidNumber ? Math.max(0, Math.min(finalTotalNumber, subtotal)) : subtotal
+  const discountAmount = Math.max(0, subtotal - computedTotal)
 
   // Calculate totals
-  const discountAmount = parseFloat(discount) || 0
-  const total = Math.max(0, subtotal - discountAmount)
-  const totalPaid = totalPayments(exchangeRate)
-  const remaining = calculateRemaining(total, exchangeRate)
+  const remaining = calculateRemaining(computedTotal, exchangeRate)
 
   // Handle form submission
   const handleSubmit = useCallback(async () => {
@@ -112,6 +136,12 @@ export default function SotuvPage() {
         productName: errorItem?.product.name,
         stock: errorItem?.product.quantity
       }))
+      return
+    }
+
+    // Final total must not exceed subtotal
+    if (isFinalTotalTooHigh) {
+      toast.error(t('validation.discountTooHigh'))
       return
     }
 
@@ -138,6 +168,7 @@ export default function SotuvPage() {
         exchange_rate: exchangeRate.toString(),
         client_id: selectedClientId || undefined,
         discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
+        notes: notes.trim() ? notes.trim() : undefined,
       }
 
       // Submit sale
@@ -166,6 +197,8 @@ export default function SotuvPage() {
     selectedClientId,
     discountAmount,
     remaining,
+    notes,
+    isFinalTotalTooHigh,
     t,
     handleClearCart,
   ])
@@ -213,32 +246,38 @@ export default function SotuvPage() {
             <ProductGrid
               onAddToCart={handleAddToCart}
               isInCart={isInCart}
-              exchangeRate={exchangeRate}
             />
           </div>
         </div>
       </SidebarInset>
 
-      {/* Right Cart Sidebar */}
-      <CartSidebar
-        cartItems={cartItems}
-        payments={payments}
-        discount={discount}
-        selectedClientId={selectedClientId}
-        exchangeRate={exchangeRate}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-        onDiscountChange={setDiscount}
-        onAddPayment={addPayment}
-        onRemovePayment={removePayment}
-        onAddFullPayment={handleAddFullPayment}
-        onClientSelect={setSelectedClientId}
-        onExchangeRateChange={handleExchangeRateChange}
-        onSubmit={handleSubmit}
-        onSubmitAndPrint={handleSubmitAndPrint}
-        isSubmitting={isSubmitting}
-      />
+      {/* Right Cart Sidebar - only show after first product added */}
+      {cartItems.length > 0 && (
+        <CartSidebar
+          cartItems={cartItems}
+          payments={payments}
+          total={computedTotal}
+          isTotalInvalid={isFinalTotalTooHigh}
+          finalTotalUZS={finalTotalUZS}
+          onFinalTotalChange={(value) => {
+            setFinalTotalUZS(value)
+            setIsFinalTotalDirty(true)
+          }}
+          notes={notes}
+          onNotesChange={setNotes}
+          selectedClientId={selectedClientId}
+          exchangeRate={exchangeRate}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onClearCart={handleClearCart}
+          onAddPayment={addPayment}
+          onRemovePayment={removePayment}
+          onClientSelect={setSelectedClientId}
+          onSubmit={handleSubmit}
+          onSubmitAndPrint={handleSubmitAndPrint}
+          isSubmitting={isSubmitting}
+        />
+      )}
 
       {/* Theme Customizer */}
       <ThemeCustomizer

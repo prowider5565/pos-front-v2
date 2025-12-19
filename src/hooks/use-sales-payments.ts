@@ -39,29 +39,6 @@ export function useSalesPayments() {
   }, [])
 
   /**
-   * Add a quick full payment (Cash or Card) in specified currency
-   */
-  const addFullPayment = useCallback((
-    method: PaymentMethod,
-    currency: Currency,
-    totalAmount: number,
-    exchangeRate: number
-  ) => {
-    let amount: string
-
-    if (currency === 'UZS') {
-      // Full payment in UZS
-      amount = totalAmount.toString()
-    } else {
-      // Full payment in USD - convert total from UZS to USD
-      const usdAmount = totalAmount / exchangeRate
-      amount = usdAmount.toFixed(2)
-    }
-
-    addPayment(method, currency, amount)
-  }, [addPayment])
-
-  /**
    * Calculate total payments in UZS
    */
   const totalPayments = useMemo(() => {
@@ -117,7 +94,6 @@ export function useSalesPayments() {
     addPayment,
     removePayment,
     clearPayments,
-    addFullPayment,
     totalPayments,
     totalPaymentsUSD,
     calculateRemaining,

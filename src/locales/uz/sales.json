@@ -66,6 +66,10 @@
     }
   },
   
+  "comment": {
+    "placeholder": "Izoh (ixtiyoriy)"
+  },
+
   "client": {
     "selectClient": "Mijozni tanlang",
     "selectPlaceholder": "Mijozni qidiring va tanlang...",
@@ -76,6 +80,7 @@
   
   "validation": {
     "cartEmpty": "Iltimos, savatchaga kamida bitta mahsulot qo'shing",
+    "discountTooHigh": "Yakuniy summa asl jamidan katta bo'lishi mumkin emas", 
     "invalidQuantity": "Mahsulot uchun noto'g'ri miqdor: {{productName}}",
     "stockExceeded": "Mahsulot uchun ombor miqdori oshib ketdi: {{productName}}. Mavjud: {{stock}}",
     "clientRequired": "Iltimos, qarz uchun mijozni tanlang",
@@ -106,5 +111,52 @@
     "inUZS": "UZS da",
     "inUSD": "USD da",
     "exchangeRate": "Valyuta kursi"
+  },
+
+  "history": {
+    "title": "Sotuvlar tarixi",
+    "subtitle": "Barcha yakunlangan savdo operatsiyalarini ko'rish",
+    
+    "columns": {
+      "id": "ID",
+      "date": "Sana",
+      "status": "Holat",
+      "client": "Mijoz",
+      "items": "Mahsulotlar",
+      "total": "Jami",
+      "discount": "Chegirma",
+      "afterDiscount": "Chegirmadan keyin",
+      "paid": "To'langan",
+      "remaining": "Qolgan"
+    },
+
+    "status": {
+      "PENDING": "Kutilmoqda",
+      "PARTIALLY_PAID": "Qisman to'langan",
+      "PAID": "To'langan"
+    },
+
+    "detail": {
+      "title": "Sotuv #{{id}}",
+      "backToList": "Ro'yxatga qaytish",
+      "summary": "Sotuv xulosasi",
+      "clientInfo": "Mijoz ma'lumotlari",
+      "saleInfo": "Sotuv ma'lumotlari",
+      "financialSummary": "Moliyaviy xulosa",
+      "items": "Mahsulotlar",
+      "payments": "To'lovlar",
+      "exchangeRate": "Valyuta kursi",
+      "product": "Mahsulot",
+      "type": "Turi",
+      "quantity": "Miqdor",
+      "unitPrice": "Birlik narxi",
+      "subtotal": "Jami",
+      "paymentMethod": "Usul",
+      "currency": "Valyuta",
+      "amount": "Summa",
+      "date": "Sana",
+      "noPayments": "To'lovlar qayd qilinmagan",
+      "loadError": "Sotuv ma'lumotlarini yuklashda xatolik"
+    }
   }
 }

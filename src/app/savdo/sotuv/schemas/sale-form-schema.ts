@@ -19,12 +19,8 @@ export const cartItemSchema = z.object({
  * Validation schema for payment
  */
 export const paymentSchema = z.object({
-  method: z.enum(['CASH', 'CARD', 'BANK_TRANSFER'], {
-    required_error: 'Payment method is required',
-  }),
-  currency: z.enum(['UZS', 'USD'], {
-    required_error: 'Currency is required',
-  }),
+  method: z.enum(['CASH', 'CARD', 'BANK_TRANSFER'] as const),
+  currency: z.enum(['UZS', 'USD'] as const),
   amount: z.string()
     .min(1, 'Amount is required')
     .refine(

@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   Package,
   Wallet,
+  Receipt,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -41,6 +42,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      label: t('navigation.savdo'),
+      items: [
+        {
+          title: t('navigation.mahsulotlar'),
+          url: "/products",
+          icon: Package,
+        },
+        {
+          title: t('navigation.soldProducts'),
+          url: "/sales",
+          icon: Receipt,
+        },
+        {
+          title: t('navigation.sotuv'),
+          url: "/savdo/sotuv",
+          icon: ShoppingCart,
+        },
+      ],
+    },
+    {
       label: t('navigation.management'),
       items: [
         {
@@ -57,21 +78,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: t('navigation.employees'),
           url: "/users",
           icon: Users,
-        },
-      ],
-    },
-    {
-      label: t('navigation.savdo'),
-      items: [
-        {
-          title: t('navigation.sotuv'),
-          url: "/savdo/sotuv",
-          icon: ShoppingCart,
-        },
-        {
-          title: t('navigation.mahsulotlar'),
-          url: "/products",
-          icon: Package,
         },
       ],
     },

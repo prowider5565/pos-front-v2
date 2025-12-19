@@ -23,8 +23,8 @@ import { toast } from "sonner"
 
 interface Client {
   id: number
-  name: string
-  phone: string
+  full_name: string
+  phone_number: string
 }
 
 interface ClientSelectorProps {
@@ -44,6 +44,11 @@ export function ClientSelector({
   const [loading, setLoading] = useState(false)
 
   const selectedClient = clients.find((client) => client.id === selectedClientId)
+
+  const getClientLabel = (client: Client) => {
+    // Show full name prominently; include phone as secondary info in the dropdown.
+    return client.full_name
+  }
 
   // Fetch clients
   useEffect(() => {
@@ -86,22 +91,24 @@ export function ClientSelector({
             )}
           >
             {selectedClient ? (
-              <span className="truncate">{selectedClient.name}</span>
+              <span className="truncate">{getClientLabel(selectedClient)}</span>
             ) : (
               <span className="text-muted-foreground">{t('client.selectPlaceholder')}</span>
             )}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
           <Command>
             <CommandInput placeholder={t('client.searchPlaceholder')} />
-            <CommandEmpty>{t('noProducts')}</CommandEmpty>
+            <CommandEmpty>
+              {loading ? t('loading') : t('client.noClient')}
+            </CommandEmpty>
             <CommandGroup className="max-h-64 overflow-auto">
               {clients.map((client) => (
                 <CommandItem
                   key={client.id}
-                  value={`${client.name} ${client.phone}`}
+                  value={`${client.full_name} ${client.phone_number}`}
                   onSelect={() => {
                     onClientSelect(client.id === selectedClientId ? null : client.id)
                     setOpen(false)
@@ -114,8 +121,8 @@ export function ClientSelector({
                     )}
                   />
                   <div className="flex flex-col">
-                    <span className="font-medium">{client.name}</span>
-                    <span className="text-xs text-muted-foreground">{client.phone}</span>
+                    <span className="font-medium">{client.full_name}</span>
+                    <span className="text-xs text-muted-foreground">{client.phone_number}</span>
                   </div>
                 </CommandItem>
               ))}

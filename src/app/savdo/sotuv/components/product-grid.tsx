@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Search, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -22,7 +21,6 @@ import { toast } from "sonner"
 interface ProductGridProps {
   onAddToCart: (product: SaleProduct) => void
   isInCart: (productId: number) => boolean
-  exchangeRate: number
 }
 
 export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {

@@ -66,6 +66,10 @@
     }
   },
   
+  "comment": {
+    "placeholder": "Комментарий (необязательно)"
+  },
+
   "client": {
     "selectClient": "Выберите клиента",
     "selectPlaceholder": "Найдите и выберите клиента...",
@@ -76,6 +80,7 @@
   
   "validation": {
     "cartEmpty": "Пожалуйста, добавьте хотя бы один товар в корзину",
+    "discountTooHigh": "Итоговая сумма не может быть больше исходной", 
     "invalidQuantity": "Неверное количество для товара: {{productName}}",
     "stockExceeded": "Превышен остаток на складе для товара: {{productName}}. Доступно: {{stock}}",
     "clientRequired": "Пожалуйста, выберите клиента для остатка долга",
@@ -106,5 +111,52 @@
     "inUZS": "в UZS",
     "inUSD": "в USD",
     "exchangeRate": "Курс валюты"
+  },
+
+  "history": {
+    "title": "История продаж",
+    "subtitle": "Просмотр всех завершенных транзакций",
+    
+    "columns": {
+      "id": "ID",
+      "date": "Дата",
+      "status": "Статус",
+      "client": "Клиент",
+      "items": "Товары",
+      "total": "Сумма",
+      "discount": "Скидка",
+      "afterDiscount": "После скидки",
+      "paid": "Оплачено",
+      "remaining": "Остаток"
+    },
+
+    "status": {
+      "PENDING": "Ожидается",
+      "PARTIALLY_PAID": "Частично оплачено",
+      "PAID": "Оплачено"
+    },
+
+    "detail": {
+      "title": "Продажа #{{id}}",
+      "backToList": "Назад к списку",
+      "summary": "Сводка продажи",
+      "clientInfo": "Информация о клиенте",
+      "saleInfo": "Информация о продаже",
+      "financialSummary": "Финансовая сводка",
+      "items": "Товары",
+      "payments": "Платежи",
+      "exchangeRate": "Курс валюты",
+      "product": "Товар",
+      "type": "Тип",
+      "quantity": "Кол-во",
+      "unitPrice": "Цена за ед.",
+      "subtotal": "Итого",
+      "paymentMethod": "Метод",
+      "currency": "Валюта",
+      "amount": "Сумма",
+      "date": "Дата",
+      "noPayments": "Платежи не зарегистрированы",
+      "loadError": "Не удалось загрузить данные продажи"
+    }
   }
 }

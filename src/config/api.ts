@@ -58,7 +58,8 @@ export const API_ENDPOINTS = {
     CLIENTS_OLD: '/debts/clients/old/list/',
     CREATE_OLD_SUPPLIER: '/debts/old-seller-debts/',
     CREATE_OLD_CLIENT: '/debts/old-client-debts/',
-    SUPPLIER_OLD_DEBTS_DETAIL: (supplierId: number) => `/debts/suppliers/${supplierId}/old-debts/`,
+    SUPPLIER_OLD_DEBTS_DETAIL: (supplierId: number) => `/debts/suppliers/old/${supplierId}/`,
+    CLIENT_OLD_DEBTS_DETAIL: (clientId: number) => `/debts/clients/old/${clientId}/`,
   },
 
   // Analytics endpoints

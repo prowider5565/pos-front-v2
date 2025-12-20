@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Search, CreditCard } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,7 @@ import type { ClientDebt, ClientDebtsResponse } from '@/types/debts'
 interface DataTableProps {
   data?: ClientDebtsResponse
   isLoading: boolean
-  page: number
+  page?: number
   search: string
   debtType: 'sale' | 'old'
   onPageChange: (page: number) => void
@@ -40,6 +41,7 @@ function formatCurrency(uzs: string, usd: string) {
 
 export function DataTable({ data, isLoading, page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
   const { t } = useTranslation('debts')
+  const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<ClientDebt | null>(null)
@@ -56,8 +58,15 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
   }
 
   const handleRowClick = (client: ClientDebt) => {
-    setSelectedClient(client)
-    setHistoryDialogOpen(true)
+    if (debtType === 'old') {
+      // Navigate to old debts detail page for this client
+      const clientId = client.client || client.id
+      navigate(`/debts/clients/${clientId}/old-debts`)
+    } else {
+      // Show payment history dialog for sale debts
+      setSelectedClient(client)
+      setHistoryDialogOpen(true)
+    }
   }
 
   return (
@@ -135,10 +144,12 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
         </Table>
       </div>
 
-      {data && data.total_pages > 1 && (
+      {data && data.count > 0 && (
         <PaginationControls
           currentPage={data.current_page}
-          totalPages={data.total_pages}
+          totalCount={data.count}
+          hasNext={!!data.next}
+          hasPrevious={!!data.previous}
           onPageChange={onPageChange}
         />
       )}

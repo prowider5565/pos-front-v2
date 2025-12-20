@@ -35,7 +35,13 @@
     "makePayment": "Make Payment",
     "cancel": "Cancel",
     "submit": "Add Debt",
-    "submitting": "Adding..."
+    "submitting": "Adding...",
+    "back": "Back"
+  },
+  "status": {
+    "pending": "Pending",
+    "partiallyPaid": "Partially Paid",
+    "paid": "Paid"
   },
   "search": {
     "placeholder": "Search suppliers...",
@@ -111,5 +117,28 @@
     "remainingAmount": "Remaining Amount",
     "exchangeRate": "Exchange Rate",
     "noDebts": "No old debts found"
+  },
+
+  "oldDebtPayment": {
+    "title": "Make Payment",
+    "description": "Make a payment for debt #{{debtId}}",
+    "remainingAmount": "Remaining Amount",
+    "exchangeRate": "Exchange Rate",
+    "paymentAmount": "Payment Amount",
+    "enterAmount": "Enter amount",
+    "currency": "Currency",
+    "paymentMethod": "Payment Method",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "makePayment": "Make Payment",
+    "success": "Payment made successfully",
+    "error": "Failed to make payment",
+    "amountRequired": "Please enter a payment amount",
+    "invalidAmount": "Please enter a valid amount",
+    "methods": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer"
+    }
   }
 }

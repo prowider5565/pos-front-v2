@@ -39,8 +39,9 @@
   "viewDetails": "Tafsilotlarni ko'rish",
   "productTypes": {
     "PIECE": "Dona",
-    "WEIGHT": "Kilogramm",
-    "KG": "Kilogramm"
+    "WEIGHT": "Og'irlik",
+    "KG": "Kilogramm",
+    "LITER": "Litr"
   },
   "createProduct": "Yangi Mahsulot Yaratish",
   "createProductDescription": "Dastlabki partiya bilan yangi mahsulot yaratish uchun quyidagi ma'lumotlarni to'ldiring",

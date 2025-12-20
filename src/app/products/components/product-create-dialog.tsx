@@ -35,17 +35,20 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Combobox } from "@/components/ui/combobox"
 import { productsService, type Category } from "@/services/products.service"
 import { suppliersService, type Supplier } from "@/services/suppliers.service"
 import { getExchangeRate } from "@/lib/exchange-rate-storage"
 import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
+import { SupplierFormDialog } from "@/app/suppliers/components/supplier-form-dialog"
+import apiClient from "@/lib/api-client"
 
 // Form validation schema
 const productCreateSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
-  product_type: z.enum(["KG", "PIECE", "WEIGHT"]),
+  product_type: z.enum(["KG", "PIECE", "WEIGHT", "LITER"]),
   category: z.string().min(1, "Category is required"),
   supplier: z.string().min(1, "Supplier is required"),
   
@@ -83,6 +86,9 @@ export function ProductCreateDialog({
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [showSupplierDialog, setShowSupplierDialog] = useState(false)
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
 
   const form = useForm<ProductCreateFormValues>({
     resolver: zodResolver(productCreateSchema),
@@ -134,35 +140,37 @@ export function ProductCreateDialog({
   }, [quantity, buyPrice, paymentAmount, currency, exchangeRate])
 
   // Fetch categories on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await productsService.getCategories()
-        setCategories(response.results)
-      } catch (error) {
-        console.error("Failed to fetch categories:", error)
-        toast.error(t('common:messages.error'), {
-          description: "Failed to load categories"
-        })
-      }
+  const fetchCategories = async () => {
+    try {
+      const response = await productsService.getCategories()
+      setCategories(response.results)
+    } catch (error) {
+      console.error("Failed to fetch categories:", error)
+      toast.error(t('common:messages.error'), {
+        description: "Failed to load categories"
+      })
     }
+  }
+
+  useEffect(() => {
     fetchCategories()
   }, [t])
 
   // Fetch suppliers if not pre-selected
+  const fetchSuppliers = async () => {
+    try {
+      const response = await suppliersService.listSuppliers({ is_active: true })
+      setSuppliers(response.results)
+    } catch (error) {
+      console.error("Failed to fetch suppliers:", error)
+      toast.error(t('common:messages.error'), {
+        description: "Failed to load suppliers"
+      })
+    }
+  }
+
   useEffect(() => {
     if (!supplierId) {
-      const fetchSuppliers = async () => {
-        try {
-          const response = await suppliersService.listSuppliers({ is_active: true })
-          setSuppliers(response.results)
-        } catch (error) {
-          console.error("Failed to fetch suppliers:", error)
-          toast.error(t('common:messages.error'), {
-            description: "Failed to load suppliers"
-          })
-        }
-      }
       fetchSuppliers()
     }
   }, [supplierId, t])
@@ -215,6 +223,33 @@ export function ProductCreateDialog({
       setImagePreviews([])
     }
   }, [open])
+
+  // Handler for creating new category
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast.error(t('common:messages.error'), {
+        description: "Category name is required"
+      })
+      return
+    }
+
+    try {
+      // Note: This assumes there's an endpoint to create categories
+      // If not available, this will need to be handled differently
+      await apiClient.post('/products/categories/', { name: newCategoryName.trim() })
+      toast.success(t('common:messages.success'), {
+        description: "Category created successfully"
+      })
+      setNewCategoryName("")
+      setShowCategoryDialog(false)
+      await fetchCategories()
+    } catch (error) {
+      console.error("Failed to create category:", error)
+      toast.error(t('common:messages.error'), {
+        description: "Failed to create category"
+      })
+    }
+  }
 
   // Form submission handler
   const onSubmit = async (data: ProductCreateFormValues) => {
@@ -368,6 +403,7 @@ export function ProductCreateDialog({
                           <SelectItem value="PIECE">{t('productTypes.PIECE')}</SelectItem>
                           <SelectItem value="KG">{t('productTypes.KG')}</SelectItem>
                           <SelectItem value="WEIGHT">{t('productTypes.WEIGHT')}</SelectItem>
+                          <SelectItem value="LITER">{t('productTypes.LITER')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -381,20 +417,22 @@ export function ProductCreateDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('category')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="cursor-pointer">
-                            <SelectValue placeholder={t('selectCategory')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={String(category.id)}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Combobox
+                          items={categories.map((cat) => ({
+                            value: String(cat.id),
+                            label: cat.name,
+                          }))}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={t('selectCategory')}
+                          searchPlaceholder="Search category..."
+                          emptyText="No category found."
+                          showAddButton={true}
+                          onAddNew={() => setShowCategoryDialog(true)}
+                          addButtonLabel="Add new category"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -409,20 +447,22 @@ export function ProductCreateDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('selectSupplier')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="cursor-pointer">
-                            <SelectValue placeholder={t('selectSupplier')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {suppliers.map((supplier) => (
-                            <SelectItem key={supplier.id} value={String(supplier.id)}>
-                              {supplier.company_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Combobox
+                          items={suppliers.map((supplier) => ({
+                            value: String(supplier.id),
+                            label: supplier.company_name,
+                          }))}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={t('selectSupplier')}
+                          searchPlaceholder="Search supplier..."
+                          emptyText="No supplier found."
+                          showAddButton={true}
+                          onAddNew={() => setShowSupplierDialog(true)}
+                          addButtonLabel="Add new supplier"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -734,6 +774,65 @@ export function ProductCreateDialog({
           </form>
         </Form>
       </DialogContent>
+
+      {/* Supplier Creation Dialog */}
+      <SupplierFormDialog
+        open={showSupplierDialog}
+        onOpenChange={setShowSupplierDialog}
+        onSuccess={async () => {
+          await fetchSuppliers()
+          setShowSupplierDialog(false)
+        }}
+      />
+
+      {/* Category Creation Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Category</DialogTitle>
+            <DialogDescription>
+              Enter a name for the new category
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="category-name" className="text-sm font-medium">
+                Category Name
+              </label>
+              <Input
+                id="category-name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Enter category name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCreateCategory()
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowCategoryDialog(false)
+                setNewCategoryName("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCreateCategory}
+              disabled={!newCategoryName.trim()}
+            >
+              Create
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }

@@ -5,7 +5,10 @@ import type {
   ClientDebtsResponse,
   CreateOldSupplierDebtRequest,
   CreateOldClientDebtRequest,
-  SupplierOldDebtsDetailResponse
+  SupplierOldDebtsDetailResponse,
+  ClientOldDebtsDetailResponse,
+  DirectOldDebtPaymentRequest,
+  DirectOldSupplierDebtPaymentRequest
 } from '@/types/debts'
 
 export const debtsService = {
@@ -74,5 +77,24 @@ export const debtsService = {
       : API_ENDPOINTS.DEBTS.SUPPLIER_OLD_DEBTS_DETAIL(supplierId)
     
     return apiService.get(endpoint)
+  },
+
+  getClientOldDebtsDetail: async (clientId: number, params?: { page?: number }): Promise<ClientOldDebtsDetailResponse> => {
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append('page', String(params.page))
+    
+    const endpoint = queryParams.toString()
+      ? `${API_ENDPOINTS.DEBTS.CLIENT_OLD_DEBTS_DETAIL(clientId)}?${queryParams.toString()}`
+      : API_ENDPOINTS.DEBTS.CLIENT_OLD_DEBTS_DETAIL(clientId)
+    
+    return apiService.get(endpoint)
+  },
+
+  makeDirectOldDebtPayment: async (data: DirectOldDebtPaymentRequest): Promise<void> => {
+    await apiService.post('/payments/old-client-debt-payments/direct-payment/', data)
+  },
+
+  makeDirectOldSupplierDebtPayment: async (data: DirectOldSupplierDebtPaymentRequest): Promise<void> => {
+    await apiService.post('/payments/old-seller-debt-payments/direct-payment/', data)
   },
 }

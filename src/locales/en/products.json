@@ -39,8 +39,9 @@
   "viewDetails": "View Details",
   "productTypes": {
     "PIECE": "Piece",
-    "WEIGHT": "Kilogram",
-    "KG": "Kilogram"
+    "WEIGHT": "Weight",
+    "KG": "Kilogram",
+    "LITER": "Liter"
   },
   "createProduct": "Create New Product",
   "createProductDescription": "Fill in the details below to create a new product with an initial batch",

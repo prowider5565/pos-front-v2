@@ -71,7 +71,7 @@ export const columns = (
     id: "paid",
     header: t('history.columns.paid'),
     cell: ({ row }) => {
-      const amounts = row.original.debt_amounts.total_paid
+      const amounts = row.original.debt_amounts.paid_amount
       return (
         <div className="text-right">
           <div className="font-medium text-green-600">
@@ -88,7 +88,7 @@ export const columns = (
     id: "remaining",
     header: t('history.columns.remaining'),
     cell: ({ row }) => {
-      const amounts = row.original.debt_amounts.total_remaining
+      const amounts = row.original.debt_amounts.remaining_amount
       const remaining = parseFloat(amounts.uzs_amount)
       return (
         <div className="text-right">

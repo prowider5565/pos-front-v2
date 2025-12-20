@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Search, CreditCard, Eye } from 'lucide-react'
+import { Search, CreditCard } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,7 +22,7 @@ import type { SupplierDebt, SupplierDebtsResponse } from '@/types/debts'
 interface DataTableProps {
   data?: SupplierDebtsResponse
   isLoading: boolean
-  page: number
+  page?: number
   search: string
   debtType: 'new' | 'old'
   onPageChange: (page: number) => void
@@ -58,13 +58,15 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
   }
 
   const handleRowClick = (supplier: SupplierDebt) => {
-    setSelectedSupplier(supplier)
-    setHistoryDialogOpen(true)
-  }
-
-  const handleViewDetails = (e: React.MouseEvent, supplierId: number) => {
-    e.stopPropagation()
-    navigate(`/debts/suppliers/${supplierId}/old-debts`)
+    if (debtType === 'old') {
+      // Navigate to old debts detail page for this supplier
+      const supplierId = supplier.supplier || supplier.id
+      navigate(`/debts/suppliers/${supplierId}/old-debts`)
+    } else {
+      // Show payment history dialog for new debts
+      setSelectedSupplier(supplier)
+      setHistoryDialogOpen(true)
+    }
   }
 
   const paymentType: PaymentType = debtType === 'new' ? 'new-supplier' : 'old-supplier'
@@ -132,19 +134,12 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {debtType === 'old' && (
-                          <Button size="sm" variant="ghost" onClick={(e) => handleViewDetails(e, supplier.id)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {remaining > 0 && (
-                          <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
-                            <CreditCard className="h-4 w-4 mr-1" />
-                            {t('actions.makePayment')}
-                          </Button>
-                        )}
-                      </div>
+                      {remaining > 0 && (
+                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
+                          <CreditCard className="h-4 w-4 mr-1" />
+                          {t('actions.makePayment')}
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 )
@@ -154,10 +149,12 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
         </Table>
       </div>
 
-      {data && data.total_pages > 1 && (
+      {data && data.count > 0 && (
         <PaginationControls
           currentPage={data.current_page}
-          totalPages={data.total_pages}
+          totalCount={data.count}
+          hasNext={!!data.next}
+          hasPrevious={!!data.previous}
           onPageChange={onPageChange}
         />
       )}

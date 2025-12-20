@@ -35,7 +35,13 @@
     "makePayment": "To'lov qilish",
     "cancel": "Bekor qilish",
     "submit": "Qarz qo'shish",
-    "submitting": "Qo'shilmoqda..."
+    "submitting": "Qo'shilmoqda...",
+    "back": "Orqaga"
+  },
+  "status": {
+    "pending": "Kutilmoqda",
+    "partiallyPaid": "Qisman to'langan",
+    "paid": "To'langan"
   },
   "search": {
     "placeholder": "Yetkazib beruvchilarni qidirish...",
@@ -111,5 +117,28 @@
     "remainingAmount": "Qolgan",
     "exchangeRate": "Valyuta kursi",
     "noDebts": "Eski qarzlar topilmadi"
+  },
+
+  "oldDebtPayment": {
+    "title": "To'lov qilish",
+    "description": "Qarz #{{debtId}} uchun to'lov",
+    "remainingAmount": "Qoldiq summa",
+    "exchangeRate": "Kurs",
+    "paymentAmount": "To'lov summasi",
+    "enterAmount": "Summani kiriting",
+    "currency": "Valyuta",
+    "paymentMethod": "To'lov usuli",
+    "cancel": "Bekor qilish",
+    "processing": "Qayta ishlanmoqda...",
+    "makePayment": "To'lov qilish",
+    "success": "To'lov muvaffaqiyatli amalga oshirildi",
+    "error": "To'lov amalga oshirilmadi",
+    "amountRequired": "Iltimos, to'lov summasini kiriting",
+    "invalidAmount": "Iltimos, to'g'ri summani kiriting",
+    "methods": {
+      "cash": "Naqd",
+      "card": "Karta",
+      "transfer": "O'tkazma"
+    }
   }
 }

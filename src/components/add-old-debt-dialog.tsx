@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -32,9 +32,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { debtsService } from "@/services/debts.service"
+import { suppliersService } from "@/services/suppliers.service"
+import { clientsService } from "@/services/clients.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
 
 const addOldDebtSchema = z.object({
+  entity_id: z.string().min(1, "Please select a supplier or client"),
   amount: z.string().min(1, "Amount is required").refine((val) => {
     const num = parseFloat(val)
     return !isNaN(num) && num > 0
@@ -52,8 +55,6 @@ interface AddOldDebtDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   entityType: "supplier" | "client"
-  entityId: number
-  entityName: string
   onSuccess: () => void
 }
 
@@ -61,8 +62,6 @@ export function AddOldDebtDialog({
   open,
   onOpenChange,
   entityType,
-  entityId,
-  entityName,
   onSuccess,
 }: AddOldDebtDialogProps) {
   const { t } = useTranslation("debts")
@@ -70,10 +69,24 @@ export function AddOldDebtDialog({
   const form = useForm<AddOldDebtFormValues>({
     resolver: zodResolver(addOldDebtSchema),
     defaultValues: {
+      entity_id: "",
       amount: "",
       currency: "UZS",
       exchange_rate: "",
     },
+  })
+
+  // Fetch suppliers or clients based on entityType
+  const { data: suppliersData } = useQuery({
+    queryKey: ['suppliers-list'],
+    queryFn: () => suppliersService.listSuppliers({ is_active: true }),
+    enabled: open && entityType === "supplier",
+  })
+
+  const { data: clientsData } = useQuery({
+    queryKey: ['clients-list'],
+    queryFn: () => clientsService.listClients({ is_active: true }),
+    enabled: open && entityType === "client",
   })
 
   // Pre-fill exchange rate from localStorage when dialog opens
@@ -86,6 +99,7 @@ export function AddOldDebtDialog({
 
   const mutation = useMutation({
     mutationFn: async (data: AddOldDebtFormValues) => {
+      const entityId = Number(data.entity_id)
       if (entityType === "supplier") {
         await debtsService.createOldSupplierDebt({
           supplier: entityId,
@@ -124,15 +138,43 @@ export function AddOldDebtDialog({
           <DialogTitle>{t("addOldDebt.title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {entityType === "supplier" ? t("addOldDebt.forSupplier") : t("addOldDebt.forClient")}:{" "}
-            <span className="font-medium text-foreground">{entityName}</span>
-          </p>
-        </div>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="entity_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {entityType === "supplier" ? t("addOldDebt.selectSupplier") : t("addOldDebt.selectClient")}
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={entityType === "supplier" ? t("addOldDebt.selectSupplier") : t("addOldDebt.selectClient")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {entityType === "supplier" ? (
+                        suppliersData?.results.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                            {supplier.full_name} {supplier.company_name ? `(${supplier.company_name})` : ''}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        clientsData?.results.map((client) => (
+                          <SelectItem key={client.id} value={client.id.toString()}>
+                            {client.full_name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="amount"

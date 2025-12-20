@@ -150,15 +150,15 @@ export default function SaleDetailPage() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.paid')}</p>
-                  <p className="font-semibold text-green-600">{formatAmount(sale.debt_amounts.total_paid.uzs_amount)} UZS</p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.total_paid.usd_amount).toFixed(2)}</p>
+                  <p className="font-semibold text-green-600">{formatAmount(sale.debt_amounts.paid_amount.uzs_amount)} UZS</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.paid_amount.usd_amount).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.remaining')}</p>
-                  <p className={`font-semibold ${parseFloat(sale.debt_amounts.total_remaining.uzs_amount) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                    {formatAmount(sale.debt_amounts.total_remaining.uzs_amount)} UZS
+                  <p className={`font-semibold ${parseFloat(sale.debt_amounts.remaining_amount.uzs_amount) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                    {formatAmount(sale.debt_amounts.remaining_amount.uzs_amount)} UZS
                   </p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.total_remaining.usd_amount).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.remaining_amount.usd_amount).toFixed(2)}</p>
                 </div>
               </div>
             </div>

@@ -1,22 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { BaseLayout } from '@/components/layouts/base-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { DataTable } from './components/data-table'
 import { SummaryCards } from './components/summary-cards'
 import { AddOldDebtDialog } from '@/components/add-old-debt-dialog'
 import { useSaleClientDebts, useOldClientDebts } from '@/hooks/use-debts'
-import { clientsService } from '@/services/clients.service'
 
 export default function ClientDebtsPage() {
   const { t } = useTranslation('debts')
@@ -29,7 +20,6 @@ export default function ClientDebtsPage() {
   const [oldSearch, setOldSearch] = useState('')
   const [oldDebouncedSearch, setOldDebouncedSearch] = useState('')
 
-  const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
   const [addDebtDialogOpen, setAddDebtDialogOpen] = useState(false)
 
   // Debounce sale search
@@ -48,19 +38,6 @@ export default function ClientDebtsPage() {
   const oldDebts = useOldClientDebts(oldPage, oldDebouncedSearch)
 
   const currentData = activeTab === 'sale' ? saleDebts : oldDebts
-
-  // Fetch clients list for the selector
-  const { data: clientsData } = useQuery({
-    queryKey: ['clients-list'],
-    queryFn: () => clientsService.getClients(1, 1000), // Get all clients
-  })
-
-  const selectedClient = clientsData?.results.find(c => c.id === selectedClientId)
-
-  const handleAddOldDebt = () => {
-    if (!selectedClientId) return
-    setAddDebtDialogOpen(true)
-  }
 
   return (
     <BaseLayout
@@ -94,26 +71,10 @@ export default function ClientDebtsPage() {
               <TabsTrigger value="old" className="flex-1">{t('tabs.oldDebts')}</TabsTrigger>
             </TabsList>
             
-            {/* Client selector + Add Old Debt button */}
-            <div className="flex items-center gap-3">
-              <Select
-                value={selectedClientId?.toString() || ""}
-                onValueChange={(value) => setSelectedClientId(Number(value))}
-              >
-                <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder={t('addOldDebt.selectClient')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientsData?.results.map((client) => (
-                    <SelectItem key={client.id} value={client.id.toString()}>
-                      {client.full_name} ({client.phone_number})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Add Old Debt button */}
+            <div className="flex items-center justify-end">
               <Button
-                onClick={handleAddOldDebt}
-                disabled={!selectedClientId}
+                onClick={() => setAddDebtDialogOpen(true)}
                 size="sm"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -134,16 +95,12 @@ export default function ClientDebtsPage() {
           </TabsContent>
         </Tabs>
 
-        {selectedClient && (
-          <AddOldDebtDialog
-            open={addDebtDialogOpen}
-            onOpenChange={setAddDebtDialogOpen}
-            entityType="client"
-            entityId={selectedClient.id}
-            entityName={selectedClient.full_name}
-            onSuccess={() => oldDebts.refetch()}
-          />
-        )}
+        <AddOldDebtDialog
+          open={addDebtDialogOpen}
+          onOpenChange={setAddDebtDialogOpen}
+          entityType="client"
+          onSuccess={() => oldDebts.refetch()}
+        />
       </div>
     </BaseLayout>
   )

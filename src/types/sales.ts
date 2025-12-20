@@ -175,8 +175,8 @@ export interface AmountDisplay {
 export interface DebtAmounts {
   total_amount: AmountDisplay
   discount_amount: AmountDisplay
-  total_paid: AmountDisplay
-  total_remaining: AmountDisplay
+  paid_amount: AmountDisplay
+  remaining_amount: AmountDisplay
   total_after_discount: AmountDisplay
 }
 

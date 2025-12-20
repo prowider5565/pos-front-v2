@@ -35,13 +35,13 @@ import {
 } from "@/components/ui/select"
 import { PaginationControls } from "@/components/ui/pagination-controls"
 import { debtsService } from "@/services/debts.service"
-import { suppliersService } from "@/services/suppliers.service"
+import { clientsService } from "@/services/clients.service"
 import { toast } from "sonner"
 import type { OldDebtItem, DirectOldDebtPaymentRequest } from "@/types/debts"
 
-export default function SupplierOldDebtsDetailPage() {
+export default function ClientOldDebtsDetailPage() {
   const { t } = useTranslation('debts')
-  const { supplierId } = useParams<{ supplierId: string }>()
+  const { clientId } = useParams<{ clientId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -51,30 +51,30 @@ export default function SupplierOldDebtsDetailPage() {
   const [paymentCurrency, setPaymentCurrency] = useState<"UZS" | "USD">("UZS")
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "CARD" | "TRANSFER">("CASH")
 
-  // Fetch supplier info
-  const { data: supplier } = useQuery({
-    queryKey: ['supplier', supplierId],
-    queryFn: () => suppliersService.getSupplier(Number(supplierId)),
-    enabled: !!supplierId,
+  // Fetch client info
+  const { data: client } = useQuery({
+    queryKey: ['client', clientId],
+    queryFn: () => clientsService.getClient(Number(clientId)),
+    enabled: !!clientId,
   })
 
-  // Fetch old debts for this supplier
+  // Fetch old debts for this client
   const { data: debtsData, isLoading } = useQuery({
-    queryKey: ['supplier-old-debts-detail', supplierId, page],
-    queryFn: () => debtsService.getSupplierOldDebtsDetail(Number(supplierId), { page }),
-    enabled: !!supplierId,
+    queryKey: ['client-old-debts-detail', clientId, page],
+    queryFn: () => debtsService.getClientOldDebtsDetail(Number(clientId), { page }),
+    enabled: !!clientId,
   })
 
   // Payment mutation
   const paymentMutation = useMutation({
-    mutationFn: (data: DirectOldDebtPaymentRequest) => debtsService.makeDirectOldSupplierDebtPayment(data),
+    mutationFn: (data: DirectOldDebtPaymentRequest) => debtsService.makeDirectOldDebtPayment(data),
     onSuccess: () => {
       toast.success(t('oldDebtPayment.success'))
       setPaymentDialogOpen(false)
       setSelectedDebt(null)
       setPaymentAmount("")
-      queryClient.invalidateQueries({ queryKey: ['supplier-old-debts-detail', supplierId] })
-      queryClient.invalidateQueries({ queryKey: ['debts', 'suppliers', 'old'] })
+      queryClient.invalidateQueries({ queryKey: ['client-old-debts-detail', clientId] })
+      queryClient.invalidateQueries({ queryKey: ['debts', 'clients', 'old'] })
     },
     onError: (error: any) => {
       toast.error(t('oldDebtPayment.error'), {
@@ -137,11 +137,11 @@ export default function SupplierOldDebtsDetailPage() {
 
   return (
     <BaseLayout
-      title={supplier ? `${supplier.full_name || supplier.company_name} - Old Debts` : "Supplier Old Debts"}
-      description={supplier ? `Phone: ${supplier.phone_number}` : ""}
+      title={client ? `${client.full_name} - Old Debts` : "Client Old Debts"}
+      description={client ? `Phone: ${client.phone_number}` : ""}
     >
       <div className="px-4 lg:px-6 space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/debts/suppliers')}>
+        <Button variant="ghost" onClick={() => navigate('/debts/clients')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           {t('actions.back')}
         </Button>

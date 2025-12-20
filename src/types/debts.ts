@@ -96,3 +96,36 @@ export interface SupplierOldDebtsDetailResponse {
   results: OldDebtItem[]
   metadata: DebtAmounts
 }
+
+/**
+ * Client old debts detail response (same structure as supplier)
+ */
+export interface ClientOldDebtsDetailResponse {
+  count: number
+  current_page: number
+  next: string | null
+  previous: string | null
+  total_pages: number
+  results: OldDebtItem[]
+  metadata: DebtAmounts
+}
+
+/**
+ * Direct payment request for old client debt
+ */
+export interface DirectOldDebtPaymentRequest {
+  old_debt_id: number
+  amount: string
+  currency: 'UZS' | 'USD'
+  method: 'CASH' | 'CARD' | 'TRANSFER'
+}
+
+/**
+ * Direct payment request for old supplier debt
+ */
+export interface DirectOldSupplierDebtPaymentRequest {
+  old_debt_id: number
+  amount: string
+  currency: 'UZS' | 'USD'
+  method: 'CASH' | 'CARD' | 'TRANSFER'
+}

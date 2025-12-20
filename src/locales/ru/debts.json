@@ -35,7 +35,13 @@
     "makePayment": "Оплатить",
     "cancel": "Отмена",
     "submit": "Добавить долг",
-    "submitting": "Добавление..."
+    "submitting": "Добавление...",
+    "back": "Назад"
+  },
+  "status": {
+    "pending": "Ожидает оплаты",
+    "partiallyPaid": "Частично оплачено",
+    "paid": "Оплачено"
   },
   "search": {
     "placeholder": "Поиск поставщиков...",
@@ -111,5 +117,28 @@
     "remainingAmount": "Остаток",
     "exchangeRate": "Курс валюты",
     "noDebts": "Старые долги не найдены"
+  },
+
+  "oldDebtPayment": {
+    "title": "Оплатить",
+    "description": "Оплата долга #{{debtId}}",
+    "remainingAmount": "Остаток",
+    "exchangeRate": "Курс обмена",
+    "paymentAmount": "Сумма платежа",
+    "enterAmount": "Введите сумму",
+    "currency": "Валюта",
+    "paymentMethod": "Способ оплаты",
+    "cancel": "Отмена",
+    "processing": "Обработка...",
+    "makePayment": "Оплатить",
+    "success": "Платеж успешно проведен",
+    "error": "Ошибка при проведении платежа",
+    "amountRequired": "Пожалуйста, введите сумму платежа",
+    "invalidAmount": "Пожалуйста, введите корректную сумму",
+    "methods": {
+      "cash": "Наличные",
+      "card": "Карта",
+      "transfer": "Перевод"
+    }
   }
 }

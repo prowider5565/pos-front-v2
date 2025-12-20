@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
+import { useSearchParams } from "react-router-dom"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -56,6 +57,7 @@ interface UsersListResponse {
 
 export function DataTable() {
   const { t } = useTranslation(['users', 'common'])
+  const [searchParams, setSearchParams] = useSearchParams()
   const [data, setData] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -69,7 +71,8 @@ export function DataTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   
-  // Edit dialog state
+  // Dialog states
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
@@ -110,6 +113,18 @@ export function DataTable() {
   useEffect(() => {
     fetchUsers()
   }, [currentPage, statusFilter])
+
+  // Check URL params for modal trigger
+  useEffect(() => {
+    const openModal = searchParams.get('openModal')
+    
+    if (openModal === 'true') {
+      setCreateDialogOpen(true)
+      // Clear the query param after opening modal
+      searchParams.delete('openModal')
+      setSearchParams(searchParams)
+    }
+  }, [searchParams, setSearchParams])
 
   // Debounced search
   useEffect(() => {
@@ -306,7 +321,11 @@ export function DataTable() {
             </SelectContent>
           </Select>
         </div>
-        <UserFormDialog onSuccess={fetchUsers} />
+        <UserFormDialog 
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSuccess={fetchUsers} 
+        />
         <UserFormDialog 
           user={editingUser} 
           onSuccess={handleEditSuccess}

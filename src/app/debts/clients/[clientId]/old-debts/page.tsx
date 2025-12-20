@@ -77,9 +77,40 @@ export default function ClientOldDebtsDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['debts', 'clients', 'old'] })
     },
     onError: (error: any) => {
-      toast.error(t('oldDebtPayment.error'), {
-        description: error.response?.data?.detail
-      })
+      console.error('Payment error:', error)
+      console.error('Error data:', error.data)
+      console.error('Error name:', error.name)
+      
+      let errorMessage = t('oldDebtPayment.error')
+      
+      // ApiException has error data in the 'data' property
+      if (error.name === 'ApiException' && error.data) {
+        const errorData = error.data
+        
+        // Handle validation errors (like overpayment)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          errorMessage = errorData.non_field_errors.join(', ')
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+        } else {
+          // If we have any error data, try to stringify it
+          errorMessage = JSON.stringify(errorData)
+        }
+      } else if (error.response?.data) {
+        // Handle axios-style errors
+        const errorData = error.response.data
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          errorMessage = errorData.non_field_errors.join(', ')
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        }
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage)
     }
   })
 

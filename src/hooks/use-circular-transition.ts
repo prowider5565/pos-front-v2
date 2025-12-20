@@ -52,7 +52,12 @@ export function useCircularTransition(): CircularTransitionHook {
     }
 
     startTransition(coords, () => {
-      setTheme(theme === "dark" ? "light" : "dark")
+      // Determine current effective theme
+      const isDark = theme === "dark" || 
+        (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      
+      // Toggle to explicit light/dark (not system)
+      setTheme(isDark ? "light" : "dark")
     })
   }, [theme, setTheme, startTransition])
 

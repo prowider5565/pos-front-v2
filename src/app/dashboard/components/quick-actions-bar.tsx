@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
   Package, 
@@ -11,55 +13,62 @@ import {
   FileText,
   ClipboardList
 } from 'lucide-react'
+import { ProductCreateDialog } from '@/app/products/components/product-create-dialog'
+import { ClientFormDialog } from '@/app/clients/components/client-form-dialog'
+import { BatchImportDialog } from '@/components/batch-import-dialog'
 
 export function QuickActionsBar() {
   const { t } = useTranslation('dashboard')
+  const navigate = useNavigate()
+  const [productDialogOpen, setProductDialogOpen] = useState(false)
+  const [batchImportDialogOpen, setBatchImportDialogOpen] = useState(false)
+  const [clientDialogOpen, setClientDialogOpen] = useState(false)
   
   const quickActions = [
     {
       icon: Package,
       labelKey: 'quickActions.addProduct',
-      onClick: () => console.log('Add new product'),
+      onClick: () => setProductDialogOpen(true),
     },
     {
       icon: PackageOpen,
       labelKey: 'quickActions.importBatch',
-      onClick: () => console.log('Import new batch'),
+      onClick: () => setBatchImportDialogOpen(true),
     },
     {
       icon: Store,
       labelKey: 'quickActions.addSupplier',
-      onClick: () => console.log('Add new supplier'),
+      onClick: () => navigate('/suppliers?openModal=true'),
     },
     {
       icon: Users,
       labelKey: 'quickActions.addClient',
-      onClick: () => console.log('Add new client'),
+      onClick: () => setClientDialogOpen(true),
     },
     {
       icon: UserPlus,
       labelKey: 'quickActions.addStaff',
-      onClick: () => console.log('Add new staff'),
+      onClick: () => navigate('/users?openModal=true'),
     },
     {
       icon: Wallet,
       labelKey: 'quickActions.payClientDebt',
-      onClick: () => console.log('Pay client debt'),
+      onClick: () => navigate('/debts/clients?tab=sale'),
     },
     {
       icon: CreditCard,
       labelKey: 'quickActions.paySupplierDebt',
-      onClick: () => console.log('Pay supplier debt'),
+      onClick: () => navigate('/debts/suppliers?tab=new'),
     },
     {
       icon: FileText,
       labelKey: 'quickActions.addOldClientDebt',
-      onClick: () => console.log('Add old client debt'),
+      onClick: () => navigate('/debts/clients?tab=old&openModal=true'),
     },
     {
       icon: ClipboardList,
       labelKey: 'quickActions.addOldSellerDebt',
-      onClick: () => console.log('Add old seller debt'),
+      onClick: () => navigate('/debts/suppliers?tab=old&openModal=true'),
     },
   ]
 
@@ -87,6 +96,36 @@ export function QuickActionsBar() {
           })}
         </div>
       </CardContent>
+
+      {/* Product Creation Dialog */}
+      <ProductCreateDialog
+        open={productDialogOpen}
+        onOpenChange={setProductDialogOpen}
+        onSuccess={() => {
+          setProductDialogOpen(false)
+        }}
+      />
+
+      {/* Batch Import Dialog */}
+      <BatchImportDialog
+        open={batchImportDialogOpen}
+        onOpenChange={setBatchImportDialogOpen}
+        productId={null}
+        onSuccess={() => {
+          setBatchImportDialogOpen(false)
+        }}
+      />
+
+      {/* Client Creation Dialog */}
+      <ClientFormDialog
+        open={clientDialogOpen}
+        onOpenChange={setClientDialogOpen}
+        client={null}
+        onSuccess={() => {
+          setClientDialogOpen(false)
+        }}
+      />
+
     </Card>
   )
 }

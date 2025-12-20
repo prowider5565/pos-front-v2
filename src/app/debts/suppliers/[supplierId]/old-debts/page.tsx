@@ -37,7 +37,7 @@ import { PaginationControls } from "@/components/ui/pagination-controls"
 import { debtsService } from "@/services/debts.service"
 import { suppliersService } from "@/services/suppliers.service"
 import { toast } from "sonner"
-import type { OldDebtItem, DirectOldDebtPaymentRequest } from "@/types/debts"
+import type { OldDebtItem, DirectOldSupplierDebtPaymentRequest } from "@/types/debts"
 
 export default function SupplierOldDebtsDetailPage() {
   const { t } = useTranslation('debts')
@@ -46,6 +46,7 @@ export default function SupplierOldDebtsDetailPage() {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
+  const [paymentHistoryDialogOpen, setPaymentHistoryDialogOpen] = useState(false)
   const [selectedDebt, setSelectedDebt] = useState<OldDebtItem | null>(null)
   const [paymentAmount, setPaymentAmount] = useState("")
   const [paymentCurrency, setPaymentCurrency] = useState<"UZS" | "USD">("UZS")
@@ -65,9 +66,16 @@ export default function SupplierOldDebtsDetailPage() {
     enabled: !!supplierId,
   })
 
+  // Fetch payment history for selected debt
+  const { data: paymentHistoryData, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ['supplier-old-debt-payments', selectedDebt?.id, supplierId],
+    queryFn: () => debtsService.getSupplierOldDebtPaymentHistory(selectedDebt!.id, Number(supplierId)),
+    enabled: !!selectedDebt && paymentHistoryDialogOpen && !!supplierId,
+  })
+
   // Payment mutation
   const paymentMutation = useMutation({
-    mutationFn: (data: DirectOldDebtPaymentRequest) => debtsService.makeDirectOldSupplierDebtPayment(data),
+    mutationFn: (data: DirectOldSupplierDebtPaymentRequest) => debtsService.makeDirectOldSupplierDebtPayment(data),
     onSuccess: () => {
       toast.success(t('oldDebtPayment.success'))
       setPaymentDialogOpen(false)
@@ -77,16 +85,63 @@ export default function SupplierOldDebtsDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['debts', 'suppliers', 'old'] })
     },
     onError: (error: any) => {
-      toast.error(t('oldDebtPayment.error'), {
-        description: error.response?.data?.detail
-      })
+      console.error('=== PAYMENT ERROR START ===')
+      console.error('Full error:', error)
+      console.error('Error data:', error.data)
+      console.error('Error name:', error.name)
+      console.error('Has non_field_errors:', error.data?.non_field_errors)
+      
+      let errorMessage = t('oldDebtPayment.error')
+      
+      // ApiException has error data in the 'data' property
+      if (error.name === 'ApiException' && error.data) {
+        const errorData = error.data
+        console.error('Processing ApiException, errorData:', errorData)
+        
+        // Handle validation errors (like overpayment)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          errorMessage = errorData.non_field_errors.join(', ')
+          console.error('Using non_field_errors:', errorMessage)
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+          console.error('Using detail:', errorMessage)
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+          console.error('Using string:', errorMessage)
+        } else {
+          errorMessage = JSON.stringify(errorData)
+          console.error('Using stringified:', errorMessage)
+        }
+      } else if (error.response?.data) {
+        const errorData = error.response.data
+        console.error('Processing axios error, errorData:', errorData)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          errorMessage = errorData.non_field_errors.join(', ')
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        }
+      } else if (error.message) {
+        errorMessage = error.message
+        console.error('Using error.message:', errorMessage)
+      }
+      
+      console.error('Final error message:', errorMessage)
+      console.error('=== PAYMENT ERROR END ===')
+      
+      toast.error(errorMessage)
     }
   })
 
-  const handleMakePayment = (debt: OldDebtItem) => {
+  const handleMakePayment = (e: React.MouseEvent, debt: OldDebtItem) => {
+    e.stopPropagation()
     setSelectedDebt(debt)
     setPaymentCurrency(debt.currency)
     setPaymentDialogOpen(true)
+  }
+
+  const handleRowClick = (debt: OldDebtItem) => {
+    setSelectedDebt(debt)
+    setPaymentHistoryDialogOpen(true)
   }
 
   const handleSubmitPayment = () => {
@@ -235,7 +290,11 @@ export default function SupplierOldDebtsDetailPage() {
                   debtsData?.results.map((debt) => {
                     const remaining = parseFloat(debt.debt_amounts.total_remaining[debt.currency === 'USD' ? 'usd_amount' : 'uzs_amount'])
                     return (
-                      <TableRow key={debt.id}>
+                      <TableRow 
+                        key={debt.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleRowClick(debt)}
+                      >
                         <TableCell className="font-medium">#{debt.id}</TableCell>
                         <TableCell>{getStatusBadge(debt.status)}</TableCell>
                         <TableCell>{debt.currency}</TableCell>
@@ -269,7 +328,7 @@ export default function SupplierOldDebtsDetailPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleMakePayment(debt)}
+                              onClick={(e) => handleMakePayment(e, debt)}
                             >
                               <CreditCard className="h-4 w-4 mr-1" />
                               {t('actions.makePayment')}
@@ -372,6 +431,85 @@ export default function SupplierOldDebtsDetailPage() {
               </Button>
               <Button onClick={handleSubmitPayment} disabled={paymentMutation.isPending}>
                 {paymentMutation.isPending ? t('oldDebtPayment.processing') : t('oldDebtPayment.makePayment')}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment History Dialog */}
+        <Dialog open={paymentHistoryDialogOpen} onOpenChange={setPaymentHistoryDialogOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{t('paymentHistory.title', { debtId: selectedDebt?.id })}</DialogTitle>
+              <DialogDescription>
+                {paymentHistoryData?.supplier && (
+                  <span>
+                    {t('paymentHistory.supplierInfo', {
+                      name: paymentHistoryData.supplier.full_name,
+                      phone: paymentHistoryData.supplier.phone_number
+                    })}
+                  </span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {isLoadingHistory ? (
+                <div className="text-center py-8">{t('paymentHistory.loading')}</div>
+              ) : paymentHistoryData?.payments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {t('paymentHistory.noPayments')}
+                </div>
+              ) : (
+                <>
+                  {paymentHistoryData && (
+                    <div className="p-4 bg-muted rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">{t('paymentHistory.totalPaid')}:</span>
+                        <span className="text-lg font-bold text-green-600">
+                          {formatCurrency(paymentHistoryData.total_paid, selectedDebt?.currency || 'UZS')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t('paymentHistory.columns.id')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.amountUzs')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.amountUsd')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.currency')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.exchangeRate')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paymentHistoryData?.payments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">#{payment.id}</TableCell>
+                          <TableCell>
+                            {formatCurrency(payment.amount_display.uzs_amount, 'UZS')}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(payment.amount_display.usd_amount, 'USD')}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{payment.currency}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {parseFloat(payment.exchange_rate).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setPaymentHistoryDialogOpen(false)}>
+                {t('paymentHistory.close')}
               </Button>
             </div>
           </DialogContent>

@@ -140,5 +140,21 @@
       "card": "Karta",
       "transfer": "O'tkazma"
     }
+  },
+
+  "paymentHistory": {
+    "title": "To'lovlar tarixi - Qarz #{{debtId}}",
+    "supplierInfo": "{{name}} ({{phone}})",
+    "totalPaid": "Jami to'langan",
+    "noPayments": "To'lovlar topilmadi",
+    "loading": "Yuklanmoqda...",
+    "close": "Yopish",
+    "columns": {
+      "id": "ID",
+      "amountUzs": "Summa (UZS)",
+      "amountUsd": "Summa (USD)",
+      "currency": "Valyuta",
+      "exchangeRate": "Valyuta kursi"
+    }
   }
 }

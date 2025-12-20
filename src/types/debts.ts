@@ -129,3 +129,31 @@ export interface DirectOldSupplierDebtPaymentRequest {
   currency: 'UZS' | 'USD'
   method: 'CASH' | 'CARD' | 'TRANSFER'
 }
+
+/**
+ * Supplier old debt payment history item
+ */
+export interface SupplierOldDebtPayment {
+  id: number
+  old_seller_debt: number
+  amount_display: {
+    uzs_amount: string
+    usd_amount: string
+  }
+  exchange_rate: string
+  currency: 'UZS' | 'USD'
+  seller: number
+}
+
+/**
+ * Supplier old debt payment history response
+ */
+export interface SupplierOldDebtPaymentHistoryResponse {
+  supplier: {
+    id: number
+    full_name: string
+    phone_number: string
+  }
+  total_paid: string
+  payments: SupplierOldDebtPayment[]
+}

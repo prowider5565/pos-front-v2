@@ -8,7 +8,8 @@ import type {
   SupplierOldDebtsDetailResponse,
   ClientOldDebtsDetailResponse,
   DirectOldDebtPaymentRequest,
-  DirectOldSupplierDebtPaymentRequest
+  DirectOldSupplierDebtPaymentRequest,
+  SupplierOldDebtPaymentHistoryResponse
 } from '@/types/debts'
 
 export const debtsService = {
@@ -96,5 +97,9 @@ export const debtsService = {
 
   makeDirectOldSupplierDebtPayment: async (data: DirectOldSupplierDebtPaymentRequest): Promise<void> => {
     await apiService.post('/payments/old-seller-debt-payments/direct-payment/', data)
+  },
+
+  getSupplierOldDebtPaymentHistory: async (oldDebtId: number, supplierId: number): Promise<SupplierOldDebtPaymentHistoryResponse> => {
+    return apiService.get(`/payments/old-seller-debt-payments/supplier-payments/?old_debt_id=${oldDebtId}&supplier_id=${supplierId}`)
   },
 }

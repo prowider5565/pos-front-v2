@@ -140,5 +140,21 @@
       "card": "Card",
       "transfer": "Transfer"
     }
+  },
+
+  "paymentHistory": {
+    "title": "Payment History - Debt #{{debtId}}",
+    "supplierInfo": "{{name}} ({{phone}})",
+    "totalPaid": "Total Paid",
+    "noPayments": "No payments found",
+    "loading": "Loading...",
+    "close": "Close",
+    "columns": {
+      "id": "ID",
+      "amountUzs": "Amount (UZS)",
+      "amountUsd": "Amount (USD)",
+      "currency": "Currency",
+      "exchangeRate": "Exchange Rate"
+    }
   }
 }

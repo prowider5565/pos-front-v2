@@ -9,6 +9,23 @@ import type { ThemePreset, ImportedTheme } from '@/types/theme-customizer'
 export function useThemeManager() {
   const { theme, setTheme } = useTheme()
   const [brandColorsValues, setBrandColorsValues] = React.useState<Record<string, string>>({})
+  
+  // Restore saved theme colors on mount
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('custom-theme-colors')
+    if (savedTheme) {
+      try {
+        const colors = JSON.parse(savedTheme)
+        const root = document.documentElement
+        Object.entries(colors).forEach(([key, value]) => {
+          root.style.setProperty(key, value as string)
+        })
+        setBrandColorsValues(colors)
+      } catch (error) {
+        console.error('Failed to restore theme:', error)
+      }
+    }
+  }, [])
 
   // Simple, reliable theme detection - just follow the theme provider
   const isDarkMode = React.useMemo(() => {
@@ -62,6 +79,9 @@ export function useThemeManager() {
         root.style.removeProperty(property)
       }
     }
+    
+    // Clear saved theme from localStorage
+    localStorage.removeItem('custom-theme-colors')
   }, [])
 
   const updateBrandColorsFromTheme = React.useCallback((styles: Record<string, string>) => {
@@ -84,9 +104,15 @@ export function useThemeManager() {
     const styles = darkMode ? theme.preset.styles.dark : theme.preset.styles.light
     const root = document.documentElement
 
+    const cssVars: Record<string, string> = {}
     Object.entries(styles).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value)
+      const cssVar = `--${key}`
+      root.style.setProperty(cssVar, value)
+      cssVars[cssVar] = value
     })
+
+    // Save to localStorage
+    localStorage.setItem('custom-theme-colors', JSON.stringify(cssVars))
 
     // Update brand colors values when theme changes
     updateBrandColorsFromTheme(styles)
@@ -98,9 +124,15 @@ export function useThemeManager() {
     const styles = darkMode ? themePreset.styles.dark : themePreset.styles.light
     const root = document.documentElement
 
+    const cssVars: Record<string, string> = {}
     Object.entries(styles).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value)
+      const cssVar = `--${key}`
+      root.style.setProperty(cssVar, value)
+      cssVars[cssVar] = value
     })
+
+    // Save to localStorage
+    localStorage.setItem('custom-theme-colors', JSON.stringify(cssVars))
 
     // Update brand colors values when theme changes
     updateBrandColorsFromTheme(styles)
@@ -110,10 +142,16 @@ export function useThemeManager() {
     const root = document.documentElement
     const themeVars = darkMode ? themeData.dark : themeData.light
     
+    const cssVars: Record<string, string> = {}
     // Apply all variables from the theme
     Object.entries(themeVars).forEach(([variable, value]) => {
-      root.style.setProperty(`--${variable}`, value)
+      const cssVar = `--${variable}`
+      root.style.setProperty(cssVar, value)
+      cssVars[cssVar] = value
     })
+    
+    // Save to localStorage
+    localStorage.setItem('custom-theme-colors', JSON.stringify(cssVars))
     
     // Update brand colors values for the customizer UI
     const newBrandColors: Record<string, string> = {}

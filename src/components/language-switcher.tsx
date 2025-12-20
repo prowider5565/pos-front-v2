@@ -3,7 +3,7 @@
  * Dropdown to select between English, Russian, and Uzbek
  */
 
-import { Globe } from "lucide-react"
+import { Languages } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ export function LanguageSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Globe className="h-5 w-5" />
+          <Languages className="h-5 w-5" />
           <span className="sr-only">Change language</span>
         </Button>
       </DropdownMenuTrigger>

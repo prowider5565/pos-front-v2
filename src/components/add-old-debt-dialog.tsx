@@ -85,7 +85,7 @@ export function AddOldDebtDialog({
 
   const { data: clientsData } = useQuery({
     queryKey: ['clients-list'],
-    queryFn: () => clientsService.listClients({ is_active: true }),
+    queryFn: () => clientsService.getClients(1, 1000),
     enabled: open && entityType === "client",
   })
 

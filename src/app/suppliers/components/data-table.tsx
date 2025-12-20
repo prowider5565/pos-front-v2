@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
+import { useSearchParams } from "react-router-dom"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -45,6 +46,7 @@ import { suppliersService, type Supplier, type SuppliersListResponse } from "@/s
 
 export function DataTable() {
   const { t } = useTranslation(['suppliers', 'common'])
+  const [searchParams, setSearchParams] = useSearchParams()
   const [data, setData] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -58,7 +60,8 @@ export function DataTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   
-  // Edit dialog state
+  // Dialog states
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | undefined>(undefined)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
@@ -99,6 +102,18 @@ export function DataTable() {
   useEffect(() => {
     fetchSuppliers()
   }, [currentPage, statusFilter])
+
+  // Check URL params for modal trigger
+  useEffect(() => {
+    const openModal = searchParams.get('openModal')
+    
+    if (openModal === 'true') {
+      setCreateDialogOpen(true)
+      // Clear the query param after opening modal
+      searchParams.delete('openModal')
+      setSearchParams(searchParams)
+    }
+  }, [searchParams, setSearchParams])
 
   // Debounced search
   useEffect(() => {
@@ -268,7 +283,11 @@ export function DataTable() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <SupplierFormDialog onSuccess={fetchSuppliers} />
+          <SupplierFormDialog 
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+            onSuccess={fetchSuppliers} 
+          />
           <SupplierFormDialog 
             supplier={editingSupplier} 
             onSuccess={handleEditSuccess}

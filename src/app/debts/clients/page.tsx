@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { BaseLayout } from '@/components/layouts/base-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -11,6 +12,7 @@ import { useSaleClientDebts, useOldClientDebts } from '@/hooks/use-debts'
 
 export default function ClientDebtsPage() {
   const { t } = useTranslation('debts')
+  const [searchParams, setSearchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState<'sale' | 'old'>('sale')
   
   const [salePage, setSalePage] = useState(1)
@@ -38,6 +40,23 @@ export default function ClientDebtsPage() {
   const oldDebts = useOldClientDebts(oldPage, oldDebouncedSearch)
 
   const currentData = activeTab === 'sale' ? saleDebts : oldDebts
+
+  // Check URL params for tab and modal trigger
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const openModal = searchParams.get('openModal')
+    
+    if (tab === 'old') {
+      setActiveTab('old')
+    }
+    
+    if (openModal === 'true') {
+      setAddDebtDialogOpen(true)
+      // Clear the query param after opening modal
+      searchParams.delete('openModal')
+      setSearchParams(searchParams)
+    }
+  }, [searchParams, setSearchParams])
 
   return (
     <BaseLayout

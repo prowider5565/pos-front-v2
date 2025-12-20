@@ -140,5 +140,21 @@
       "card": "Карта",
       "transfer": "Перевод"
     }
+  },
+
+  "paymentHistory": {
+    "title": "История платежей - Долг #{{debtId}}",
+    "supplierInfo": "{{name}} ({{phone}})",
+    "totalPaid": "Всего оплачено",
+    "noPayments": "Платежи не найдены",
+    "loading": "Загрузка...",
+    "close": "Закрыть",
+    "columns": {
+      "id": "ID",
+      "amountUzs": "Сумма (UZS)",
+      "amountUsd": "Сумма (USD)",
+      "currency": "Валюта",
+      "exchangeRate": "Курс валюты"
+    }
   }
 }

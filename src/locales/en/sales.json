@@ -5,6 +5,8 @@
   "allCategories": "All Categories",
   "noProducts": "No products found",
   "noProductsDescription": "Try adjusting your search or filters",
+  "loadingMore": "Loading more products...",
+  "allProductsLoaded": "All products loaded",
   "loading": "Loading...",
   
   "cart": {
@@ -158,5 +160,29 @@
       "noPayments": "No payments recorded",
       "loadError": "Failed to load sale details"
     }
+  },
+
+  "cheque": {
+    "title": "Points of Sales",
+    "seller": "Seller",
+    "client": "Client",
+    "fullName": "Full name",
+    "phoneNumber": "Phone number",
+    "exchangeRate": "Exchange Rate",
+    "date": "Date",
+    "tableHeaders": {
+      "n": "N",
+      "productName": "Product Name",
+      "quantity": "Quantity",
+      "price": "Price",
+      "totalPriceUZS": "Total Price UZS",
+      "totalPriceUSD": "Total Price USD"
+    },
+    "totalSum": "Total Sum:",
+    "thankYou": "THANK YOU FOR YOUR PURCHASE",
+    "oldDebtInUZS": "Old Debt in UZS",
+    "debtFromSalesInUZS": "Debt From Sales in UZS",
+    "currentDebtInUZS": "Current Debt in UZS",
+    "currentDebtInUSD": "Current Debt in USD"
   }
 }

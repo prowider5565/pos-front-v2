@@ -5,6 +5,8 @@
   "allCategories": "Barcha kategoriyalar",
   "noProducts": "Mahsulotlar topilmadi",
   "noProductsDescription": "Qidiruvni yoki filtrlarni o'zgartiring",
+  "loadingMore": "Ko'proq mahsulotlar yuklanmoqda...",
+  "allProductsLoaded": "Barcha mahsulotlar yuklandi",
   "loading": "Yuklanmoqda...",
   
   "cart": {
@@ -158,5 +160,29 @@
       "noPayments": "To'lovlar qayd qilinmagan",
       "loadError": "Sotuv ma'lumotlarini yuklashda xatolik"
     }
+  },
+
+  "cheque": {
+    "title": "Savdo nuqtasi",
+    "seller": "Sotuvchi",
+    "client": "Mijoz",
+    "fullName": "To'liq ism",
+    "phoneNumber": "Telefon raqami",
+    "exchangeRate": "Valyuta kursi",
+    "date": "Sana",
+    "tableHeaders": {
+      "n": "N",
+      "productName": "Mahsulot nomi",
+      "quantity": "Miqdori",
+      "price": "Narxi",
+      "totalPriceUZS": "Jami narxi UZS",
+      "totalPriceUSD": "Jami narxi USD"
+    },
+    "totalSum": "Jami summa:",
+    "thankYou": "XARIDINGIZ UCHUN RAHMAT",
+    "oldDebtInUZS": "Eski qarz UZS da",
+    "debtFromSalesInUZS": "Sotuvdan qarz UZS da",
+    "currentDebtInUZS": "Joriy qarz UZS da",
+    "currentDebtInUSD": "Joriy qarz USD da"
   }
 }

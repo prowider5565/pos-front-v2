@@ -5,6 +5,8 @@
   "allCategories": "Все категории",
   "noProducts": "Товары не найдены",
   "noProductsDescription": "Попробуйте изменить поиск или фильтры",
+  "loadingMore": "Загрузка дополнительных товаров...",
+  "allProductsLoaded": "Все товары загружены",
   "loading": "Загрузка...",
   
   "cart": {
@@ -158,5 +160,29 @@
       "noPayments": "Платежи не зарегистрированы",
       "loadError": "Не удалось загрузить данные продажи"
     }
+  },
+
+  "cheque": {
+    "title": "Точка продаж",
+    "seller": "Продавец",
+    "client": "Клиент",
+    "fullName": "Полное имя",
+    "phoneNumber": "Номер телефона",
+    "exchangeRate": "Курс валюты",
+    "date": "Дата",
+    "tableHeaders": {
+      "n": "N",
+      "productName": "Название товара",
+      "quantity": "Количество",
+      "price": "Цена",
+      "totalPriceUZS": "Итого цена UZS",
+      "totalPriceUSD": "Итого цена USD"
+    },
+    "totalSum": "Общая сумма:",
+    "thankYou": "СПАСИБО ЗА ВАШУ ПОКУПКУ",
+    "oldDebtInUZS": "Старый долг в UZS",
+    "debtFromSalesInUZS": "Долг от продаж в UZS",
+    "currentDebtInUZS": "Текущий долг в UZS",
+    "currentDebtInUSD": "Текущий долг в USD"
   }
 }

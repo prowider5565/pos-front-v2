@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { Search, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -27,29 +27,84 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Fetch products
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
+  const fetchProducts = useCallback(async (pageNum: number, isInitial: boolean = false) => {
+    try {
+      if (isInitial) {
         setLoading(true)
-        const response = await salesService.getProductsForSale({
-          page: 1,
-          page_size: 100,
-        })
+      } else {
+        setLoadingMore(true)
+      }
+
+      const response = await salesService.getProductsForSale({
+        page: pageNum,
+        page_size: 20,
+        search: searchQuery || undefined,
+        category: selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+      })
+
+      if (isInitial) {
         setProducts(response.results)
-      } catch (error) {
-        console.error('Failed to fetch products:', error)
-        toast.error(t('messages.loadError'))
-      } finally {
+      } else {
+        setProducts(prev => [...prev, ...response.results])
+      }
+
+      // Check if there are more pages
+      setHasMore(response.next !== null)
+      
+    } catch (error) {
+      console.error('Failed to fetch products:', error)
+      toast.error(t('messages.loadError'))
+    } finally {
+      if (isInitial) {
         setLoading(false)
+      } else {
+        setLoadingMore(false)
       }
     }
+  }, [searchQuery, selectedCategory, t])
 
-    fetchProducts()
-  }, [t])
+  // Initial fetch and reset on search/category change
+  useEffect(() => {
+    setPage(1)
+    setHasMore(true)
+    fetchProducts(1, true)
+  }, [searchQuery, selectedCategory, fetchProducts])
+
+  // Setup intersection observer for infinite scroll
+  useEffect(() => {
+    if (loading || loadingMore || !hasMore) return
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          const nextPage = page + 1
+          setPage(nextPage)
+          fetchProducts(nextPage, false)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentLoadMoreRef = loadMoreRef.current
+    if (currentLoadMoreRef) {
+      observerRef.current.observe(currentLoadMoreRef)
+    }
+
+    return () => {
+      if (observerRef.current && currentLoadMoreRef) {
+        observerRef.current.unobserve(currentLoadMoreRef)
+      }
+    }
+  }, [loading, loadingMore, hasMore, page, fetchProducts])
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -61,20 +116,6 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
     })
     return Array.from(categoryMap, ([id, name]) => ({ id, name }))
   }, [products])
-
-  // Filter products
-  const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      // Search filter
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      
-      // Category filter
-      const matchesCategory = selectedCategory === "all" || 
-        product.category?.id.toString() === selectedCategory
-
-      return matchesSearch && matchesCategory
-    })
-  }, [products, searchQuery, selectedCategory])
 
   if (loading) {
     return (
@@ -116,7 +157,7 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
       </div>
 
       {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
+      {products.length === 0 && !loading ? (
         <Card className="flex-1">
           <CardContent className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
             <div className="rounded-full bg-muted p-6 mb-4">
@@ -127,16 +168,40 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredProducts.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-              isInCart={isInCart(product.id)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {products.map(product => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+                isInCart={isInCart(product.id)}
+              />
+            ))}
+          </div>
+
+          {/* Load more trigger and loading indicator */}
+          {hasMore && (
+            <div
+              ref={loadMoreRef}
+              className="flex items-center justify-center py-8"
+            >
+              {loadingMore && (
+                <>
+                  <LoadingSpinner size="md" />
+                  <span className="ml-3 text-muted-foreground">{t('loadingMore')}</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* End of products message */}
+          {!hasMore && products.length > 0 && (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-sm text-muted-foreground">{t('allProductsLoaded')}</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

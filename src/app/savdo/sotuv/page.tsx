@@ -10,6 +10,7 @@ import { useSidebarConfig } from "@/hooks/use-sidebar-config"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { ProductGrid } from "./components/product-grid"
 import { CartSidebar } from "./components/cart-sidebar"
+import { ChequePreviewModal } from "@/components/cheque-preview-modal"
 import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
@@ -48,6 +49,8 @@ export default function SotuvPage() {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
   const [exchangeRate, setExchangeRate] = useState<number>(12600)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [chequeModalOpen, setChequeModalOpen] = useState(false)
+  const [lastSaleData, setLastSaleData] = useState<any>(null)
 
   // Load + subscribe to exchange rate changes (from navbar input)
   useEffect(() => {
@@ -203,11 +206,98 @@ export default function SotuvPage() {
     handleClearCart,
   ])
 
-  // Handle submit and print (placeholder for now)
+  // Handle submit and print
   const handleSubmitAndPrint = useCallback(async () => {
-    await handleSubmit()
-    // TODO: Implement print functionality later
-  }, [handleSubmit])
+    // Validation
+    if (cartItems.length === 0) {
+      toast.error(t('validation.cartEmpty'))
+      return
+    }
+
+    // Check stock
+    const hasStockErrors = cartItems.some(item => item.quantity > item.product.quantity)
+    if (hasStockErrors) {
+      const errorItem = cartItems.find(item => item.quantity > item.product.quantity)
+      toast.error(t('validation.stockExceeded', { 
+        productName: errorItem?.product.name,
+        stock: errorItem?.product.quantity
+      }))
+      return
+    }
+
+    // Final total must not exceed subtotal
+    if (isFinalTotalTooHigh) {
+      toast.error(t('validation.discountTooHigh'))
+      return
+    }
+
+    // Check client requirement
+    if (remaining > 0 && !selectedClientId) {
+      toast.error(t('validation.clientRequired'))
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      // Prepare request data
+      const saleData = {
+        items: cartItems.map(item => ({
+          product_id: item.product.id,
+          quantity: item.quantity,
+        })),
+        payments: payments.map(payment => ({
+          method: payment.method,
+          currency: payment.currency,
+          amount: payment.amount,
+        })),
+        exchange_rate: exchangeRate.toString(),
+        client_id: selectedClientId || undefined,
+        discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
+        notes: notes.trim() ? notes.trim() : undefined,
+        needs_cheque: true, // Mark that cheque is needed
+      }
+
+      // Submit sale and get response
+      const createdSale = await salesService.createSale(saleData)
+
+      // Fetch full sale details for cheque
+      const saleDetail = await salesService.getSaleDetail(createdSale.id)
+      
+      // Store sale data for cheque
+      setLastSaleData(saleDetail)
+
+      // Success message
+      if (remaining > 0) {
+        toast.success(t('messages.saleCreatedWithDebt'))
+      } else {
+        toast.success(t('messages.saleCreated'))
+      }
+
+      // Clear form
+      handleClearCart()
+      
+      // Open cheque modal
+      setChequeModalOpen(true)
+
+    } catch (error: any) {
+      console.error('Failed to create sale:', error)
+      toast.error(error.response?.data?.message || t('messages.error'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [
+    cartItems,
+    payments,
+    exchangeRate,
+    selectedClientId,
+    discountAmount,
+    remaining,
+    notes,
+    isFinalTotalTooHigh,
+    t,
+    handleClearCart,
+  ])
 
   return (
     <SidebarProvider
@@ -283,6 +373,13 @@ export default function SotuvPage() {
       <ThemeCustomizer
         open={themeCustomizerOpen}
         onOpenChange={setThemeCustomizerOpen}
+      />
+
+      {/* Cheque Preview Modal */}
+      <ChequePreviewModal
+        open={chequeModalOpen}
+        onOpenChange={setChequeModalOpen}
+        saleData={lastSaleData}
       />
     </SidebarProvider>
   )

@@ -27,7 +27,6 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -35,9 +34,7 @@ import {
   CircleCheckBig,
   EllipsisVertical,
   GripVertical,
-  Columns2,
   Loader,
-  Plus,
   TrendingUp,
 } from "lucide-react"
 import {
@@ -82,7 +79,6 @@ import {
 } from "@/components/ui/drawer"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,

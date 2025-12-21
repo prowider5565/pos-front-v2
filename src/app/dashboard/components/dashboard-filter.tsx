@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 
 export type FilterType = 'daily' | 'weekly' | 'monthly' | 'custom'
 
@@ -29,7 +28,7 @@ interface DashboardFilterProps {
 export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
   const { t } = useTranslation('dashboard')
   const [activeFilter, setActiveFilter] = useState<FilterType>('monthly')
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({})
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({ from: undefined, to: undefined })
 
   const handleFilterClick = (type: FilterType) => {
     setActiveFilter(type)
@@ -89,8 +88,8 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
         <PopoverContent className="w-auto p-0" align="end">
           <Calendar
             mode="range"
-            selected={dateRange}
-            onSelect={(range) => setDateRange(range || {})}
+            selected={dateRange.from && dateRange.to ? { from: dateRange.from, to: dateRange.to } : undefined}
+            onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
             numberOfMonths={2}
           />
           <div className="p-3 border-t">

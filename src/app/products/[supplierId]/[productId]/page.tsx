@@ -91,7 +91,7 @@ const batchCreateSchema = z.object({
   quantity: z.string().min(1, "Quantity is required"),
   buy_price: z.string().min(1, "Buy price is required"),
   sell_price: z.string().min(1, "Sell price is required"),
-  has_payment: z.boolean().default(false),
+  has_payment: z.boolean().optional().default(false),
   currency: z.enum(["UZS", "USD"]).optional(),
   exchange_rate: z.string().optional(),
   amount: z.string().optional(),

@@ -9,7 +9,8 @@ import type {
   ClientOldDebtsDetailResponse,
   DirectOldDebtPaymentRequest,
   DirectOldSupplierDebtPaymentRequest,
-  SupplierOldDebtPaymentHistoryResponse
+  SupplierOldDebtPaymentHistoryResponse,
+  OldDebtsForChequeResponse
 } from '@/types/debts'
 
 export const debtsService = {
@@ -101,5 +102,9 @@ export const debtsService = {
 
   getSupplierOldDebtPaymentHistory: async (oldDebtId: number, supplierId: number): Promise<SupplierOldDebtPaymentHistoryResponse> => {
     return apiService.get(`/payments/old-seller-debt-payments/supplier-payments/?old_debt_id=${oldDebtId}&supplier_id=${supplierId}`)
+  },
+
+  getOldDebtsForCheque: async (clientId: number): Promise<OldDebtsForChequeResponse> => {
+    return apiService.get(API_ENDPOINTS.DEBTS.FOR_CHEQUE(clientId))
   },
 }

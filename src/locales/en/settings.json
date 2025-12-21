@@ -11,7 +11,19 @@
     "title": "User Settings",
     "description": "Update your user information",
     "profile": "Profile Information",
-    "profileDescription": "Update your profile details"
+    "profileDescription": "Update your profile details",
+    "fields": {
+      "username": "Username",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phoneNumber": "Phone Number"
+    },
+    "placeholders": {
+      "username": "Enter your username",
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "phoneNumber": "+998901234567"
+    }
   },
   "account": {
     "title": "Account Settings",
@@ -49,6 +61,16 @@
   "messages": {
     "settingsSaved": "Settings saved successfully",
     "passwordChanged": "Password changed successfully",
-    "errorSaving": "Failed to save settings"
+    "errorSaving": "Failed to save settings",
+    "profileUpdated": "Profile updated successfully",
+    "noChanges": "No changes to save"
+  },
+  "validation": {
+    "usernameMin": "Username must be at least {{min}} characters",
+    "usernameMax": "Username must not exceed {{max}} characters",
+    "nameMax": "Name must not exceed {{max}} characters",
+    "phoneMin": "Phone number must be at least {{min}} digits",
+    "phoneMax": "Phone number must not exceed {{max}} digits",
+    "phoneInvalid": "Invalid phone number format. Use international format with country code (e.g., +998901234567)"
   }
 }

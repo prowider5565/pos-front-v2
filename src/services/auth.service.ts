@@ -14,6 +14,8 @@ import type {
   User,
   AddUserRequest,
   AddUserResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
 } from '@/types/auth'
 
 /**
@@ -120,5 +122,17 @@ export const authService = {
    */
   disableUser: async (userId: number): Promise<{ detail: string }> => {
     return apiService.post(API_ENDPOINTS.AUTH.DISABLE_USER(userId))
+  },
+
+  /**
+   * Update current user's profile
+   * @param profileData - Profile data to update (username, first_name, last_name, phone_number)
+   * @returns Promise with updated user data
+   */
+  updateProfile: async (profileData: UpdateProfileRequest): Promise<UpdateProfileResponse> => {
+    return apiService.patch<UpdateProfileResponse>(
+      API_ENDPOINTS.AUTH.UPDATE_PROFILE,
+      profileData
+    )
   },
 }

@@ -112,8 +112,8 @@ export default function MahsulotlarSuppliersPage() {
 
       {/* Suppliers Grid */}
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, i) => (
             <Card key={i} className="overflow-hidden">
               <CardHeader>
                 <Skeleton className="h-6 w-3/4" />
@@ -126,7 +126,7 @@ export default function MahsulotlarSuppliersPage() {
           ))}
         </div>
       ) : suppliers.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {suppliers.map((supplier) => (
             <Card
               key={supplier.id}

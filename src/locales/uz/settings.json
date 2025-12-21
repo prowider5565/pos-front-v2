@@ -11,7 +11,19 @@
     "title": "Foydalanuvchi sozlamalari",
     "description": "Foydalanuvchi ma'lumotlarini yangilang",
     "profile": "Profil ma'lumotlari",
-    "profileDescription": "Profil ma'lumotlarini yangilang"
+    "profileDescription": "Profil ma'lumotlarini yangilang",
+    "fields": {
+      "username": "Foydalanuvchi nomi",
+      "firstName": "Ism",
+      "lastName": "Familiya",
+      "phoneNumber": "Telefon raqami"
+    },
+    "placeholders": {
+      "username": "Foydalanuvchi nomini kiriting",
+      "firstName": "Ismingizni kiriting",
+      "lastName": "Familiyangizni kiriting",
+      "phoneNumber": "+998901234567"
+    }
   },
   "account": {
     "title": "Hisob sozlamalari",
@@ -49,6 +61,16 @@
   "messages": {
     "settingsSaved": "Sozlamalar muvaffaqiyatli saqlandi",
     "passwordChanged": "Parol muvaffaqiyatli o'zgartirildi",
-    "errorSaving": "Sozlamalarni saqlab bo'lmadi"
+    "errorSaving": "Sozlamalarni saqlab bo'lmadi",
+    "profileUpdated": "Profil muvaffaqiyatli yangilandi",
+    "noChanges": "Saqlash uchun o'zgarishlar yo'q"
+  },
+  "validation": {
+    "usernameMin": "Foydalanuvchi nomi kamida {{min}} belgidan iborat bo'lishi kerak",
+    "usernameMax": "Foydalanuvchi nomi {{max}} belgidan oshmasligi kerak",
+    "nameMax": "Ism {{max}} belgidan oshmasligi kerak",
+    "phoneMin": "Telefon raqami kamida {{min}} raqamdan iborat bo'lishi kerak",
+    "phoneMax": "Telefon raqami {{max}} raqamdan oshmasligi kerak",
+    "phoneInvalid": "Telefon raqami formati noto'g'ri. Xalqaro formatda mamlakat kodi bilan kiriting (masalan, +998901234567)"
   }
 }

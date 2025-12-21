@@ -179,10 +179,19 @@
       "totalPriceUSD": "Jami narxi USD"
     },
     "totalSum": "Jami summa:",
+    "discountInUZS": "Jami chegirma so'mda",
+    "discountInUSD": "Jami chegirma dollarda",
+    "totalAfterDiscountInUZS": "Jami chegirmadan so'ng so'mda",
+    "totalAfterDiscountInUSD": "Jami chegirmadan so'ng dollarda",
+    "totalPaidInUZS": "Jami to'langan so'mda",
+    "totalPaidInUSD": "Jami to'langan dollarda",
     "thankYou": "XARIDINGIZ UCHUN RAHMAT",
-    "oldDebtInUZS": "Eski qarz UZS da",
-    "debtFromSalesInUZS": "Sotuvdan qarz UZS da",
-    "currentDebtInUZS": "Joriy qarz UZS da",
-    "currentDebtInUSD": "Joriy qarz USD da"
+    "debtInformation": "QARZ HAQIDA MA'LUMOT",
+    "oldDebtInUZS": "Eski qarz so'mda",
+    "oldDebtInUSD": "Eski qarz dollarda",
+    "debtFromSaleInUZS": "Ushbu sotuvdan qarz so'mda",
+    "debtFromSaleInUSD": "Ushbu sotuvdan qarz dollarda",
+    "totalCurrentDebtInUZS": "Jami joriy qarz so'mda",
+    "totalCurrentDebtInUSD": "Jami joriy qarz dollarda"
   }
 }

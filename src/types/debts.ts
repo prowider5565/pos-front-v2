@@ -157,3 +157,11 @@ export interface SupplierOldDebtPaymentHistoryResponse {
   total_paid: string
   payments: SupplierOldDebtPayment[]
 }
+
+/**
+ * Old debts for cheque response
+ */
+export interface OldDebtsForChequeResponse {
+  total_usd: string
+  total_uzs: string
+}

@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
     ADD_USER: '/users/auth/add-user/',
     LIST_USERS: '/users/auth/list/',
     DISABLE_USER: (userId: number) => `/users/auth/disable-user/${userId}/`,
+    UPDATE_PROFILE: '/users/auth/profile/update/',
   },
   
   // Supplier endpoints
@@ -60,6 +61,7 @@ export const API_ENDPOINTS = {
     CREATE_OLD_CLIENT: '/debts/old-client-debts/',
     SUPPLIER_OLD_DEBTS_DETAIL: (supplierId: number) => `/debts/suppliers/old/${supplierId}/`,
     CLIENT_OLD_DEBTS_DETAIL: (clientId: number) => `/debts/clients/old/${clientId}/`,
+    FOR_CHEQUE: (clientId: number) => `/debts/for-cheque/${clientId}/`,
   },
 
   // Analytics endpoints

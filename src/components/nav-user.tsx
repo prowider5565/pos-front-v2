@@ -1,11 +1,9 @@
 "use client"
 
 import {
-  CreditCard,
   EllipsisVertical,
   LogOut,
-  BellDot,
-  CircleUser,
+  User,
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -14,7 +12,6 @@ import { Logo } from "@/components/logo"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -88,26 +85,12 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/settings/account">
-                  <CircleUser />
-                  {t('common:navigation.account')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/settings/user">
-                  <CreditCard />
-                  {t('common:navigation.profile')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/settings/notifications">
-                  <BellDot />
-                  {t('common:navigation.notifications')}
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link to="/settings/user">
+                <User />
+                {t('common:navigation.profile')}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="cursor-pointer"

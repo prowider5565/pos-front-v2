@@ -4,10 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useTranslation } from "react-i18next"
+import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent,CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import {
   Form,
   FormControl,
@@ -16,94 +19,129 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Upload } from "lucide-react"
-import { useRef, useState } from "react"
-import { Separator } from "@/components/ui/separator"
-import { Logo } from "@/components/logo"
-
-const userFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  website: z.string().optional(),
-  location: z.string().optional(),
-  role: z.string().optional(),
-  bio: z.string().optional(),
-  company: z.string().optional(),
-  timezone: z.string().optional(),
-  language: z.string().optional(),
-})
-
-type UserFormValues = z.infer<typeof userFormSchema>
+import { authService } from "@/services/auth.service"
+import { useAuth } from "@/contexts/auth-context"
+import type { UpdateProfileRequest } from "@/types/auth"
 
 export default function UserSettingsPage() {
   const { t } = useTranslation(['settings', 'common'])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [profileImage, setProfileImage] = useState<string | null>(null)
-  const [useDefaultIcon, setUseDefaultIcon] = useState(true)
-  
-  const userFormSchema = z.object({
-    firstName: z.string().min(1, t('common:form.required')),
-    lastName: z.string().min(1, t('common:form.required')),
-    email: z.string().email(t('common:form.invalidEmail')),
-    phone: z.string().optional(),
-    website: z.string().optional(),
-    location: z.string().optional(),
-    role: z.string().optional(),
-    bio: z.string().optional(),
-    company: z.string().optional(),
-    timezone: z.string().optional(),
-    language: z.string().optional(),
+  const { user, refreshUserData } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Phone number validation with country code
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/
+
+  // Form schema with validation - matches API fields
+  const profileFormSchema = z.object({
+    username: z.string().min(3, t('settings:validation.usernameMin', { min: 3 })).max(150, t('settings:validation.usernameMax', { max: 150 })),
+    first_name: z.string().min(1, t('common:form.required')).max(150, t('settings:validation.nameMax', { max: 150 })),
+    last_name: z.string().min(1, t('common:form.required')).max(150, t('settings:validation.nameMax', { max: 150 })),
+    phone_number: z.string()
+      .min(9, t('settings:validation.phoneMin', { min: 9 }))
+      .max(15, t('settings:validation.phoneMax', { max: 15 }))
+      .regex(phoneRegex, t('settings:validation.phoneInvalid')),
   })
+
+  // Form value type based on API requirements
+  type ProfileFormValues = z.infer<typeof profileFormSchema>
   
-  const form = useForm<UserFormValues>({
-    resolver: zodResolver(userFormSchema),
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      website: "",
-      location: "",
-      role: "",
-      bio: "",
-      company: "",
-      timezone: "",
-      language: "",
+      username: "",
+      first_name: "",
+      last_name: "",
+      phone_number: "",
     },
   })
 
-  function onSubmit(data: UserFormValues) {
-    console.log("Form submitted:", data)
-    // Here you would typically save the data
-  }
+  // Load current user data into form
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone_number: user.phone_number,
+      })
+      setIsLoading(false)
+    }
+  }, [user, form])
 
-  const handleFileUpload = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string)
-        setUseDefaultIcon(false)
+  // Handle form submission
+  async function onSubmit(data: ProfileFormValues) {
+    setIsSubmitting(true)
+    try {
+      // Create update request with only changed fields
+      const updateData: UpdateProfileRequest = {}
+      
+      if (data.username !== user?.username) {
+        updateData.username = data.username
       }
-      reader.readAsDataURL(file)
+      if (data.first_name !== user?.first_name) {
+        updateData.first_name = data.first_name
+      }
+      if (data.last_name !== user?.last_name) {
+        updateData.last_name = data.last_name
+      }
+      if (data.phone_number !== user?.phone_number) {
+        updateData.phone_number = data.phone_number
+      }
+
+      // Only update if there are changes
+      if (Object.keys(updateData).length === 0) {
+        toast.info(t('settings:messages.noChanges'))
+        return
+      }
+
+      const response = await authService.updateProfile(updateData)
+      
+      // Refresh user data in context
+      await refreshUserData()
+      
+      toast.success(t('settings:messages.profileUpdated'))
+    } catch (error: any) {
+      console.error('Failed to update profile:', error)
+      
+      // Handle specific error messages
+      if (error.response?.data) {
+        const errorData = error.response.data
+        
+        // Display field-specific errors
+        Object.keys(errorData).forEach((field) => {
+          const message = Array.isArray(errorData[field]) 
+            ? errorData[field][0] 
+            : errorData[field]
+          
+          if (field === 'username' || field === 'first_name' || field === 'last_name' || field === 'phone_number') {
+            form.setError(field as keyof ProfileFormValues, {
+              type: 'manual',
+              message: message,
+            })
+          }
+        })
+        
+        // Show general error if exists
+        if (errorData.detail) {
+          toast.error(errorData.detail)
+        }
+      } else {
+        toast.error(t('settings:messages.errorSaving'))
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  const handleReset = () => {
-    setProfileImage(null)
-    setUseDefaultIcon(true)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
+  if (isLoading) {
+    return (
+      <BaseLayout title={t('settings:user.title')} description={t('settings:user.description')}>
+        <div className="flex items-center justify-center h-64">
+          <LoadingSpinner />
+        </div>
+      </BaseLayout>
+    )
   }
 
   return (
@@ -117,108 +155,17 @@ export default function UserSettingsPage() {
                 <CardDescription>Update your personal information and preferences</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-            {/* Profile Picture Section */}
-            <div className="flex items-center gap-6 ">
-              {useDefaultIcon ? (
-                <div className="flex h-20 w-20 items-center justify-center rounded-lg">
-                  < Logo size={56} />
-                </div>
-              ) : (
-                <Avatar className="h-20 w-20 rounded-lg">
-                  <AvatarImage src={profileImage || undefined} />
-                  <AvatarFallback>SS</AvatarFallback>
-                </Avatar>
-              )}
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    onClick={handleFileUpload}
-                    className="cursor-pointer"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload new photo
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleReset}
-                    className="cursor-pointer"
-                  >
-                    Reset
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Allowed JPG, GIF or PNG. Max size of 800K
-                </p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/gif,image/png"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-
-            <Separator className="mb-10" />
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name */}
+              {/* Username */}
               <FormField
                 control={form.control}
-                name="firstName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>{t('settings:user.fields.username')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your first name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Last Name */}
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your last name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-mail</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Enter your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Company */}
-              <FormField
-                control={form.control}
-                name="company"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your company" {...field} />
+                      <Input placeholder={t('settings:user.placeholders.username')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -228,146 +175,54 @@ export default function UserSettingsPage() {
               {/* Phone Number */}
               <FormField
                 control={form.control}
-                name="phone"
+                name="phone_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>{t('settings:user.fields.phoneNumber')}</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="Enter your phone number" {...field} />
+                      <Input type="tel" placeholder={t('settings:user.placeholders.phoneNumber')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Location */}
+              {/* First Name */}
               <FormField
                 control={form.control}
-                name="location"
+                name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location</FormLabel>
+                    <FormLabel>{t('settings:user.fields.firstName')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your location" {...field} />
+                      <Input placeholder={t('settings:user.placeholders.firstName')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Website */}
+              {/* Last Name */}
               <FormField
                 control={form.control}
-                name="website"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Website</FormLabel>
+                    <FormLabel>{t('settings:user.fields.lastName')}</FormLabel>
                     <FormControl>
-                      <Input type="url" placeholder="Enter your website" {...field} />
+                      <Input placeholder={t('settings:user.placeholders.lastName')} {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Language */}
-              <FormField
-                control={form.control}
-                name="language"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Language</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Language" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="spanish">Spanish</SelectItem>
-                        <SelectItem value="french">French</SelectItem>
-                        <SelectItem value="german">German</SelectItem>
-                        <SelectItem value="italian">Italian</SelectItem>
-                        <SelectItem value="portuguese">Portuguese</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Role */}
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your role" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Timezone */}
-              <FormField
-                control={form.control}
-                name="timezone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Timezone</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Timezone" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="pst">PST (Pacific Standard Time)</SelectItem>
-                        <SelectItem value="est">EST (Eastern Standard Time)</SelectItem>
-                        <SelectItem value="cst">CST (Central Standard Time)</SelectItem>
-                        <SelectItem value="mst">MST (Mountain Standard Time)</SelectItem>
-                        <SelectItem value="utc">UTC (Coordinated Universal Time)</SelectItem>
-                        <SelectItem value="cet">CET (Central European Time)</SelectItem>
-                        <SelectItem value="jst">JST (Japan Standard Time)</SelectItem>
-                        <SelectItem value="aest">AEST (Australian Eastern Standard Time)</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            {/* Bio - Full Width */}
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Tell us a little about yourself..." 
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Action Buttons */}
-            <div className="flex justify-start gap-3">
-              <Button type="submit" className="cursor-pointer">
-                Save Changes
-              </Button>
-              <Button variant="outline" type="button" className="cursor-pointer">
-                Cancel
+            <div className="flex justify-start">
+              <Button type="submit" disabled={isSubmitting} className="cursor-pointer">
+                {isSubmitting ? <LoadingSpinner className="mr-2" /> : null}
+                {t('common:actions.save')}
               </Button>
             </div>
           </CardContent>

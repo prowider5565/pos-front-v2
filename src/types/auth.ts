@@ -76,6 +76,24 @@ export interface AddUserResponse {
 }
 
 /**
+ * Update profile request
+ */
+export interface UpdateProfileRequest {
+  username?: string
+  first_name?: string
+  last_name?: string
+  phone_number?: string
+}
+
+/**
+ * Update profile response
+ */
+export interface UpdateProfileResponse {
+  message: string
+  user: User
+}
+
+/**
  * Authentication context state
  */
 export interface AuthContextState {

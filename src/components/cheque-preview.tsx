@@ -1,18 +1,25 @@
-import { forwardRef } from "react"
+import { forwardRef, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useAuth } from "@/contexts/auth-context"
+import { debtsService } from "@/services/debts.service"
 import type { SaleDetail } from "@/types/sales"
+import type { OldDebtsForChequeResponse } from "@/types/debts"
 
 interface ChequePreviewProps {
   saleData?: SaleDetail | null
+  oldDebts?: OldDebtsForChequeResponse | null
 }
 
-const formatReceiptText = (t: any, saleData?: SaleDetail | null): string => {
+const formatReceiptText = (t: any, saleData?: SaleDetail | null, currentUser?: any, oldDebts?: OldDebtsForChequeResponse | null): string => {
   const width = 40 // Width for 80mm receipt (narrower)
   let receipt = ""
   
-  // Default values if no saleData
-  const sellerName = "Store Seller" // TODO: Get from auth context or settings
-  const sellerPhone = "+998991234567" // TODO: Get from settings
+  // Get seller info from current user
+  const sellerName = currentUser 
+    ? `${currentUser.first_name} ${currentUser.last_name}`.trim() || currentUser.username
+    : "Store Seller"
+  const sellerPhone = currentUser?.phone_number || "+998991234567"
+  
   const exchangeRate = saleData?.exchange_rate || "12500"
   const saleDate = saleData?.sale_date 
     ? new Date(saleData.sale_date).toLocaleString('en-GB', {
@@ -87,24 +94,68 @@ const formatReceiptText = (t: any, saleData?: SaleDetail | null): string => {
   receipt += formatTableBottomBorder() + "\n"
   receipt += "\n"
   
-  // Thank you message - centered
-  receipt += centerText(t("sales:cheque.thankYou"), width) + "\n"
-  receipt += "\n\n"
-  
-  // Debt Information (if client has debt)
+  // Payment Summary Section
   if (saleData?.debt_amounts) {
+    const discountUzs = saleData.debt_amounts.discount_amount.uzs_amount
+    const discountUsd = saleData.debt_amounts.discount_amount.usd_amount
+    const paidUzs = saleData.debt_amounts.paid_amount.uzs_amount
+    const paidUsd = saleData.debt_amounts.paid_amount.usd_amount
+    const totalAfterDiscountUzs = saleData.debt_amounts.total_after_discount.uzs_amount
+    const totalAfterDiscountUsd = saleData.debt_amounts.total_after_discount.usd_amount
     const remainingUzs = saleData.debt_amounts.remaining_amount.uzs_amount
     const remainingUsd = saleData.debt_amounts.remaining_amount.usd_amount
     
-    // Only show debt info if there's remaining amount
-    if (parseFloat(remainingUzs) > 0) {
-      receipt += formatKeyValue(t("sales:cheque.oldDebtInUZS"), "0 so'm", width) + "\n" // TODO: Get old debt
-      receipt += formatKeyValue(t("sales:cheque.debtFromSalesInUZS"), formatNumber(remainingUzs) + " so'm", width) + "\n"
+    // Show discount if it exists
+    if (parseFloat(discountUzs) > 0) {
+      receipt += formatKeyValue(t("sales:cheque.discountInUZS"), formatNumber(discountUzs) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.discountInUSD"), discountUsd + " $", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.totalAfterDiscountInUZS"), formatNumber(totalAfterDiscountUzs) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.totalAfterDiscountInUSD"), totalAfterDiscountUsd + " $", width) + "\n"
       receipt += "\n"
-      receipt += formatKeyValue(t("sales:cheque.currentDebtInUZS"), formatNumber(remainingUzs) + " so'm", width) + "\n"
-      receipt += formatKeyValue(t("sales:cheque.currentDebtInUSD"), remainingUsd + " $", width) + "\n"
+    }
+    
+    // Show total payment made
+    receipt += formatKeyValue(t("sales:cheque.totalPaidInUZS"), formatNumber(paidUzs) + " so'm", width) + "\n"
+    receipt += formatKeyValue(t("sales:cheque.totalPaidInUSD"), paidUsd + " $", width) + "\n"
+    receipt += "\n"
+    
+    // Debt Information Section
+    receipt += "========================================\n"
+    receipt += centerText(t("sales:cheque.debtInformation"), width) + "\n"
+    receipt += "========================================\n"
+    receipt += "\n"
+    
+    // Show old debts if they exist
+    if (oldDebts && (parseFloat(oldDebts.total_uzs) > 0 || parseFloat(oldDebts.total_usd) > 0)) {
+      receipt += formatKeyValue(t("sales:cheque.oldDebtInUZS"), formatNumber(oldDebts.total_uzs) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.oldDebtInUSD"), oldDebts.total_usd + " $", width) + "\n"
+      receipt += "\n"
+    }
+    
+    // Show debt from current sale if exists
+    if (parseFloat(remainingUzs) > 0) {
+      receipt += formatKeyValue(t("sales:cheque.debtFromSaleInUZS"), formatNumber(remainingUzs) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.debtFromSaleInUSD"), remainingUsd + " $", width) + "\n"
+      receipt += "\n"
+      
+      // Calculate and show total current debt (old + new)
+      const totalDebtUzs = parseFloat(oldDebts?.total_uzs || "0") + parseFloat(remainingUzs)
+      const totalDebtUsd = parseFloat(oldDebts?.total_usd || "0") + parseFloat(remainingUsd)
+      
+      receipt += formatKeyValue(t("sales:cheque.totalCurrentDebtInUZS"), formatNumber(totalDebtUzs.toString()) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.totalCurrentDebtInUSD"), totalDebtUsd.toFixed(2) + " $", width) + "\n"
+      receipt += "\n"
+    } else if (oldDebts && (parseFloat(oldDebts.total_uzs) > 0 || parseFloat(oldDebts.total_usd) > 0)) {
+      // Only old debt exists, show it as total current debt
+      receipt += formatKeyValue(t("sales:cheque.totalCurrentDebtInUZS"), formatNumber(oldDebts.total_uzs) + " so'm", width) + "\n"
+      receipt += formatKeyValue(t("sales:cheque.totalCurrentDebtInUSD"), oldDebts.total_usd + " $", width) + "\n"
+      receipt += "\n"
     }
   }
+  
+  // Thank you message - centered
+  receipt += centerText(t("sales:cheque.thankYou"), width) + "\n"
+  receipt += "\n"
   
   return receipt
 }
@@ -194,15 +245,46 @@ const formatTableTotalRow = (totalUzs: string, totalUsd: string): string => {
 }
 
 export const ChequePreview = forwardRef<HTMLDivElement, ChequePreviewProps>(
-  ({ saleData }, ref) => {
+  ({ saleData, oldDebts: providedOldDebts }, ref) => {
     const { t } = useTranslation()
-    const receiptText = formatReceiptText(t, saleData)
+    const { user } = useAuth()
+    const [oldDebts, setOldDebts] = useState<OldDebtsForChequeResponse | null>(providedOldDebts || null)
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Fetch old debts if not provided and client exists
+    useEffect(() => {
+      const fetchOldDebts = async () => {
+        if (!providedOldDebts && saleData?.client?.id) {
+          setIsLoading(true)
+          try {
+            const debts = await debtsService.getOldDebtsForCheque(saleData.client.id)
+            setOldDebts(debts)
+          } catch (error) {
+            console.error('Failed to fetch old debts for cheque:', error)
+            // Set empty debts on error
+            setOldDebts({ total_usd: "0", total_uzs: "0" })
+          } finally {
+            setIsLoading(false)
+          }
+        } else if (providedOldDebts) {
+          setOldDebts(providedOldDebts)
+        }
+      }
+
+      fetchOldDebts()
+    }, [saleData?.client?.id, providedOldDebts])
+
+    const receiptText = formatReceiptText(t, saleData, user, oldDebts)
     
     return (
       <div ref={ref} className="bg-white text-black font-mono p-6">
-        <pre className="whitespace-pre font-mono text-[10px] leading-tight tracking-tight">
-          {receiptText}
-        </pre>
+        {isLoading ? (
+          <div className="text-center py-4">Loading debts...</div>
+        ) : (
+          <pre className="whitespace-pre font-mono text-[10px] leading-tight tracking-tight">
+            {receiptText}
+          </pre>
+        )}
       </div>
     )
   }

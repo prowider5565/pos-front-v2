@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
+import { LazyImage } from "@/components/ui/lazy-image"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -143,10 +144,10 @@ export default function MahsulotlarProductsPage() {
 
       {/* Products Grid */}
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, i) => (
             <Card key={i} className="overflow-hidden">
-              <Skeleton className="h-48 w-full" />
+              <Skeleton className="aspect-square w-full" />
               <CardHeader>
                 <Skeleton className="h-6 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
@@ -158,7 +159,7 @@ export default function MahsulotlarProductsPage() {
           ))}
         </div>
       ) : products.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {products.map((product) => (
             <Card
               key={product.id}
@@ -166,35 +167,21 @@ export default function MahsulotlarProductsPage() {
             >
               {/* Product Image - flush with card top */}
               <div 
-                className="relative aspect-square overflow-hidden bg-muted cursor-pointer"
+                className="relative cursor-pointer"
                 onClick={() => handleProductClick(product.id)}
               >
                 {product.cover_image ? (
-                  <>
-                    <img
-                      src={`${MEDIA_BASE_URL}${product.cover_image}`}
-                      alt={product.name}
-                      className="object-cover w-full h-full"
-                      onError={(e) => {
-                        const target = e.currentTarget
-                        // Prevent infinite loop by only setting fallback once
-                        if (!target.dataset.fallback) {
-                          target.dataset.fallback = 'true'
-                          target.style.display = 'none'
-                          // Show fallback icon
-                          const fallback = target.nextElementSibling
-                          if (fallback) {
-                            fallback.classList.remove('hidden')
-                          }
-                        }
-                      }}
-                    />
-                    <div className="hidden flex items-center justify-center w-full h-full absolute inset-0">
+                  <LazyImage
+                    src={`${MEDIA_BASE_URL}${product.cover_image}`}
+                    alt={product.name}
+                    aspectRatio="square"
+                    objectFit="cover"
+                    fallback={
                       <Package className="size-12 text-muted-foreground" />
-                    </div>
-                  </>
+                    }
+                  />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full">
+                  <div className="aspect-square flex items-center justify-center bg-muted">
                     <Package className="size-12 text-muted-foreground" />
                   </div>
                 )}

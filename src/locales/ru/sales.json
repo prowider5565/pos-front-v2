@@ -179,10 +179,19 @@
       "totalPriceUSD": "Итого цена USD"
     },
     "totalSum": "Общая сумма:",
+    "discountInUZS": "Скидка в сумах",
+    "discountInUSD": "Скидка в долларах",
+    "totalAfterDiscountInUZS": "Итого после скидки в сумах",
+    "totalAfterDiscountInUSD": "Итого после скидки в долларах",
+    "totalPaidInUZS": "Всего оплачено в сумах",
+    "totalPaidInUSD": "Всего оплачено в долларах",
     "thankYou": "СПАСИБО ЗА ВАШУ ПОКУПКУ",
-    "oldDebtInUZS": "Старый долг в UZS",
-    "debtFromSalesInUZS": "Долг от продаж в UZS",
-    "currentDebtInUZS": "Текущий долг в UZS",
-    "currentDebtInUSD": "Текущий долг в USD"
+    "debtInformation": "ИНФОРМАЦИЯ О ДОЛГЕ",
+    "oldDebtInUZS": "Старый долг в сумах",
+    "oldDebtInUSD": "Старый долг в долларах",
+    "debtFromSaleInUZS": "Долг от этой продажи в сумах",
+    "debtFromSaleInUSD": "Долг от этой продажи в долларах",
+    "totalCurrentDebtInUZS": "Общий текущий долг в сумах",
+    "totalCurrentDebtInUSD": "Общий текущий долг в долларах"
   }
 }

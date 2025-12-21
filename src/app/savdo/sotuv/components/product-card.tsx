@@ -3,6 +3,7 @@
 import { Package } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { LazyImage } from "@/components/ui/lazy-image"
 import { MEDIA_BASE_URL } from "@/config/api"
 import type { SaleProduct } from "@/types/sales"
 
@@ -38,33 +39,19 @@ export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps
       } ${isInCart ? 'border-2 border-primary' : ''}`}
     >
       {/* Product Image - flush with card top */}
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative">
         {product.cover_image ? (
-          <>
-            <img
-              src={`${MEDIA_BASE_URL}${product.cover_image}`}
-              alt={product.name}
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                const target = e.currentTarget
-                // Prevent infinite loop by only setting fallback once
-                if (!target.dataset.fallback) {
-                  target.dataset.fallback = 'true'
-                  target.style.display = 'none'
-                  // Show fallback icon
-                  const fallback = target.nextElementSibling
-                  if (fallback) {
-                    fallback.classList.remove('hidden')
-                  }
-                }
-              }}
-            />
-            <div className="hidden flex items-center justify-center w-full h-full absolute inset-0">
+          <LazyImage
+            src={`${MEDIA_BASE_URL}${product.cover_image}`}
+            alt={product.name}
+            aspectRatio="square"
+            objectFit="cover"
+            fallback={
               <Package className="size-12 text-muted-foreground" />
-            </div>
-          </>
+            }
+          />
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
+          <div className="aspect-square flex items-center justify-center bg-muted">
             <Package className="size-12 text-muted-foreground" />
           </div>
         )}

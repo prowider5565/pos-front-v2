@@ -166,6 +166,20 @@ export function useThemeManager() {
 
   const applyRadius = (radius: string) => {
     document.documentElement.style.setProperty('--radius', radius)
+    // Save radius to the theme colors object in localStorage
+    const savedTheme = localStorage.getItem('custom-theme-colors')
+    if (savedTheme) {
+      try {
+        const colors = JSON.parse(savedTheme)
+        colors['--radius'] = radius
+        localStorage.setItem('custom-theme-colors', JSON.stringify(colors))
+      } catch (error) {
+        console.error('Failed to save radius:', error)
+      }
+    } else {
+      // If no theme colors exist, just save the radius
+      localStorage.setItem('custom-theme-colors', JSON.stringify({ '--radius': radius }))
+    }
   }
 
   const handleColorChange = (cssVar: string, value: string) => {

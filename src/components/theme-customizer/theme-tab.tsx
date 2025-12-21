@@ -55,6 +55,12 @@ export function ThemeTab({
     setSelectedTweakcnTheme("") // Clear tweakcn selection
     setBrandColorsValues({}) // Clear brand colors state
     setImportedTheme(null) // Clear imported theme
+    
+    // Save to localStorage
+    localStorage.setItem('customizer-selected-theme', randomTheme.value)
+    localStorage.removeItem('customizer-selected-tweakcn-theme')
+    localStorage.removeItem('customizer-imported-theme')
+    
     applyTheme(randomTheme.value, isDarkMode)
   }
 
@@ -65,12 +71,20 @@ export function ThemeTab({
     setSelectedTheme("") // Clear shadcn selection
     setBrandColorsValues({}) // Clear brand colors state
     setImportedTheme(null) // Clear imported theme
+    
+    // Save to localStorage
+    localStorage.setItem('customizer-selected-tweakcn-theme', randomTheme.value)
+    localStorage.removeItem('customizer-selected-theme')
+    localStorage.removeItem('customizer-imported-theme')
+    
     applyTweakcnTheme(randomTheme.preset, isDarkMode)
   }
 
   const handleRadiusSelect = (radius: string) => {
     setSelectedRadius(radius)
     applyRadius(radius)
+    // Save to localStorage
+    localStorage.setItem('customizer-selected-radius', radius)
   }
 
   const handleLightMode = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -102,6 +116,12 @@ export function ThemeTab({
           setSelectedTweakcnTheme("") // Clear tweakcn selection
           setBrandColorsValues({}) // Clear brand colors state
           setImportedTheme(null) // Clear imported theme
+          
+          // Save to localStorage
+          localStorage.setItem('customizer-selected-theme', value)
+          localStorage.removeItem('customizer-selected-tweakcn-theme')
+          localStorage.removeItem('customizer-imported-theme')
+          
           applyTheme(value, isDarkMode)
         }}>
           <SelectTrigger className="w-full cursor-pointer">
@@ -156,6 +176,12 @@ export function ThemeTab({
           setSelectedTheme("") // Clear shadcn selection
           setBrandColorsValues({}) // Clear brand colors state
           setImportedTheme(null) // Clear imported theme
+          
+          // Save to localStorage
+          localStorage.setItem('customizer-selected-tweakcn-theme', value)
+          localStorage.removeItem('customizer-selected-theme')
+          localStorage.removeItem('customizer-imported-theme')
+          
           const selectedPreset = tweakcnThemes.find(t => t.value === value)?.preset
           if (selectedPreset) {
             applyTweakcnTheme(selectedPreset, isDarkMode)

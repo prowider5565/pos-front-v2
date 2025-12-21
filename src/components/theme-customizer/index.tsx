@@ -26,11 +26,29 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
   const { config: sidebarConfig, updateConfig: updateSidebarConfig } = useSidebarConfig()
 
   const [activeTab, setActiveTab] = React.useState("theme")
-  const [selectedTheme, setSelectedTheme] = React.useState("default")
-  const [selectedTweakcnTheme, setSelectedTweakcnTheme] = React.useState("")
-  const [selectedRadius, setSelectedRadius] = React.useState("0.5rem")
   const [importModalOpen, setImportModalOpen] = React.useState(false)
-  const [importedTheme, setImportedTheme] = React.useState<ImportedTheme | null>(null)
+  
+  // Restore theme settings from localStorage
+  const [selectedTheme, setSelectedTheme] = React.useState(() => {
+    return localStorage.getItem('customizer-selected-theme') || ""
+  })
+  const [selectedTweakcnTheme, setSelectedTweakcnTheme] = React.useState(() => {
+    return localStorage.getItem('customizer-selected-tweakcn-theme') || ""
+  })
+  const [selectedRadius, setSelectedRadius] = React.useState(() => {
+    return localStorage.getItem('customizer-selected-radius') || "0.5rem"
+  })
+  const [importedTheme, setImportedTheme] = React.useState<ImportedTheme | null>(() => {
+    const saved = localStorage.getItem('customizer-imported-theme')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch {
+        return null
+      }
+    }
+    return null
+  })
 
   const handleReset = () => {
     // Complete reset to application defaults
@@ -48,7 +66,13 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
     // 3. Reset the radius to default
     applyRadius("0.5rem")
 
-    // 4. Reset sidebar to defaults
+    // 4. Clear all customizer localStorage items
+    localStorage.removeItem('customizer-selected-theme')
+    localStorage.removeItem('customizer-selected-tweakcn-theme')
+    localStorage.removeItem('customizer-selected-radius')
+    localStorage.removeItem('customizer-imported-theme')
+
+    // 5. Reset sidebar to defaults
     updateSidebarConfig({ variant: "inset", collapsible: "offcanvas", side: "left" })
   }
 
@@ -58,6 +82,11 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
     setSelectedTheme("")
     setSelectedTweakcnTheme("")
 
+    // Save to localStorage
+    localStorage.setItem('customizer-imported-theme', JSON.stringify(themeData))
+    localStorage.removeItem('customizer-selected-theme')
+    localStorage.removeItem('customizer-selected-tweakcn-theme')
+
     // Apply the imported theme
     applyImportedTheme(themeData, isDarkMode)
   }
@@ -65,6 +94,14 @@ export function ThemeCustomizer({ open, onOpenChange }: ThemeCustomizerProps) {
   const handleImportClick = () => {
     setImportModalOpen(true)
   }
+
+  // Apply saved radius on mount
+  React.useEffect(() => {
+    if (selectedRadius) {
+      applyRadius(selectedRadius)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run on mount
 
   // Re-apply themes when theme mode changes
   React.useEffect(() => {

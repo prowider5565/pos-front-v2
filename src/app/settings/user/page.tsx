@@ -95,7 +95,7 @@ export default function UserSettingsPage() {
         return
       }
 
-      const response = await authService.updateProfile(updateData)
+      await authService.updateProfile(updateData)
       
       // Refresh user data in context
       await refreshUserData()

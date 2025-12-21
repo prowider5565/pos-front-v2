@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { ChartAreaInteractive } from "./components/chart-area-interactive"
@@ -29,7 +29,7 @@ export default function Page() {
   
   const { data: analyticsData, isLoading } = useAnalyticsDashboard(filterParams)
 
-  const handleFilterChange = (type: FilterType, params: DateFilterParams) => {
+  const handleFilterChange = (_type: FilterType, params: DateFilterParams) => {
     setFilterParams(params)
   }
   

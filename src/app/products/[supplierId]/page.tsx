@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
-import { ArrowLeft, Package, Search, Pencil, Archive, Plus } from "lucide-react"
+import { ArrowLeft, Package, Search, Plus } from "lucide-react"
 
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -192,14 +192,14 @@ export default function MahsulotlarProductsPage() {
 
               <CardHeader className="cursor-pointer" onClick={() => handleProductClick(product.id)}>
                 <CardTitle className="line-clamp-2">{product.name}</CardTitle>
-                <CardDescription className="line-clamp-1">{product.category?.name || product.category_name || 'N/A'}</CardDescription>
+                <CardDescription className="line-clamp-1">{typeof product.category === 'object' ? product.category?.name : product.category_name || 'N/A'}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{t('sellPrice')}:</span>
-                    <span className="text-lg font-bold">{product.sell_price.toLocaleString()} UZS</span>
+                    <span className="text-lg font-bold">{product.sell_price?.toLocaleString() || '0'} UZS</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{t('quantity')}:</span>

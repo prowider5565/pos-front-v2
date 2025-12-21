@@ -166,7 +166,7 @@ function ProductImageGallery({ images, productName, currentIndex, onImageSelect 
 
 export default function MahsulotlarProductDetailPage() {
   const { t } = useTranslation(['products', 'common'])
-  const { language } = useLanguage()
+  const { currentLanguage } = useLanguage()
   const navigate = useNavigate()
   const { supplierId, productId } = useParams<{ supplierId: string; productId: string }>()
   
@@ -294,7 +294,7 @@ export default function MahsulotlarProductDetailPage() {
         header: t('createdAt'),
         cell: ({ row }) => (
           <span className="text-muted-foreground text-sm">
-            {formatVerboseDate(row.original.created_at, language)}
+            {formatVerboseDate(row.original.created_at, currentLanguage)}
           </span>
         ),
       },
@@ -319,7 +319,7 @@ export default function MahsulotlarProductDetailPage() {
         ),
       },
     ],
-    [t, language, hoveredRowId]
+    [t, currentLanguage, hoveredRowId]
   )
 
   const table = useReactTable({
@@ -376,8 +376,8 @@ export default function MahsulotlarProductDetailPage() {
   const calculations = useMemo(() => {
     const qty = parseFloat(quantity) || 0
     const price = parseFloat(buyPrice) || 0
-    const payment = parseFloat(paymentAmount) || 0
-    const rate = parseFloat(exchangeRate) || 1
+    const payment = parseFloat(paymentAmount || '0') || 0
+    const rate = parseFloat(exchangeRate || '1') || 1
 
     const totalCost = qty * price
     const paidInUZS = currency === "USD" ? payment * rate : payment
@@ -541,7 +541,7 @@ export default function MahsulotlarProductDetailPage() {
             <Card className="h-full">
               <CardContent className="p-6 h-full">
                 <ProductImageGallery
-                  images={product.images}
+                  images={product.images || []}
                   productName={product.name}
                   currentIndex={currentImageIndex}
                   onImageSelect={setCurrentImageIndex}
@@ -581,7 +581,7 @@ export default function MahsulotlarProductDetailPage() {
                   <h4 className="text-sm font-semibold text-muted-foreground">{t('createdAt')}</h4>
                   <div className="flex items-center gap-2">
                     <Calendar className="size-4 text-muted-foreground" />
-                    <span className="text-base">{formatVerboseDate(product.created_at, language)}</span>
+                    <span className="text-base">{formatVerboseDate(product.created_at, currentLanguage)}</span>
                   </div>
                 </div>
 

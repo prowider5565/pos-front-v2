@@ -92,7 +92,7 @@ export function DataTable() {
     try {
       await clientsService.deleteClient(clientId)
       toast.success(t('messages.clientDeleted'))
-      fetchClients()
+      fetchClients(1)
     } catch (error) {
       console.error("Failed to delete client:", error)
       toast.error(t('common:messages.error'), {
@@ -118,7 +118,7 @@ export function DataTable() {
 
   const handleDialogSuccess = () => {
     handleDialogClose()
-    fetchClients()
+    fetchClients(1)
   }
 
   // Memoized columns - only recreate when translation changes
@@ -215,7 +215,7 @@ export function DataTable() {
       columnFilters,
       columnVisibility,
     },
-    globalFilterFn: (row, columnId, filterValue: string) => {
+    globalFilterFn: (row, _columnId, filterValue: string) => {
       const searchValue = filterValue.toLowerCase()
       const fullName = row.original.full_name.toLowerCase()
       const phoneNumber = row.original.phone_number.toLowerCase()

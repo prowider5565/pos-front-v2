@@ -39,7 +39,7 @@ function formatCurrency(uzs: string, usd: string) {
   return parts.length > 0 ? parts.join(' / ') : '—'
 }
 
-export function DataTable({ data, isLoading, page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
+export function DataTable({ data, isLoading, page: _page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
   const { t } = useTranslation('debts')
   const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)

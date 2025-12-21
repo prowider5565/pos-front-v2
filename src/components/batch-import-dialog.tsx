@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -81,7 +81,7 @@ export function BatchImportDialog({
   })
 
   // Fetch products list (only if productId is not provided)
-  const { data: productsData, error } = useQuery({
+  const { data: productsData } = useQuery({
     queryKey: ['products-for-sale'],
     queryFn: async () => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/products/products/for-sale/`, {

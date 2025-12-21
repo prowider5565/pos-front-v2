@@ -39,7 +39,7 @@ function formatCurrency(uzs: string, usd: string) {
   return parts.length > 0 ? parts.join(' / ') : '—'
 }
 
-export function DataTable({ data, isLoading, page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
+export function DataTable({ data, isLoading, page: _page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
   const { t } = useTranslation('debts')
   const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
@@ -60,7 +60,7 @@ export function DataTable({ data, isLoading, page, search, debtType, onPageChang
   const handleRowClick = (supplier: SupplierDebt) => {
     if (debtType === 'old') {
       // Navigate to old debts detail page for this supplier
-      const supplierId = supplier.supplier || supplier.id
+      const supplierId = supplier.id
       navigate(`/debts/suppliers/${supplierId}/old-debts`)
     } else {
       // Show payment history dialog for new debts

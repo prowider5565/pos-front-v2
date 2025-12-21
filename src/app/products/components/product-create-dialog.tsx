@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Plus, X, Upload, ImageIcon } from "lucide-react"
+import { X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -121,8 +121,8 @@ export function ProductCreateDialog({
   const calculations = useMemo(() => {
     const qty = parseFloat(quantity) || 0
     const price = parseFloat(buyPrice) || 0
-    const payment = parseFloat(paymentAmount) || 0
-    const rate = parseFloat(exchangeRate) || 1
+    const payment = parseFloat(paymentAmount || '0') || 0
+    const rate = parseFloat(exchangeRate || '1') || 1
 
     const totalCost = qty * price
     const paidInUZS = currency === "USD" ? payment * rate : payment
@@ -303,7 +303,7 @@ export function ProductCreateDialog({
       }
 
       // Step 4: Submit
-      const createdProduct = await productsService.createProduct(payload)
+      await productsService.createProduct(payload)
 
       toast.success(t('common:messages.success'), {
         description: t('productCreatedSuccessfully')

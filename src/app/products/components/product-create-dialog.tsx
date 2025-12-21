@@ -90,22 +90,22 @@ export function ProductCreateDialog({
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
 
-  const form = useForm<ProductCreateFormValues>({
+  const form = useForm({
     resolver: zodResolver(productCreateSchema),
     defaultValues: {
       name: "",
       description: "",
-      product_type: "PIECE",
+      product_type: "PIECE" as const,
       category: "",
       supplier: supplierId ? String(supplierId) : "",
       quantity: "",
       buy_price: "",
       sell_price: "",
       has_payment: false,
-      currency: "UZS",
+      currency: "UZS" as const,
       exchange_rate: getExchangeRate(),
       amount: "",
-      method: "CASH",
+      method: "CASH" as const,
     },
   })
 

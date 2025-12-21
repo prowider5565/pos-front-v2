@@ -36,7 +36,7 @@ export default function MahsulotlarProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
+  const [, setTotalCount] = useState(0)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   // Memoized fetch function with search support
@@ -192,7 +192,7 @@ export default function MahsulotlarProductsPage() {
 
               <CardHeader className="cursor-pointer" onClick={() => handleProductClick(product.id)}>
                 <CardTitle className="line-clamp-2">{product.name}</CardTitle>
-                <CardDescription className="line-clamp-1">{typeof product.category === 'object' ? product.category?.name : product.category_name || 'N/A'}</CardDescription>
+                <CardDescription className="line-clamp-1">{product.category_name || 'N/A'}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-3">

@@ -11,16 +11,16 @@ const Clients = lazy(() => import('@/app/clients/page'))
 // Savdo (Sales) pages
 const Sotuv = lazy(() => import('@/app/savdo/sotuv/page'))
 const SalesList = lazy(() => import('@/app/sales/page'))
-const SaleDetail = lazy(() => import('@/app/sales/[id]/page'))
+const SaleDetail = lazy(() => import('@/app/sales/id/page'))
 const ProductsSuppliers = lazy(() => import('@/app/products/page'))
-const ProductsBySupplier = lazy(() => import('@/app/products/[supplierId]/page'))
-const ProductDetail = lazy(() => import('@/app/products/[supplierId]/[productId]/page'))
+const ProductsBySupplier = lazy(() => import('@/app/products/supplierId/page'))
+const ProductDetail = lazy(() => import('@/app/products/supplierId/productId/page'))
 
 // Debts pages
 const SupplierDebts = lazy(() => import('@/app/debts/suppliers/page'))
-const SupplierOldDebtsDetail = lazy(() => import('@/app/debts/suppliers/[supplierId]/old-debts/page'))
+const SupplierOldDebtsDetail = lazy(() => import('@/app/debts/suppliers/supplierId/old-debts/page'))
 const ClientDebts = lazy(() => import('@/app/debts/clients/page'))
-const ClientOldDebtsDetail = lazy(() => import('@/app/debts/clients/[clientId]/old-debts/page'))
+const ClientOldDebtsDetail = lazy(() => import('@/app/debts/clients/clientId/old-debts/page'))
 
 // Auth pages
 const SignIn = lazy(() => import('@/app/auth/sign-in/page'))

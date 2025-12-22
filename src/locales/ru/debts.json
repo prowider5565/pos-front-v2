@@ -145,6 +145,7 @@
   "paymentHistory": {
     "title": "История платежей - Долг #{{debtId}}",
     "supplierInfo": "{{name}} ({{phone}})",
+    "clientInfo": "{{name}} ({{phone}})",
     "totalPaid": "Всего оплачено",
     "noPayments": "Платежи не найдены",
     "loading": "Загрузка...",

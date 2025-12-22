@@ -145,6 +145,7 @@
   "paymentHistory": {
     "title": "To'lovlar tarixi - Qarz #{{debtId}}",
     "supplierInfo": "{{name}} ({{phone}})",
+    "clientInfo": "{{name}} ({{phone}})",
     "totalPaid": "Jami to'langan",
     "noPayments": "To'lovlar topilmadi",
     "loading": "Yuklanmoqda...",

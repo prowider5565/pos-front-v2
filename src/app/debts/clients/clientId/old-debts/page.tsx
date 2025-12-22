@@ -46,6 +46,7 @@ export default function ClientOldDebtsDetailPage() {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
+  const [paymentHistoryDialogOpen, setPaymentHistoryDialogOpen] = useState(false)
   const [selectedDebt, setSelectedDebt] = useState<OldDebtItem | null>(null)
   const [paymentAmount, setPaymentAmount] = useState("")
   const [paymentCurrency, setPaymentCurrency] = useState<"UZS" | "USD">("UZS")
@@ -63,6 +64,13 @@ export default function ClientOldDebtsDetailPage() {
     queryKey: ['client-old-debts-detail', clientId, page],
     queryFn: () => debtsService.getClientOldDebtsDetail(Number(clientId), { page }),
     enabled: !!clientId,
+  })
+
+  // Fetch payment history for selected debt
+  const { data: paymentHistoryData, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ['client-old-debt-payments', selectedDebt?.id, clientId],
+    queryFn: () => debtsService.getClientOldDebtPaymentHistory(selectedDebt!.id, Number(clientId)),
+    enabled: !!selectedDebt && paymentHistoryDialogOpen && !!clientId,
   })
 
   // Payment mutation
@@ -114,10 +122,16 @@ export default function ClientOldDebtsDetailPage() {
     }
   })
 
-  const handleMakePayment = (debt: OldDebtItem) => {
+  const handleMakePayment = (e: React.MouseEvent, debt: OldDebtItem) => {
+    e.stopPropagation()
     setSelectedDebt(debt)
     setPaymentCurrency(debt.currency)
     setPaymentDialogOpen(true)
+  }
+
+  const handleRowClick = (debt: OldDebtItem) => {
+    setSelectedDebt(debt)
+    setPaymentHistoryDialogOpen(true)
   }
 
   const handleSubmitPayment = () => {
@@ -266,7 +280,11 @@ export default function ClientOldDebtsDetailPage() {
                   debtsData?.results.map((debt) => {
                     const remaining = parseFloat(debt.debt_amounts.total_remaining[debt.currency === 'USD' ? 'usd_amount' : 'uzs_amount'])
                     return (
-                      <TableRow key={debt.id}>
+                      <TableRow 
+                        key={debt.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleRowClick(debt)}
+                      >
                         <TableCell className="font-medium">#{debt.id}</TableCell>
                         <TableCell>{getStatusBadge(debt.status)}</TableCell>
                         <TableCell>{debt.currency}</TableCell>
@@ -300,7 +318,7 @@ export default function ClientOldDebtsDetailPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleMakePayment(debt)}
+                              onClick={(e) => handleMakePayment(e, debt)}
                             >
                               <CreditCard className="h-4 w-4 mr-1" />
                               {t('actions.makePayment')}
@@ -403,6 +421,85 @@ export default function ClientOldDebtsDetailPage() {
               </Button>
               <Button onClick={handleSubmitPayment} disabled={paymentMutation.isPending}>
                 {paymentMutation.isPending ? t('oldDebtPayment.processing') : t('oldDebtPayment.makePayment')}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment History Dialog */}
+        <Dialog open={paymentHistoryDialogOpen} onOpenChange={setPaymentHistoryDialogOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{t('paymentHistory.title', { debtId: selectedDebt?.id })}</DialogTitle>
+              <DialogDescription>
+                {paymentHistoryData?.client && (
+                  <span>
+                    {t('paymentHistory.clientInfo', {
+                      name: paymentHistoryData.client.full_name,
+                      phone: paymentHistoryData.client.phone_number
+                    })}
+                  </span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {isLoadingHistory ? (
+                <div className="text-center py-8">{t('paymentHistory.loading')}</div>
+              ) : paymentHistoryData?.payments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {t('paymentHistory.noPayments')}
+                </div>
+              ) : (
+                <>
+                  {paymentHistoryData && (
+                    <div className="p-4 bg-muted rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">{t('paymentHistory.totalPaid')}:</span>
+                        <span className="text-lg font-bold text-green-600">
+                          {formatCurrency(paymentHistoryData.total_paid, selectedDebt?.currency || 'UZS')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t('paymentHistory.columns.id')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.amountUzs')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.amountUsd')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.currency')}</TableHead>
+                        <TableHead>{t('paymentHistory.columns.exchangeRate')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paymentHistoryData?.payments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">#{payment.id}</TableCell>
+                          <TableCell>
+                            {formatCurrency(payment.amount_display.uzs_amount, 'UZS')}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(payment.amount_display.usd_amount, 'USD')}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{payment.currency}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {parseFloat(payment.exchange_rate).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setPaymentHistoryDialogOpen(false)}>
+                {t('paymentHistory.close')}
               </Button>
             </div>
           </DialogContent>

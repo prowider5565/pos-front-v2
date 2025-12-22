@@ -159,6 +159,34 @@ export interface SupplierOldDebtPaymentHistoryResponse {
 }
 
 /**
+ * Client old debt payment history item
+ */
+export interface ClientOldDebtPayment {
+  id: number
+  old_client_debt: number
+  amount_display: {
+    uzs_amount: string
+    usd_amount: string
+  }
+  exchange_rate: string
+  currency: 'UZS' | 'USD'
+  seller: number
+}
+
+/**
+ * Client old debt payment history response
+ */
+export interface ClientOldDebtPaymentHistoryResponse {
+  client: {
+    id: number
+    full_name: string
+    phone_number: string
+  }
+  total_paid: string
+  payments: ClientOldDebtPayment[]
+}
+
+/**
  * Old debts for cheque response
  */
 export interface OldDebtsForChequeResponse {

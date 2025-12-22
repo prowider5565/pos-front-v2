@@ -145,6 +145,7 @@
   "paymentHistory": {
     "title": "Payment History - Debt #{{debtId}}",
     "supplierInfo": "{{name}} ({{phone}})",
+    "clientInfo": "{{name}} ({{phone}})",
     "totalPaid": "Total Paid",
     "noPayments": "No payments found",
     "loading": "Loading...",

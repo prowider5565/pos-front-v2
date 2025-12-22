@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { BaseLayout } from "@/components/layouts/base-layout"
 import { ChartAreaInteractive } from "./components/chart-area-interactive"
-import { DataTable } from "./components/data-table"
+import { DataTable } from "./components/data-table-simplified"
 import { SectionCards } from "./components/section-cards"
 import { SectionCardsSkeleton } from "./components/section-cards-skeleton"
 import { QuickActionsBar } from "./components/quick-actions-bar"
@@ -10,11 +10,6 @@ import { MetricsCards } from "./components/metrics-cards"
 import { DashboardFilter } from "./components/dashboard-filter"
 import type { DateFilterParams, FilterType } from "./components/dashboard-filter"
 import { useAnalyticsDashboard } from "@/hooks/use-analytics"
-
-import data from "./data/data.json"
-import pastPerformanceData from "./data/past-performance-data.json"
-import keyPersonnelData from "./data/key-personnel-data.json"
-import focusDocumentsData from "./data/focus-documents-data.json"
 
 export default function Page() {
   const { t } = useTranslation('dashboard')
@@ -56,13 +51,7 @@ export default function Page() {
           <MetricsCards data={analyticsData} />
         </div>
         <div className="@container/main">
-          <DataTable 
-            data={data} 
-            pastPerformanceData={pastPerformanceData}
-            keyPersonnelData={keyPersonnelData}
-            focusDocumentsData={focusDocumentsData}
-            filterParams={filterParams}
-          />
+          <DataTable filterParams={filterParams} />
         </div>
     </BaseLayout>
   )

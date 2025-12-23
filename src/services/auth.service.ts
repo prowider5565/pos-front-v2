@@ -16,6 +16,11 @@ import type {
   AddUserResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  TelegramGenerateLinkTokenResponse,
+  TelegramLinkStatusResponse,
+  TelegramUnlinkResponse,
+  TelegramManualLinkRequest,
+  TelegramManualLinkResponse,
 } from '@/types/auth'
 
 /**
@@ -133,6 +138,65 @@ export const authService = {
     return apiService.patch<UpdateProfileResponse>(
       API_ENDPOINTS.AUTH.UPDATE_PROFILE,
       profileData
+    )
+  },
+
+  /**
+   * Generate Telegram bot link token for account linking
+   * @returns Promise with token and bot username
+   */
+  generateTelegramLinkToken: async (): Promise<TelegramGenerateLinkTokenResponse> => {
+    return apiService.post<TelegramGenerateLinkTokenResponse>(
+      API_ENDPOINTS.AUTH.TELEGRAM_GENERATE_LINK_TOKEN
+    )
+  },
+
+  /**
+   * Build Telegram bot deep link URL
+   * @param botUsername - Telegram bot username (without @)
+   * @param token - Linking token
+   * @param isAdmin - Whether the user is an admin
+   * @returns Telegram bot deep link URL
+   */
+  getTelegramBotLink: (botUsername: string, token: string, isAdmin: boolean = false): string => {
+    const baseUrl = `https://t.me/${botUsername}?start=${token}`
+    return isAdmin ? `${baseUrl}-admin` : baseUrl
+  },
+
+  /**
+   * Check Telegram account link status
+   * @returns Promise with link status and Telegram user info if linked
+   */
+  checkTelegramLinkStatus: async (): Promise<TelegramLinkStatusResponse> => {
+    return apiService.get<TelegramLinkStatusResponse>(
+      API_ENDPOINTS.AUTH.TELEGRAM_LINK_STATUS
+    )
+  },
+
+  /**
+   * Manually link Telegram account using Telegram ID
+   * @param telegramId - User's Telegram ID
+   * @param telegramUsername - Optional Telegram username
+   * @returns Promise with updated user data
+   */
+  linkTelegramManually: async (telegramId: string, telegramUsername?: string): Promise<TelegramManualLinkResponse> => {
+    const request: TelegramManualLinkRequest = {
+      telegram_id: telegramId,
+      telegram_username: telegramUsername,
+    }
+    return apiService.post<TelegramManualLinkResponse>(
+      API_ENDPOINTS.AUTH.TELEGRAM_MANUAL_LINK,
+      request
+    )
+  },
+
+  /**
+   * Unlink Telegram account from current user
+   * @returns Promise with success message
+   */
+  unlinkTelegramAccount: async (): Promise<TelegramUnlinkResponse> => {
+    return apiService.post<TelegramUnlinkResponse>(
+      API_ENDPOINTS.AUTH.TELEGRAM_UNLINK
     )
   },
 }

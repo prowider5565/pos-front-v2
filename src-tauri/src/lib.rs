@@ -1,6 +1,140 @@
 use std::process::Command;
 
 #[tauri::command]
+fn check_telegram_installed() -> Result<bool, String> {
+    log::info!("Checking if Telegram Desktop is installed");
+    
+    #[cfg(target_os = "windows")]
+    {
+        // Check common Telegram installation paths on Windows
+        let paths = vec![
+            std::env::var("LOCALAPPDATA").ok().map(|p| format!("{}\\Telegram\\Telegram.exe", p)),
+            std::env::var("APPDATA").ok().map(|p| format!("{}\\Telegram Desktop\\Telegram.exe", p)),
+            Some("C:\\Program Files\\Telegram Desktop\\Telegram.exe".to_string()),
+        ];
+        
+        for path in paths.iter().flatten() {
+            if std::path::Path::new(path).exists() {
+                log::info!("Telegram found at: {}", path);
+                return Ok(true);
+            }
+        }
+    }
+    
+    #[cfg(target_os = "macos")]
+    {
+        // Check if Telegram.app exists on macOS
+        let telegram_path = "/Applications/Telegram.app";
+        if std::path::Path::new(telegram_path).exists() {
+            log::info!("Telegram found at: {}", telegram_path);
+            return Ok(true);
+        }
+    }
+    
+    #[cfg(target_os = "linux")]
+    {
+        // Try to find telegram in PATH
+        match Command::new("which").arg("telegram-desktop").output() {
+            Ok(output) => {
+                if output.status.success() && !output.stdout.is_empty() {
+                    log::info!("Telegram found in PATH");
+                    return Ok(true);
+                }
+            }
+            Err(_) => {}
+        }
+        
+        // Check common installation paths
+        let paths = vec![
+            "/usr/bin/telegram-desktop",
+            "/usr/local/bin/telegram-desktop",
+            "/snap/bin/telegram-desktop",
+            "/opt/telegram/Telegram",
+        ];
+        
+        for path in paths {
+            if std::path::Path::new(path).exists() {
+                log::info!("Telegram found at: {}", path);
+                return Ok(true);
+            }
+        }
+    }
+    
+    log::info!("Telegram Desktop not found");
+    Ok(false)
+}
+
+#[tauri::command]
+fn open_telegram_link(url: String) -> Result<(), String> {
+    log::info!("Opening Telegram link URL: {}", url);
+    
+    // Try tg:// protocol first (Telegram Desktop deep link)
+    let tg_url = url.replace("https://t.me/", "tg://resolve?domain=");
+    
+    #[cfg(target_os = "windows")]
+    {
+        // Try Telegram Desktop protocol first
+        match Command::new("cmd")
+            .args(["/C", "start", "", &tg_url])
+            .spawn()
+        {
+            Ok(_) => {
+                log::info!("Opened with Telegram Desktop protocol");
+                return Ok(());
+            }
+            Err(e) => {
+                log::warn!("Failed to open with tg:// protocol: {}, falling back to browser", e);
+                // Fallback to browser
+                Command::new("cmd")
+                    .args(["/C", "start", &url])
+                    .spawn()
+                    .map_err(|e| format!("Failed to open: {}", e))?;
+            }
+        }
+    }
+    
+    #[cfg(target_os = "macos")]
+    {
+        // Try Telegram Desktop protocol first
+        match Command::new("open").arg(&tg_url).spawn() {
+            Ok(_) => {
+                log::info!("Opened with Telegram Desktop protocol");
+                return Ok(());
+            }
+            Err(e) => {
+                log::warn!("Failed to open with tg:// protocol: {}, falling back to browser", e);
+                // Fallback to browser
+                Command::new("open")
+                    .arg(&url)
+                    .spawn()
+                    .map_err(|e| format!("Failed to open: {}", e))?;
+            }
+        }
+    }
+    
+    #[cfg(target_os = "linux")]
+    {
+        // Try Telegram Desktop protocol first
+        match Command::new("xdg-open").arg(&tg_url).spawn() {
+            Ok(_) => {
+                log::info!("Opened with Telegram Desktop protocol");
+                return Ok(());
+            }
+            Err(e) => {
+                log::warn!("Failed to open with tg:// protocol: {}, falling back to browser", e);
+                // Fallback to browser
+                Command::new("xdg-open")
+                    .arg(&url)
+                    .spawn()
+                    .map_err(|e| format!("Failed to open: {}", e))?;
+            }
+        }
+    }
+    
+    Ok(())
+}
+
+#[tauri::command]
 fn print_receipt(content: String) -> Result<String, String> {
     log::info!("Print command received with content length: {}", content.len());
     
@@ -173,6 +307,7 @@ fn print_macos(content: &[u8]) -> Result<String, String> {
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_deep_link::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
@@ -181,9 +316,13 @@ pub fn run() {
             .build(),
         )?;
       }
+
+      // Deep link handler is now automatic via plugin
+      // The plugin will handle deep links automatically
+
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![print_receipt])
+    .invoke_handler(tauri::generate_handler![print_receipt, open_telegram_link, check_telegram_installed])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

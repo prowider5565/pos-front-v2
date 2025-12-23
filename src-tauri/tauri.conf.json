@@ -21,6 +21,12 @@
     ],
     "security": {
       "csp": null
+    },
+    "withGlobalTauri": true
+  },
+  "plugins": {
+    "deepLink": {
+      "schemes": ["posapp"]
     }
   },
   "bundle": {

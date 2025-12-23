@@ -23,6 +23,10 @@ export const API_ENDPOINTS = {
     LIST_USERS: '/users/auth/list/',
     DISABLE_USER: (userId: number) => `/users/auth/disable-user/${userId}/`,
     UPDATE_PROFILE: '/users/auth/profile/update/',
+    TELEGRAM_GENERATE_LINK_TOKEN: '/users/auth/telegram/generate-link-token/',
+    TELEGRAM_LINK_STATUS: '/users/auth/telegram/link-status/',
+    TELEGRAM_UNLINK: '/users/auth/telegram/unlink/',
+    TELEGRAM_MANUAL_LINK: '/users/auth/telegram/manual-link/',
   },
   
   // Supplier endpoints

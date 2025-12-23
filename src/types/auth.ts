@@ -15,6 +15,10 @@ export interface User {
   is_superuser?: boolean
   is_active?: boolean
   deleted?: boolean
+  telegram_id?: string
+  telegram_username?: string
+  telegram_first_name?: string
+  telegram_photo_url?: string
 }
 
 /**
@@ -111,4 +115,45 @@ export interface AuthContextState {
 export interface ApiError {
   detail?: string
   [key: string]: string | string[] | undefined
+}
+
+/**
+ * Telegram generate link token response
+ */
+export interface TelegramGenerateLinkTokenResponse {
+  token: string
+  bot_username: string
+}
+
+/**
+ * Telegram link status response
+ */
+export interface TelegramLinkStatusResponse {
+  linked: boolean
+  telegram_id?: string
+  telegram_username?: string
+  telegram_first_name?: string
+}
+
+/**
+ * Telegram unlink response
+ */
+export interface TelegramUnlinkResponse {
+  message: string
+}
+
+/**
+ * Manual Telegram ID link request
+ */
+export interface TelegramManualLinkRequest {
+  telegram_id: string
+  telegram_username?: string
+}
+
+/**
+ * Manual Telegram ID link response
+ */
+export interface TelegramManualLinkResponse {
+  message: string
+  user: User
 }

@@ -154,7 +154,7 @@ fn print_receipt(content: String) -> Result<String, String> {
     print_data.extend_from_slice(&content_bytes);
     
     // Add line feeds before cutting
-    print_data.extend_from_slice(&[0x0A, 0x0A, 0x0A, 0x0A, 0x0A]); // 5 line feeds
+    print_data.extend_from_slice(&[0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]); // 7 line feeds
     
     // GS V 1 - Partial cut
     print_data.extend_from_slice(&[0x1D, 0x56, 0x01]);

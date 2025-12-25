@@ -11,7 +11,8 @@ import type {
   DirectOldSupplierDebtPaymentRequest,
   SupplierOldDebtPaymentHistoryResponse,
   ClientOldDebtPaymentHistoryResponse,
-  OldDebtsForChequeResponse
+  OldDebtsForChequeResponse,
+  NewSupplierDebtDetailResponse
 } from '@/types/debts'
 
 export const debtsService = {
@@ -78,6 +79,17 @@ export const debtsService = {
     const endpoint = queryParams.toString()
       ? `${API_ENDPOINTS.DEBTS.SUPPLIER_OLD_DEBTS_DETAIL(supplierId)}?${queryParams.toString()}`
       : API_ENDPOINTS.DEBTS.SUPPLIER_OLD_DEBTS_DETAIL(supplierId)
+    
+    return apiService.get(endpoint)
+  },
+
+  getNewSupplierDebtDetail: async (supplierId: number, params?: { page?: number }): Promise<NewSupplierDebtDetailResponse> => {
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append('page', String(params.page))
+    
+    const endpoint = queryParams.toString()
+      ? `/debts/suppliers/new/${supplierId}/detail/?${queryParams.toString()}`
+      : `/debts/suppliers/new/${supplierId}/detail/`
     
     return apiService.get(endpoint)
   },

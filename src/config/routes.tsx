@@ -19,6 +19,7 @@ const ProductDetail = lazy(() => import('@/app/products/supplierId/productId/pag
 // Debts pages
 const SupplierDebts = lazy(() => import('@/app/debts/suppliers/page'))
 const SupplierOldDebtsDetail = lazy(() => import('@/app/debts/suppliers/supplierId/old-debts/page'))
+const SupplierNewDebtsDetail = lazy(() => import('@/app/debts/suppliers/supplierId/new-debts/page'))
 const ClientDebts = lazy(() => import('@/app/debts/clients/page'))
 const ClientOldDebtsDetail = lazy(() => import('@/app/debts/clients/clientId/old-debts/page'))
 
@@ -126,6 +127,14 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <SupplierOldDebtsDetail />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/debts/suppliers/:supplierId/new-debts",
+    element: (
+      <ProtectedRoute>
+        <SupplierNewDebtsDetail />
       </ProtectedRoute>
     )
   },

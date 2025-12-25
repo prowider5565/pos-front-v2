@@ -290,16 +290,18 @@ export function ProductCreateDialog({
           sell_price: data.sell_price,
         },
         product_uuid: product_uuid,
+        // Step 3: Always include finance with exchange_rate and currency
+        finance: {
+          exchange_rate: data.exchange_rate || getExchangeRate(),
+          currency: "UZS",
+        },
       }
 
-      // Step 3: Add finance if payment provided
+      // Step 4: Add payment details to finance if payment provided
       if (data.has_payment && data.amount && parseFloat(data.amount) > 0) {
-        payload.finance = {
-          currency: data.currency || "UZS",
-          exchange_rate: data.exchange_rate || "1",
-          amount: data.amount,
-          method: data.method || "CASH",
-        }
+        payload.finance.currency = data.currency || "UZS"
+        payload.finance.amount = data.amount
+        payload.finance.method = data.method || "CASH"
       }
 
       // Step 4: Submit

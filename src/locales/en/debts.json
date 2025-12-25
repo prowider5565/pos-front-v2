@@ -75,11 +75,14 @@
   },
   "paymentHistory": {
     "title": "Payment History - {{name}}",
+    "description": "View all payments made for this debt",
     "totalPaid": "Total Paid",
     "amount": "Amount",
     "currency": "Currency",
     "method": "Method",
+    "exchangeRate": "Exchange Rate",
     "date": "Date",
+    "seller": "Seller",
     "noPayments": "No payments found"
   },
 
@@ -139,23 +142,6 @@
       "cash": "Cash",
       "card": "Card",
       "transfer": "Transfer"
-    }
-  },
-
-  "paymentHistory": {
-    "title": "Payment History - Debt #{{debtId}}",
-    "supplierInfo": "{{name}} ({{phone}})",
-    "clientInfo": "{{name}} ({{phone}})",
-    "totalPaid": "Total Paid",
-    "noPayments": "No payments found",
-    "loading": "Loading...",
-    "close": "Close",
-    "columns": {
-      "id": "ID",
-      "amountUzs": "Amount (UZS)",
-      "amountUsd": "Amount (USD)",
-      "currency": "Currency",
-      "exchangeRate": "Exchange Rate"
     }
   }
 }

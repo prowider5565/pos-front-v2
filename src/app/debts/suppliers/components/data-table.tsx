@@ -58,14 +58,13 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
   }
 
   const handleRowClick = (supplier: SupplierDebt) => {
+    const supplierId = supplier.id
     if (debtType === 'old') {
       // Navigate to old debts detail page for this supplier
-      const supplierId = supplier.id
       navigate(`/debts/suppliers/${supplierId}/old-debts`)
     } else {
-      // Show payment history dialog for new debts
-      setSelectedSupplier(supplier)
-      setHistoryDialogOpen(true)
+      // Navigate to new debts detail page for this supplier
+      navigate(`/debts/suppliers/${supplierId}/new-debts`)
     }
   }
 

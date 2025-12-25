@@ -81,4 +81,15 @@ export const paymentsService = {
   getSalePayments: async (saleId: number): Promise<SalePaymentRecord[]> => {
     return apiService.get(`/payments/sale-payments/${saleId}/payments/`)
   },
+  makeNewSupplierDebtProductPayment: async (data: {
+    product_id: number
+    amount: string
+    currency: Currency
+    method: PaymentMethod
+  }) => {
+    return apiService.post('/payments/new-seller-debt-payments/product-payment/', data)
+  },
+  getNewSupplierDebtProductPayments: async (productId: number): Promise<any[]> => {
+    return apiService.get(`/payments/new-seller-debt-payments/by-product/${productId}/`)
+  },
 }

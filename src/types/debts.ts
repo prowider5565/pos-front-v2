@@ -193,3 +193,28 @@ export interface OldDebtsForChequeResponse {
   total_usd: string
   total_uzs: string
 }
+
+/**
+ * Product debt detail item (for new supplier debt detail view)
+ */
+export interface ProductDebtDetail {
+  product_name: string
+  product_type: 'PIECE' | 'LITER' | 'KILOGRAM'
+  created_at: string
+  product_id: number
+  debt_amounts: DebtAmounts
+  debt_status: 'PENDING' | 'PARTIALLY_PAID' | 'PAID'
+}
+
+/**
+ * New supplier debt detail response
+ */
+export interface NewSupplierDebtDetailResponse {
+  count: number
+  current_page: number
+  next: string | null
+  previous: string | null
+  total_pages: number
+  results: ProductDebtDetail[]
+  metadata: DebtAmounts
+}

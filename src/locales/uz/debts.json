@@ -75,11 +75,14 @@
   },
   "paymentHistory": {
     "title": "To'lovlar tarixi - {{name}}",
+    "description": "Bu qarz bo'yicha barcha to'lovlarni ko'rish",
     "totalPaid": "Jami to'langan",
     "amount": "Miqdor",
     "currency": "Valyuta",
     "method": "Usul",
+    "exchangeRate": "Valyuta kursi",
     "date": "Sana",
+    "seller": "Sotuvchi",
     "noPayments": "To'lovlar topilmadi"
   },
 
@@ -139,23 +142,6 @@
       "cash": "Naqd",
       "card": "Karta",
       "transfer": "O'tkazma"
-    }
-  },
-
-  "paymentHistory": {
-    "title": "To'lovlar tarixi - Qarz #{{debtId}}",
-    "supplierInfo": "{{name}} ({{phone}})",
-    "clientInfo": "{{name}} ({{phone}})",
-    "totalPaid": "Jami to'langan",
-    "noPayments": "To'lovlar topilmadi",
-    "loading": "Yuklanmoqda...",
-    "close": "Yopish",
-    "columns": {
-      "id": "ID",
-      "amountUzs": "Summa (UZS)",
-      "amountUsd": "Summa (USD)",
-      "currency": "Valyuta",
-      "exchangeRate": "Valyuta kursi"
     }
   }
 }

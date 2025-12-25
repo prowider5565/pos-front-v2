@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from '@/config/api'
 export interface ProductCategory {
   id: number
   name: string
+  image?: string
 }
 
 export interface ProductImage {
@@ -66,6 +67,7 @@ export interface ProductBatchesResponse {
 export interface Category {
   id: number
   name: string
+  image?: string
   created_at: string
 }
 
@@ -166,6 +168,26 @@ class ProductsService {
    */
   async getCategories(): Promise<CategoriesListResponse> {
     const response = await apiClient.get<CategoriesListResponse>('/products/categories/')
+    return response.data
+  }
+
+  /**
+   * Upload category image
+   */
+  async uploadCategoryImage(categoryId: number, imageFile: File): Promise<{ image: string }> {
+    const formData = new FormData()
+    formData.append('category_id', categoryId.toString())
+    formData.append('image', imageFile)
+    
+    const response = await apiClient.post<{ image: string }>(
+      '/media/category-image/',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
     return response.data
   }
 

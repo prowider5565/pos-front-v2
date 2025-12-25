@@ -89,6 +89,8 @@ export function ProductCreateDialog({
   const [showSupplierDialog, setShowSupplierDialog] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
+  const [categoryImage, setCategoryImage] = useState<File | null>(null)
+  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null)
 
   const form = useForm({
     resolver: zodResolver(productCreateSchema),
@@ -224,6 +226,16 @@ export function ProductCreateDialog({
     }
   }, [open])
 
+  // Handler for category image selection
+  const handleCategoryImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setCategoryImage(file)
+    const previewUrl = URL.createObjectURL(file)
+    setCategoryImagePreview(previewUrl)
+  }
+
   // Handler for creating new category
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -234,13 +246,33 @@ export function ProductCreateDialog({
     }
 
     try {
-      // Note: This assumes there's an endpoint to create categories
-      // If not available, this will need to be handled differently
-      await apiClient.post('/products/categories/create/', { name: newCategoryName.trim() })
+      // Step 1: Create category
+      const response = await apiClient.post('/products/categories/create/', { name: newCategoryName.trim() })
+      const newCategory = response.data
+
+      // Step 2: Upload image if provided
+      if (categoryImage && newCategory.id) {
+        try {
+          await productsService.uploadCategoryImage(newCategory.id, categoryImage)
+        } catch (imageError) {
+          console.error("Failed to upload category image:", imageError)
+          toast.warning("Warning", {
+            description: "Category created but image upload failed"
+          })
+        }
+      }
+
       toast.success(t('common:messages.success'), {
         description: "Category created successfully"
       })
+      
+      // Reset state
       setNewCategoryName("")
+      setCategoryImage(null)
+      if (categoryImagePreview) {
+        URL.revokeObjectURL(categoryImagePreview)
+        setCategoryImagePreview(null)
+      }
       setShowCategoryDialog(false)
       await fetchCategories()
     } catch (error) {
@@ -401,6 +433,7 @@ export function ProductCreateDialog({
                           items={categories.map((cat) => ({
                             value: String(cat.id),
                             label: cat.name,
+                            image: cat.image,
                           }))}
                           value={field.value}
                           onValueChange={field.onChange}
@@ -855,12 +888,50 @@ export function ProductCreateDialog({
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Enter category name"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' && !categoryImage) {
                     handleCreateCategory()
                   }
                 }}
               />
             </div>
+
+            <div className="space-y-2">
+              <label htmlFor="category-image" className="text-sm font-medium">
+                Category Image (Optional)
+              </label>
+              <Input
+                id="category-image"
+                type="file"
+                accept="image/*"
+                onChange={handleCategoryImageSelect}
+                className="cursor-pointer"
+              />
+            </div>
+
+            {categoryImagePreview && (
+              <div className="relative w-32 h-32 rounded-lg border overflow-hidden bg-muted">
+                <img
+                  src={categoryImagePreview}
+                  alt="Category preview"
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                  onClick={() => {
+                    setCategoryImage(null)
+                    if (categoryImagePreview) {
+                      URL.revokeObjectURL(categoryImagePreview)
+                      setCategoryImagePreview(null)
+                    }
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
           <div className="flex justify-end space-x-2">
             <Button
@@ -869,6 +940,11 @@ export function ProductCreateDialog({
               onClick={() => {
                 setShowCategoryDialog(false)
                 setNewCategoryName("")
+                setCategoryImage(null)
+                if (categoryImagePreview) {
+                  URL.revokeObjectURL(categoryImagePreview)
+                  setCategoryImagePreview(null)
+                }
               }}
             >
               Cancel

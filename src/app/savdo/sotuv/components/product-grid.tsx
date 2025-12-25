@@ -1,20 +1,20 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
-import { Search, Filter } from "lucide-react"
+import { Search, Filter, FolderOpen } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ProductCard } from "./product-card"
 import { salesService } from "@/services/sales.service"
+import { productsService, type Category } from "@/services/products.service"
 import type { SaleProduct } from "@/types/sales"
 import { toast } from "sonner"
 
@@ -26,6 +26,7 @@ interface ProductGridProps {
 export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -106,16 +107,21 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
     }
   }, [loading, loadingMore, hasMore, page, fetchProducts])
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    const categoryMap = new Map<number, string>()
-    products.forEach(product => {
-      if (product.category) {
-        categoryMap.set(product.category.id, product.category.name)
+  // Fetch all categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await productsService.getCategories()
+        setCategories(response.results)
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
       }
-    })
-    return Array.from(categoryMap, ([id, name]) => ({ id, name }))
-  }, [products])
+    }
+    fetchCategories()
+  }, [])
+
+  // Find selected category for display
+  const selectedCategoryData = categories.find(c => c.id.toString() === selectedCategory)
 
   if (loading) {
     return (
@@ -142,14 +148,49 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
         
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-full sm:w-[200px]">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder={t('allCategories')} />
+            <div className="flex items-center gap-2">
+              {selectedCategory === 'all' ? (
+                <>
+                  <Filter className="h-4 w-4" />
+                  <span>{t('allCategories')}</span>
+                </>
+              ) : selectedCategoryData ? (
+                <>
+                  {selectedCategoryData.image ? (
+                    <img 
+                      src={selectedCategoryData.image} 
+                      alt=""
+                      className="h-5 w-5 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <FolderOpen className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  )}
+                  <span>{selectedCategoryData.name}</span>
+                </>
+              ) : null}
+            </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t('allCategories')}</SelectItem>
+            <SelectItem value="all">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <span>{t('allCategories')}</span>
+              </div>
+            </SelectItem>
             {categories.map(category => (
               <SelectItem key={category.id} value={category.id.toString()}>
-                {category.name}
+                <div className="flex items-center gap-2">
+                  {category.image ? (
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="h-5 w-5 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <FolderOpen className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  )}
+                  <span>{category.name}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

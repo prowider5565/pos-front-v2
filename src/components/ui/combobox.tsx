@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, Plus } from "lucide-react"
+import { Check, ChevronsUpDown, Plus, FolderOpen } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,7 @@ import {
 export interface ComboboxItem {
   value: string
   label: string
+  image?: string
 }
 
 interface ComboboxProps {
@@ -66,9 +67,20 @@ export function Combobox({
             className={cn("w-full justify-between", className)}
             disabled={disabled}
           >
-            <span className="truncate">
-              {selectedItem ? selectedItem.label : placeholder}
-            </span>
+            <div className="flex items-center gap-2 truncate">
+              {selectedItem?.image ? (
+                <img 
+                  src={selectedItem.image} 
+                  alt={selectedItem.label}
+                  className="h-5 w-5 rounded object-cover flex-shrink-0"
+                />
+              ) : selectedItem ? (
+                <FolderOpen className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              ) : null}
+              <span className="truncate">
+                {selectedItem ? selectedItem.label : placeholder}
+              </span>
+            </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -89,11 +101,20 @@ export function Combobox({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-2 h-4 w-4 flex-shrink-0",
                         value === item.value ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {item.label}
+                    {item.image ? (
+                      <img 
+                        src={item.image} 
+                        alt={item.label}
+                        className="mr-2 h-5 w-5 rounded object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <FolderOpen className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    )}
+                    <span className="truncate">{item.label}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

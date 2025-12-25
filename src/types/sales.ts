@@ -12,6 +12,7 @@ export type Currency = 'UZS' | 'USD'
 export interface ProductCategory {
   id: number
   name: string
+  image?: string
 }
 
 /**

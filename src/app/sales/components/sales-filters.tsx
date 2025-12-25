@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import type { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
 import { format } from "date-fns"
 import type { SaleStatus, SalesListFilterParams } from "@/types/sales"
@@ -43,31 +44,39 @@ interface ClientOption {
 }
 
 function getIsoWeekNumber(date: Date): number {
-  // Same rough approach used in dashboard-filter.tsx (works with the backend’s expected week numbering)
   const startOfYear = new Date(date.getFullYear(), 0, 1)
   const days = Math.floor(
     (date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000)
   )
-  return Math.ceil((days + startOfYear.getDay() + 1) / 7)
+  return Math.ceil((days + 1) / 7)
 }
 
 export function SalesFilters({
   t,
   value,
   onApply,
-  onReset,
 }: {
   t: TFunction
   value: SalesFiltersValue
   onApply: (next: SalesFiltersValue) => void
   onReset: () => void
 }) {
+  const { t: tSales } = useTranslation('sales')
   const [draft, setDraft] = useState<SalesFiltersValue>(value)
 
   // keep draft in sync when parent updates from URL
   useEffect(() => {
     setDraft(value)
   }, [value])
+
+  // Apply filters instantly with debounce to prevent too many history API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onApply(draft)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [draft, onApply])
 
   // --- Clients combobox state ---
   const [clientOpen, setClientOpen] = useState(false)
@@ -83,7 +92,6 @@ export function SalesFilters({
     const fetchClients = async () => {
       try {
         setClientsLoading(true)
-        // Load more than default for usability
         const res = await clientsService.getClients(1, 100)
         setClients(res.results || [])
       } finally {
@@ -99,9 +107,9 @@ export function SalesFilters({
   }, [clientOpen, clients.length, clientsLoading])
 
   const statusItems: Array<{ value: SaleStatus; label: string }> = [
-    { value: "PENDING", label: t("history.status.PENDING") },
-    { value: "PARTIALLY_PAID", label: t("history.status.PARTIALLY_PAID") },
-    { value: "PAID", label: t("history.status.PAID") },
+    { value: "PENDING", label: tSales("filters.pending") },
+    { value: "PARTIALLY_PAID", label: tSales("filters.partiallyPaid") },
+    { value: "PAID", label: tSales("filters.paid") },
   ]
 
   const needsChequeValue =
@@ -115,7 +123,6 @@ export function SalesFilters({
     setDraft((prev) => ({
       ...prev,
       dateMode: mode,
-      // clear all date fields (we’ll set the relevant ones after)
       date_from: undefined,
       date_to: undefined,
       day: undefined,
@@ -164,8 +171,8 @@ export function SalesFilters({
       date_to: undefined,
       day: undefined,
       week: undefined,
-      month: now.getMonth() + 1,
       year: now.getFullYear(),
+      month: now.getMonth() + 1,
     }))
   }
 
@@ -185,24 +192,137 @@ export function SalesFilters({
 
   const applyCustomRange = () => {
     if (!range?.from || !range?.to) return
-    const from = range.from
-    const to = range.to
-
     setDraft((prev) => ({
       ...prev,
       dateMode: "range",
+      date_from: format(range.from as Date, "yyyy-MM-dd"),
+      date_to: format(range.to as Date, "yyyy-MM-dd"),
       day: undefined,
       week: undefined,
       month: undefined,
       year: undefined,
-      date_from: format(from, "yyyy-MM-dd"),
-      date_to: format(to, "yyyy-MM-dd"),
     }))
   }
 
   return (
     <div className="rounded-md border p-4 space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      {/* First Row: Date filters and Cheque Radio */}
+      <div className="flex flex-wrap items-end gap-4">
+        {/* Date filter buttons */}
+        <div className="space-y-2 flex-1 min-w-[300px]">
+          <Label>{tSales("filters.dateRange")}</Label>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Custom range picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={draft.dateMode === "range" ? "default" : "outline"}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  {tSales("filters.range")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={range}
+                  onSelect={setRange}
+                  numberOfMonths={2}
+                />
+                <div className="p-3 border-t">
+                  <Button
+                    onClick={applyCustomRange}
+                    disabled={!range?.from || !range?.to}
+                    className="w-full"
+                    size="sm"
+                  >
+                    {tSales("filters.applyDateRange")}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            <Button
+              variant={draft.dateMode === "day" ? "default" : "outline"}
+              onClick={applyDaily}
+              size="sm"
+            >
+              {tSales("filters.daily")}
+            </Button>
+
+            <Button
+              variant={draft.dateMode === "week" ? "default" : "outline"}
+              onClick={applyWeekly}
+              size="sm"
+            >
+              {tSales("filters.weekly")}
+            </Button>
+
+            <Button
+              variant={draft.dateMode === "month" ? "default" : "outline"}
+              onClick={applyMonthly}
+              size="sm"
+            >
+              {tSales("filters.monthly")}
+            </Button>
+
+            <Button
+              variant={draft.dateMode === "year" ? "default" : "outline"}
+              onClick={applyYearly}
+              size="sm"
+            >
+              {tSales("filters.yearly")}
+            </Button>
+
+            <Button
+              variant={draft.dateMode === "none" ? "default" : "outline"}
+              onClick={() => setDateMode("none")}
+              size="sm"
+            >
+              {tSales("filters.allTime")}
+            </Button>
+          </div>
+        </div>
+
+        {/* Needs cheque radio - on same row */}
+        <div className="space-y-2">
+          <Label>{tSales("filters.needsCheque")}</Label>
+          <RadioGroup
+            value={needsChequeValue}
+            onValueChange={(v) => {
+              setDraft((prev) => ({
+                ...prev,
+                needs_cheque: v === "any" ? undefined : v === "true",
+              }))
+            }}
+            className="flex gap-4"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="any" id="cheque-any" />
+              <Label htmlFor="cheque-any" className="font-normal cursor-pointer">
+                {tSales("filters.any")}
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="true" id="cheque-yes" />
+              <Label htmlFor="cheque-yes" className="font-normal cursor-pointer">
+                {tSales("filters.yes")}
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="false" id="cheque-no" />
+              <Label htmlFor="cheque-no" className="font-normal cursor-pointer">
+                {tSales("filters.no")}
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
+      </div>
+
+      {/* Second Row: Client and Payment Status */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Client combobox */}
         <div className="space-y-2">
           <Label>{t("history.columns.client")}</Label>
@@ -247,26 +367,25 @@ export function SalesFilters({
                     />
                     <span className="text-sm">All clients</span>
                   </CommandItem>
-
-                  {clients.map((client) => (
+                  {clients.map((c) => (
                     <CommandItem
-                      key={client.id}
-                      value={`${client.full_name} ${client.phone_number}`}
+                      key={c.id}
+                      value={`${c.full_name} ${c.phone_number}`}
                       onSelect={() => {
-                        setDraft((prev) => ({ ...prev, client: client.id }))
+                        setDraft((prev) => ({ ...prev, client: c.id }))
                         setClientOpen(false)
                       }}
                     >
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          draft.client === client.id ? "opacity-100" : "opacity-0"
+                          draft.client === c.id ? "opacity-100" : "opacity-0"
                         )}
                       />
                       <div className="flex flex-col">
-                        <span className="font-medium">{client.full_name}</span>
+                        <span className="text-sm font-medium">{c.full_name}</span>
                         <span className="text-xs text-muted-foreground">
-                          {client.phone_number}
+                          {c.phone_number}
                         </span>
                       </div>
                     </CommandItem>
@@ -277,11 +396,11 @@ export function SalesFilters({
           </Popover>
         </div>
 
-        {/* Status */}
+        {/* Payment status select */}
         <div className="space-y-2">
-          <Label>{t("history.columns.status")}</Label>
+          <Label>{tSales("filters.paymentStatus")}</Label>
           <Select
-            value={draft.status ?? "__any__"}
+            value={draft.status || "__any__"}
             onValueChange={(v) => {
               setDraft((prev) => ({
                 ...prev,
@@ -289,140 +408,19 @@ export function SalesFilters({
               }))
             }}
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All" />
+            <SelectTrigger>
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__any__">All</SelectItem>
-              {statusItems.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
+              <SelectItem value="__any__">{tSales("filters.allStatuses")}</SelectItem>
+              {statusItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-
-        {/* Needs cheque radio */}
-        <div className="space-y-2">
-          <Label>Needs cheque</Label>
-          <RadioGroup
-            value={needsChequeValue}
-            onValueChange={(v) => {
-              setDraft((prev) => ({
-                ...prev,
-                needs_cheque: v === "any" ? undefined : v === "true",
-              }))
-            }}
-            className="grid grid-cols-3 gap-3"
-          >
-            <Label className="flex items-center gap-2 font-normal">
-              <RadioGroupItem value="any" />
-              Any
-            </Label>
-            <Label className="flex items-center gap-2 font-normal">
-              <RadioGroupItem value="true" />
-              Yes
-            </Label>
-            <Label className="flex items-center gap-2 font-normal">
-              <RadioGroupItem value="false" />
-              No
-            </Label>
-          </RadioGroup>
-        </div>
-
-        {/* Date filter (dashboard-style) */}
-        <div className="space-y-2">
-          <Label>Date</Label>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Custom range picker */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={draft.dateMode === "range" ? "default" : "outline"}
-                  className="gap-2"
-                  onClick={() => setDateMode("range")}
-                >
-                  <CalendarIcon className="h-4 w-4" />
-                  Range
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="range"
-                  selected={range}
-                  onSelect={setRange}
-                  numberOfMonths={2}
-                />
-                <div className="p-3 border-t">
-                  <Button
-                    onClick={applyCustomRange}
-                    disabled={!range?.from || !range?.to}
-                    className="w-full"
-                  >
-                    Apply Date Range
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <Button
-              variant={draft.dateMode === "day" ? "default" : "outline"}
-              onClick={applyDaily}
-            >
-              Daily
-            </Button>
-
-            <Button
-              variant={draft.dateMode === "week" ? "default" : "outline"}
-              onClick={applyWeekly}
-            >
-              Weekly
-            </Button>
-
-            <Button
-              variant={draft.dateMode === "month" ? "default" : "outline"}
-              onClick={applyMonthly}
-            >
-              Monthly
-            </Button>
-
-            <Button
-              variant={draft.dateMode === "year" ? "default" : "outline"}
-              onClick={applyYearly}
-            >
-              Yearly
-            </Button>
-
-            <Button
-              variant={draft.dateMode === "none" ? "default" : "outline"}
-              onClick={() => setDateMode("none")}
-            >
-              All time
-            </Button>
-          </div>
-
-          {/* Optional: show current active date selection summary */}
-          <div className="text-xs text-muted-foreground">
-            {draft.dateMode === "none" && "No date filter"}
-            {draft.dateMode === "day" && draft.day && `Day: ${draft.day}`}
-            {draft.dateMode === "week" && draft.week && draft.year &&
-              `Week: ${draft.week}, ${draft.year}`}
-            {draft.dateMode === "month" && draft.month && draft.year &&
-              `Month: ${draft.month}, ${draft.year}`}
-            {draft.dateMode === "year" && draft.year && `Year: ${draft.year}`}
-            {draft.dateMode === "range" && draft.date_from && draft.date_to &&
-              `Range: ${draft.date_from} → ${draft.date_to}`}
-          </div>
-        </div>
-      </div>
-
-      {/* Apply/Reset */}
-      <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" onClick={onReset}>
-          Reset
-        </Button>
-        <Button onClick={() => onApply(draft)}>Apply</Button>
       </div>
     </div>
   )

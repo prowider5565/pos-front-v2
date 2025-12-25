@@ -76,6 +76,7 @@
     "savdo": "Sales",
     "sotuv": "Sale",
     "mahsulotlar": "Products",
+    "soldProducts": "Sold Products",
     "debts": "Debts",
     "supplierDebts": "Supplier Debts",
     "clientDebts": "Client Debts"

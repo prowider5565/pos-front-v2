@@ -162,6 +162,30 @@
     }
   },
 
+  "filters": {
+    "needsCheque": "Chek kerakmi",
+    "any": "Istalgan",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "paymentStatus": "To'lov holati",
+    "allStatuses": "Barcha holatlar",
+    "paid": "To'langan",
+    "partiallyPaid": "Qisman to'langan",
+    "pending": "Kutilmoqda",
+    "dateRange": "Sana oralig'i",
+    "from": "Dan",
+    "to": "Gacha",
+    "reset": "Tozalash",
+    "apply": "Qo'llash",
+    "range": "Oraliq",
+    "daily": "Kunlik",
+    "weekly": "Haftalik",
+    "monthly": "Oylik",
+    "yearly": "Yillik",
+    "allTime": "Barcha vaqt",
+    "applyDateRange": "Sana oralig'ini qo'llash"
+  },
+
   "cheque": {
     "title": "Savdo nuqtasi",
     "seller": "Sotuvchi",

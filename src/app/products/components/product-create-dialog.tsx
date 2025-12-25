@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X } from "lucide-react"
+import { X, Plus } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -236,7 +236,7 @@ export function ProductCreateDialog({
     try {
       // Note: This assumes there's an endpoint to create categories
       // If not available, this will need to be handled differently
-      await apiClient.post('/products/categories/', { name: newCategoryName.trim() })
+      await apiClient.post('/products/categories/create/', { name: newCategoryName.trim() })
       toast.success(t('common:messages.success'), {
         description: "Category created successfully"
       })
@@ -386,7 +386,47 @@ export function ProductCreateDialog({
                 )}
               />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              {/* Category and Product Type in one row */}
+              <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr]">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('category')}</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          items={categories.map((cat) => ({
+                            value: String(cat.id),
+                            label: cat.name,
+                          }))}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={t('selectCategory')}
+                          searchPlaceholder="Search category..."
+                          emptyText="No category found."
+                          showAddButton={false}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Add category button in the middle */}
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowCategoryDialog(true)}
+                    title="Add new category"
+                    className="h-10 w-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+
                 <FormField
                   control={form.control}
                   name="product_type"
@@ -410,63 +450,50 @@ export function ProductCreateDialog({
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('category')}</FormLabel>
-                      <FormControl>
-                        <Combobox
-                          items={categories.map((cat) => ({
-                            value: String(cat.id),
-                            label: cat.name,
-                          }))}
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={t('selectCategory')}
-                          searchPlaceholder="Search category..."
-                          emptyText="No category found."
-                          showAddButton={true}
-                          onAddNew={() => setShowCategoryDialog(true)}
-                          addButtonLabel="Add new category"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
-              {/* Only show supplier selectbox if not pre-selected */}
+              {/* Supplier field with add button */}
               {!supplierId && (
-                <FormField
-                  control={form.control}
-                  name="supplier"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('selectSupplier')}</FormLabel>
-                      <FormControl>
-                        <Combobox
-                          items={suppliers.map((supplier) => ({
-                            value: String(supplier.id),
-                            label: supplier.company_name,
-                          }))}
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={t('selectSupplier')}
-                          searchPlaceholder="Search supplier..."
-                          emptyText="No supplier found."
-                          showAddButton={true}
-                          onAddNew={() => setShowSupplierDialog(true)}
-                          addButtonLabel="Add new supplier"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+                  <FormField
+                    control={form.control}
+                    name="supplier"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('selectSupplier')}</FormLabel>
+                        <FormControl>
+                          <Combobox
+                            items={suppliers.map((supplier) => ({
+                              value: String(supplier.id),
+                              label: supplier.company_name,
+                            }))}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={t('selectSupplier')}
+                            searchPlaceholder="Search supplier..."
+                            emptyText="No supplier found."
+                            showAddButton={false}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Add supplier button */}
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowSupplierDialog(true)}
+                      title="Add new supplier"
+                      className="h-10 w-10"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -544,11 +571,14 @@ export function ProductCreateDialog({
                     <FormLabel>{t('quantity')}</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number"
-                        step="1"
-                        min="1"
+                        type="text"
                         placeholder="100" 
-                        {...field} 
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '')
+                          field.onChange(value)
+                        }}
+                        value={field.value ? parseInt(field.value).toLocaleString() : ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -565,11 +595,20 @@ export function ProductCreateDialog({
                       <FormLabel>{t('buyPrice')}</FormLabel>
                       <FormControl>
                         <Input 
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="10000.00" 
-                          {...field} 
+                          type="text"
+                          placeholder="10,000.00" 
+                          value={field.value}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9.]/g, '')
+                            field.onChange(value)
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value
+                            if (value && !isNaN(parseFloat(value))) {
+                              field.onChange(parseFloat(value).toFixed(2))
+                            }
+                            field.onBlur()
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -585,11 +624,20 @@ export function ProductCreateDialog({
                       <FormLabel>{t('sellPrice')}</FormLabel>
                       <FormControl>
                         <Input 
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="15000.00" 
-                          {...field} 
+                          type="text"
+                          placeholder="15,000.00" 
+                          value={field.value}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9.]/g, '')
+                            field.onChange(value)
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value
+                            if (value && !isNaN(parseFloat(value))) {
+                              field.onChange(parseFloat(value).toFixed(2))
+                            }
+                            field.onBlur()
+                          }}
                         />
                       </FormControl>
                       <FormMessage />

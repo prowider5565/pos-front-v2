@@ -90,7 +90,7 @@ export default function MahsulotlarSuppliersPage() {
           </div>
 
           {/* Search and Create Button */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -102,7 +102,7 @@ export default function MahsulotlarSuppliersPage() {
             </div>
             <Button 
               onClick={() => setIsCreateDialogOpen(true)}
-              className="cursor-pointer"
+              className="cursor-pointer w-full sm:w-auto"
             >
               <Plus className="mr-2 size-4" />
               {t('createProduct')}

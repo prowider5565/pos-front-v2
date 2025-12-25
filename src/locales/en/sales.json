@@ -162,6 +162,30 @@
     }
   },
 
+  "filters": {
+    "needsCheque": "Needs Cheque",
+    "any": "Any",
+    "yes": "Yes",
+    "no": "No",
+    "paymentStatus": "Payment Status",
+    "allStatuses": "All Statuses",
+    "paid": "Paid",
+    "partiallyPaid": "Partially Paid",
+    "pending": "Pending",
+    "dateRange": "Date Range",
+    "from": "From",
+    "to": "To",
+    "reset": "Reset",
+    "apply": "Apply",
+    "range": "Range",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "allTime": "All Time",
+    "applyDateRange": "Apply Date Range"
+  },
+
   "cheque": {
     "title": "Points of Sales",
     "seller": "Seller",

@@ -4,7 +4,7 @@ import { Package } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LazyImage } from "@/components/ui/lazy-image"
-import { MEDIA_BASE_URL } from "@/config/api"
+import { API_BASE_URL } from "@/config/api"
 import type { SaleProduct } from "@/types/sales"
 
 interface ProductCardProps {
@@ -42,7 +42,7 @@ export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps
       <div className="relative">
         {product.cover_image ? (
           <LazyImage
-            src={`${MEDIA_BASE_URL}${product.cover_image}`}
+            src={`${API_BASE_URL}${product.cover_image}`}
             alt={product.name}
             aspectRatio="square"
             objectFit="cover"

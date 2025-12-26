@@ -73,7 +73,7 @@ import {
   type ProductsListResponse,
 } from "@/services/products.service"
 import { ProductEditDialog } from "../../components/product-edit-dialog"
-import { MEDIA_BASE_URL } from "@/config/api"
+import { API_BASE_URL } from "@/config/api"
 import { formatVerboseDate } from "@/lib/date-utils"
 import { useLanguage } from "@/hooks/use-language"
 import { useForm, useWatch } from "react-hook-form"
@@ -130,7 +130,7 @@ function ProductImageGallery({ images, productName, currentIndex, onImageSelect 
             }`}
           >
             <img
-              src={`${MEDIA_BASE_URL}${image.url}`}
+              src={`${API_BASE_URL}${image.url}`}
               alt={`${productName} ${index + 1}`}
               className="object-cover w-full h-full"
               onError={(e) => {
@@ -148,7 +148,7 @@ function ProductImageGallery({ images, productName, currentIndex, onImageSelect 
       {/* Main image display */}
       <div className="flex-1 aspect-square overflow-hidden rounded-lg bg-muted border">
         <img
-          src={`${MEDIA_BASE_URL}${images[currentIndex].url}`}
+          src={`${API_BASE_URL}${images[currentIndex].url}`}
           alt={productName}
           className="object-contain w-full h-full"
           onError={(e) => {

@@ -22,7 +22,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { productsService, type Product, type ProductsListResponse, type SupplierInfo } from "@/services/products.service"
-import { MEDIA_BASE_URL } from "@/config/api"
+import { API_BASE_URL } from "@/config/api"
 import { ProductCreateDialog } from "../components/product-create-dialog"
 
 export default function MahsulotlarProductsPage() {
@@ -172,7 +172,7 @@ export default function MahsulotlarProductsPage() {
               >
                 {product.cover_image ? (
                   <LazyImage
-                    src={`${MEDIA_BASE_URL}${product.cover_image}`}
+                    src={`${API_BASE_URL}${product.cover_image}`}
                     alt={product.name}
                     aspectRatio="square"
                     objectFit="cover"

@@ -6,9 +6,6 @@
 // Get API base URL from environment variable with fallback
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
-// Media base URL for serving static files (with /api prefix for media endpoint)
-export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://localhost:8080/api'
-
 /**
  * API Endpoints
  * All backend API endpoints organized by domain

@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { salesService } from "@/services/sales.service"
+import { API_BASE_URL } from "@/config/api"
 
 export default function SaleDetailPage() {
   const { t } = useTranslation('sales')
@@ -190,7 +191,7 @@ export default function SaleDetailPage() {
                           <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
                             {item.product.cover_image ? (
                               <img
-                                src={`${import.meta.env.VITE_MEDIA_BASE_URL || 'http://localhost:8080/api'}${item.product.cover_image}`}
+                                src={`${API_BASE_URL}${item.product.cover_image}`}
                                 alt={item.product.name}
                                 className="object-cover w-full h-full"
                               />

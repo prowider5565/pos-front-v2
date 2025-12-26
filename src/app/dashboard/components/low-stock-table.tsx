@@ -24,7 +24,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import type { LowStockProduct } from "@/types/analytics"
 import { useLowStockProducts } from "@/hooks/use-analytics"
-import { MEDIA_BASE_URL } from "@/config/api"
+import { API_BASE_URL } from "@/config/api"
 import { formatVerboseDate } from "@/lib/date-utils"
 import { PaginationControls } from "@/components/ui/pagination-controls"
 
@@ -36,7 +36,7 @@ const createColumns = (t: any): ColumnDef<LowStockProduct>[] => [
       <div className="w-16 h-16 rounded overflow-hidden bg-muted">
         {row.getValue("image") ? (
           <img
-            src={`${MEDIA_BASE_URL}${row.getValue("image")}`}
+            src={`${API_BASE_URL}${row.getValue("image")}`}
             alt={row.getValue("name")}
             className="w-full h-full object-cover"
           />

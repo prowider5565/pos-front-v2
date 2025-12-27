@@ -462,16 +462,31 @@ export default function SupplierOldDebtsDetailPage() {
                 </div>
               ) : (
                 <>
-                  {paymentHistoryData && (
-                    <div className="p-4 bg-muted rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">{t('paymentHistory.totalPaid')}:</span>
-                        <span className="text-lg font-bold text-green-600">
-                          {formatCurrency(paymentHistoryData.total_paid, selectedDebt?.currency || 'UZS')}
-                        </span>
+                  {paymentHistoryData && (() => {
+                    // Calculate total UZS and USD from all payments
+                    const totalUzs = paymentHistoryData.payments.reduce((sum, payment) => {
+                      return sum + parseFloat(payment.amount_display.uzs_amount)
+                    }, 0)
+                    const totalUsd = paymentHistoryData.payments.reduce((sum, payment) => {
+                      return sum + parseFloat(payment.amount_display.usd_amount)
+                    }, 0)
+                    
+                    return (
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">{t('paymentHistory.totalPaid')}:</span>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-green-600">
+                              {totalUzs.toLocaleString()} UZS
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              ${totalUsd.toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )
+                  })()}
 
                   <Table>
                     <TableHeader>

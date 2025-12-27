@@ -76,6 +76,7 @@
   "paymentHistory": {
     "title": "История платежей - {{name}}",
     "description": "Просмотр всех платежей по этому долгу",
+    "supplierInfo": "Поставщик: {{name}}, Телефон: {{phone}}",
     "totalPaid": "Всего оплачено",
     "amount": "Сумма",
     "currency": "Валюта",
@@ -83,7 +84,16 @@
     "exchangeRate": "Курс обмена",
     "date": "Дата",
     "seller": "Продавец",
-    "noPayments": "Платежи не найдены"
+    "loading": "Загрузка истории платежей...",
+    "close": "Закрыть",
+    "noPayments": "Платежи не найдены",
+    "columns": {
+      "id": "ID",
+      "amountUzs": "Сумма (UZS)",
+      "amountUsd": "Сумма (USD)",
+      "currency": "Валюта",
+      "exchangeRate": "Курс обмена"
+    }
   },
 
   "addOldDebt": {

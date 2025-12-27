@@ -76,6 +76,7 @@
   "paymentHistory": {
     "title": "Payment History - {{name}}",
     "description": "View all payments made for this debt",
+    "supplierInfo": "Supplier: {{name}}, Phone: {{phone}}",
     "totalPaid": "Total Paid",
     "amount": "Amount",
     "currency": "Currency",
@@ -83,7 +84,16 @@
     "exchangeRate": "Exchange Rate",
     "date": "Date",
     "seller": "Seller",
-    "noPayments": "No payments found"
+    "loading": "Loading payment history...",
+    "close": "Close",
+    "noPayments": "No payments found",
+    "columns": {
+      "id": "ID",
+      "amountUzs": "Amount (UZS)",
+      "amountUsd": "Amount (USD)",
+      "currency": "Currency",
+      "exchangeRate": "Exchange Rate"
+    }
   },
 
   "addOldDebt": {

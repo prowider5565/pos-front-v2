@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Search, CreditCard } from 'lucide-react'
+import { Search, CreditCard, History } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,6 +16,7 @@ import { PaginationControls } from '@/components/ui/pagination-controls'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BulkPaymentDialog } from '@/components/bulk-payment-dialog'
 import { PaymentHistoryDialog } from '@/components/payment-history-dialog'
+import { TBAPaymentsDialog } from '@/components/tba-payments-dialog'
 import type { PaymentType } from '@/services/payments.service'
 import type { SupplierDebt, SupplierDebtsResponse } from '@/types/debts'
 
@@ -44,6 +45,7 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
   const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
+  const [tbaDialogOpen, setTbaDialogOpen] = useState(false)
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierDebt | null>(null)
 
   const handleSearchChange = (value: string) => {
@@ -55,6 +57,12 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
     e.stopPropagation()
     setSelectedSupplier(supplier)
     setPaymentDialogOpen(true)
+  }
+
+  const handleViewTBA = (e: React.MouseEvent, supplier: SupplierDebt) => {
+    e.stopPropagation()
+    setSelectedSupplier(supplier)
+    setTbaDialogOpen(true)
   }
 
   const handleRowClick = (supplier: SupplierDebt) => {
@@ -133,12 +141,18 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      {remaining > 0 && (
-                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
-                          <CreditCard className="h-4 w-4 mr-1" />
-                          {t('actions.makePayment')}
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="ghost" onClick={(e) => handleViewTBA(e, supplier)}>
+                          <History className="h-4 w-4 mr-1" />
+                          {t('actions.paymentHistory')}
                         </Button>
-                      )}
+                        {remaining > 0 && (
+                          <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, supplier)}>
+                            <CreditCard className="h-4 w-4 mr-1" />
+                            {t('actions.makePayment')}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -173,6 +187,16 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
         <PaymentHistoryDialog
           open={historyDialogOpen}
           onOpenChange={setHistoryDialogOpen}
+          type={debtType === 'new' ? 'new-supplier' : 'old-supplier'}
+          entityId={selectedSupplier.id}
+          entityName={selectedSupplier.full_name || selectedSupplier.company_name}
+        />
+      )}
+
+      {selectedSupplier && (
+        <TBAPaymentsDialog
+          open={tbaDialogOpen}
+          onOpenChange={setTbaDialogOpen}
           type={debtType === 'new' ? 'new-supplier' : 'old-supplier'}
           entityId={selectedSupplier.id}
           entityName={selectedSupplier.full_name || selectedSupplier.company_name}

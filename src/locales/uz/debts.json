@@ -33,6 +33,7 @@
   },
   "actions": {
     "makePayment": "To'lov qilish",
+    "paymentHistory": "To'lovlar tarixi",
     "cancel": "Bekor qilish",
     "submit": "Qarz qo'shish",
     "submitting": "Qo'shilmoqda...",
@@ -153,5 +154,21 @@
       "card": "Karta",
       "transfer": "O'tkazma"
     }
+  },
+  "tbaPayments": {
+    "title": "Ommaviy to'lovlar tarixi (TBA)",
+    "description": "{{name}} uchun jami ommaviy to'lovlar",
+    "noPayments": "Ommaviy to'lovlar topilmadi",
+    "close": "Yopish",
+    "columns": {
+      "id": "ID",
+      "amount": "Summa",
+      "currency": "Valyuta",
+      "method": "Usul",
+      "date": "Sana",
+      "distributed": "Taqsimlangan"
+    },
+    "distributedCount": "{{count}} qarz",
+    "distributedCount_plural": "{{count}} qarz"
   }
 }

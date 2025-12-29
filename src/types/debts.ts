@@ -27,6 +27,9 @@ export interface ClientDebt {
   full_name?: string
   phone_number?: string
   client?: number
+  client_full_name?: string
+  client_phone_number?: string
+  created_at?: string
   debt_amounts: DebtAmounts
 }
 

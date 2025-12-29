@@ -1,0 +1,82 @@
+{
+  "title": "Касса",
+  "tabs": {
+    "expenses": "Расходы",
+    "revenue": "Доходы"
+  },
+  "summary": {
+    "totalExpenses": "Всего расходов",
+    "totalRevenue": "Всего доходов",
+    "amount": "Сумма"
+  },
+  "table": {
+    "columns": {
+      "date": "Дата",
+      "amount": "Сумма",
+      "currency": "Валюта",
+      "exchangeRate": "Курс",
+      "notes": "Примечания",
+      "category": "Категория",
+      "createdBy": "Создал",
+      "actions": "Действия"
+    },
+    "noData": "Данные не найдены",
+    "loading": "Загрузка..."
+  },
+  "form": {
+    "addExpense": "Добавить расход",
+    "addRevenue": "Добавить доход",
+    "editExpense": "Редактировать расход",
+    "editRevenue": "Редактировать доход",
+    "addCategory": "Добавить категорию",
+    "fields": {
+      "amount": "Сумма",
+      "amountPlaceholder": "Введите сумму",
+      "currency": "Валюта",
+      "currencyPlaceholder": "Выберите валюту",
+      "exchangeRate": "Курс",
+      "exchangeRatePlaceholder": "Введите курс",
+      "notes": "Примечания",
+      "notesPlaceholder": "Введите примечания",
+      "category": "Категория",
+      "categoryPlaceholder": "Выберите категорию (необязательно)",
+      "categorySearchPlaceholder": "Поиск категории...",
+      "categoryName": "Название категории",
+      "categoryNamePlaceholder": "Введите название категории",
+      "categoryDescription": "Описание категории",
+      "categoryDescriptionPlaceholder": "Введите описание категории"
+    },
+    "validation": {
+      "amountRequired": "Сумма обязательна",
+      "amountPositive": "Сумма должна быть положительной",
+      "currencyRequired": "Валюта обязательна",
+      "exchangeRateRequired": "Курс обязателен",
+      "exchangeRatePositive": "Курс должен быть положительным",
+      "notesRequired": "Примечания обязательны",
+      "categoryRequired": "Название категории обязательно"
+    },
+    "buttons": {
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "submit": "Отправить"
+    }
+  },
+  "messages": {
+    "success": {
+      "expenseCreated": "Расход успешно добавлен",
+      "revenueCreated": "Доход успешно добавлен",
+      "expenseUpdated": "Расход успешно обновлен",
+      "revenueUpdated": "Доход успешно обновлен",
+      "categoryCreated": "Категория успешно создана"
+    },
+    "error": {
+      "fetchExpenses": "Ошибка загрузки расходов",
+      "fetchRevenue": "Ошибка загрузки доходов",
+      "createExpense": "Ошибка при создании расхода",
+      "createRevenue": "Ошибка при создании дохода",
+      "fetchCategories": "Ошибка загрузки категорий",
+      "createCategory": "Ошибка при создании категории",
+      "genericError": "Произошла ошибка"
+    }
+  }
+}

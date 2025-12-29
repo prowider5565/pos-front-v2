@@ -79,7 +79,8 @@
     "sotuv": "Продажа",
     "debts": "Долги",
     "supplierDebts": "Долги поставщикам",
-    "clientDebts": "Долги клиентов"
+    "clientDebts": "Долги клиентов",
+    "kassa": "Касса"
   },
   "table": {
     "columns": "Столбцы",

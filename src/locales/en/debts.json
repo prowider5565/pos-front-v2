@@ -34,6 +34,7 @@
   },
   "actions": {
     "makePayment": "Make Payment",
+    "paymentHistory": "Payment History",
     "cancel": "Cancel",
     "submit": "Add Debt",
     "submitting": "Adding...",
@@ -154,5 +155,21 @@
       "card": "Card",
       "transfer": "Transfer"
     }
+  },
+  "tbaPayments": {
+    "title": "Bulk Payment History (TBA)",
+    "description": "Total Bulk Amount payments for {{name}}",
+    "noPayments": "No bulk payments found",
+    "close": "Close",
+    "columns": {
+      "id": "ID",
+      "amount": "Amount",
+      "currency": "Currency",
+      "method": "Method",
+      "date": "Date",
+      "distributed": "Distributed"
+    },
+    "distributedCount": "{{count}} debt",
+    "distributedCount_plural": "{{count}} debts"
   }
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Search, CreditCard } from 'lucide-react'
+import { Search, CreditCard, History } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { BulkPaymentDialog } from '@/components/bulk-payment-dialog'
 import { SalePaymentDialog } from '@/components/sale-payment-dialog'
 import { PaymentHistoryDialog } from '@/components/payment-history-dialog'
+import { TBAPaymentsDialog } from '@/components/tba-payments-dialog'
 import type { ClientDebt, ClientDebtsResponse } from '@/types/debts'
 
 interface DataTableProps {
@@ -44,6 +45,7 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
   const navigate = useNavigate()
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
+  const [tbaDialogOpen, setTbaDialogOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<ClientDebt | null>(null)
 
   const handleSearchChange = (value: string) => {
@@ -55,6 +57,12 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
     e.stopPropagation()
     setSelectedClient(client)
     setPaymentDialogOpen(true)
+  }
+
+  const handleViewTBA = (e: React.MouseEvent, client: ClientDebt) => {
+    e.stopPropagation()
+    setSelectedClient(client)
+    setTbaDialogOpen(true)
   }
 
   const handleRowClick = (client: ClientDebt) => {
@@ -154,12 +162,20 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      {remaining > 0 && (
-                        <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, client)}>
-                          <CreditCard className="h-4 w-4 mr-1" />
-                          {t('actions.makePayment')}
-                        </Button>
-                      )}
+                      <div className="flex justify-end gap-2">
+                        {debtType === 'old' && (
+                          <Button size="sm" variant="ghost" onClick={(e) => handleViewTBA(e, client)}>
+                            <History className="h-4 w-4 mr-1" />
+                            {t('actions.paymentHistory')}
+                          </Button>
+                        )}
+                        {remaining > 0 && (
+                          <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, client)}>
+                            <CreditCard className="h-4 w-4 mr-1" />
+                            {t('actions.makePayment')}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -208,6 +224,16 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
           onOpenChange={setHistoryDialogOpen}
           type={debtType === 'sale' ? 'sale' : 'old-client'}
           entityId={debtType === 'sale' ? selectedClient.id : (selectedClient.client || selectedClient.id)}
+          entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+        />
+      )}
+
+      {selectedClient && debtType === 'old' && (
+        <TBAPaymentsDialog
+          open={tbaDialogOpen}
+          onOpenChange={setTbaDialogOpen}
+          type="old-client"
+          entityId={selectedClient.client || selectedClient.id}
           entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
         />
       )}

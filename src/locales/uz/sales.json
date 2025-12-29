@@ -38,7 +38,8 @@
     "price": "Narxi",
     "total": "Jami",
     "stockError": "Omborda faqat {{stock}} dona bor",
-    "invalidQuantity": "Iltimos, to'g'ri miqdor kiriting"
+    "invalidQuantity": "Iltimos, to'g'ri miqdor kiriting",
+    "maxStockReached": "Maksimal zaxira miqdoriga yetildi ({{stock}} dona mavjud)"
   },
   
   "discount": {

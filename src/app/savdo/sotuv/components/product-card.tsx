@@ -1,6 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { Package, Minus, Plus } from "lucide-react"
+import { toast } from "sonner"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,9 +21,22 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, cartQuantity }: ProductCardProps) {
+  const { t } = useTranslation("sales")
+  // Local state for input value - allows free editing without affecting cart immediately
+  const [inputValue, setInputValue] = useState<string>(cartQuantity.toString())
+
+  // Sync local input value when cart quantity changes externally (e.g., from +/- buttons or cart sidebar)
+  useEffect(() => {
+    setInputValue(cartQuantity.toString())
+  }, [cartQuantity])
   const handleClick = () => {
-    // Only add to cart if not already in cart and has stock
-    if (product.quantity > 0 && !isInCart) {
+    if (product.quantity <= 0) return
+    
+    if (isInCart) {
+      // Remove from cart if already in cart (toggle behavior)
+      onUpdateQuantity(product.id, 0)
+    } else {
+      // Add to cart if not in cart
       onAddToCart(product)
     }
   }
@@ -46,52 +62,67 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
     e.stopPropagation()
     const value = e.target.value
     
-    // Allow empty input for easier editing
-    if (value === '') {
-      return
-    }
-    
-    const newQuantity = parseInt(value, 10)
-    
-    // Validate the input
-    if (isNaN(newQuantity) || newQuantity < 0) {
-      return
-    }
-    
-    // Clamp to valid range (0 to stock quantity)
-    if (newQuantity === 0) {
-      onUpdateQuantity(product.id, 0) // Remove from cart
-    } else if (newQuantity > product.quantity) {
-      onUpdateQuantity(product.id, product.quantity) // Cap at max stock
-    } else {
-      onUpdateQuantity(product.id, newQuantity)
+    // Allow any input including empty - just update local state
+    // Only allow digits
+    if (value === '' || /^\d+$/.test(value)) {
+      setInputValue(value)
+      
+      // Alert user when quantity matches max stock
+      const numericValue = parseInt(value, 10)
+      if (!isNaN(numericValue) && numericValue === product.quantity) {
+        toast.warning(t("cartItem.maxStockReached", { stock: product.quantity }))
+      }
     }
   }
 
   const handleQuantityInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.stopPropagation()
-    // If input is empty or invalid on blur, reset to 1
-    const value = e.target.value
-    if (value === '' || parseInt(value, 10) <= 0) {
-      onUpdateQuantity(product.id, 1)
+    const value = inputValue.trim()
+    
+    // If input is empty or invalid on blur, reset to current cart quantity
+    if (value === '') {
+      setInputValue(cartQuantity.toString())
+      return
+    }
+    
+    const newQuantity = parseInt(value, 10)
+    
+    // Validate and apply the quantity
+    if (isNaN(newQuantity) || newQuantity <= 0) {
+      // Reset to current cart quantity if invalid
+      setInputValue(cartQuantity.toString())
+    } else if (newQuantity > product.quantity) {
+      // Cap at max stock
+      onUpdateQuantity(product.id, product.quantity)
+      setInputValue(product.quantity.toString())
+    } else {
+      // Apply valid quantity
+      onUpdateQuantity(product.id, newQuantity)
+    }
+  }
+
+  const handleQuantityInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.currentTarget.blur() // Trigger blur to apply the value
     }
   }
 
   return (
     <Card
       key={product.id}
-      role={product.quantity > 0 && !isInCart ? "button" : undefined}
-      tabIndex={product.quantity > 0 && !isInCart ? 0 : -1}
+      role={product.quantity > 0 ? "button" : undefined}
+      tabIndex={product.quantity > 0 ? 0 : -1}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (product.quantity <= 0 || isInCart) return
+        if (product.quantity <= 0) return
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
           handleClick()
         }
       }}
       className={`overflow-hidden transition-all hover:shadow-lg hover:border-primary group p-0 pb-4 ${
-        product.quantity > 0 && !isInCart ? 'cursor-pointer' : isInCart ? '' : 'opacity-60 cursor-not-allowed'
+        product.quantity > 0 ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'
       } ${isInCart ? 'border-2 border-primary' : ''}`}
     >
       {/* Product Image - flush with card top */}
@@ -145,14 +176,14 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
               <Minus className="h-4 w-4" />
             </Button>
             <Input
-              type="number"
-              min={1}
-              max={product.quantity}
-              value={cartQuantity}
+              type="text"
+              inputMode="numeric"
+              value={inputValue}
               onChange={handleQuantityInputChange}
               onBlur={handleQuantityInputBlur}
+              onKeyDown={handleQuantityInputKeyDown}
               onClick={(e) => e.stopPropagation()}
-              className="w-16 h-8 text-center font-semibold text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-16 h-8 text-center font-semibold text-lg"
             />
             <Button
               variant="outline"

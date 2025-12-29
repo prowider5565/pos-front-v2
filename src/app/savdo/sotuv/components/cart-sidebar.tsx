@@ -137,13 +137,6 @@ export function CartSidebar({
               hasRemaining={remaining > 0}
             />
 
-            {/* Inline error: client required when debt exists */}
-            {remaining > 0 && !selectedClientId && (
-              <div className="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs text-destructive">
-                {t('validation.clientRequired')}
-              </div>
-            )}
-
             {/* Optional comment */}
             <Textarea
               value={notes}

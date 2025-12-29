@@ -56,6 +56,15 @@ export interface SalePaymentRecord {
   created_at: string
 }
 
+export interface TBAPaymentRecord {
+  id: number
+  amount: string
+  currency: string
+  method: string
+  created_at: string
+  distributed_payments_count: number
+}
+
 const ENDPOINTS: Record<PaymentType, string> = {
   'new-supplier': '/payments/new-seller-debt-payments/bulk-payment/',
   'old-supplier': '/payments/old-seller-debt-payments/bulk-payment/',
@@ -91,5 +100,14 @@ export const paymentsService = {
   },
   getNewSupplierDebtProductPayments: async (productId: number): Promise<any[]> => {
     return apiService.get(`/payments/new-seller-debt-payments/by-product/${productId}/`)
+  },
+  getOldClientDebtTBA: async (clientId: number): Promise<TBAPaymentRecord[]> => {
+    return apiService.get(`/payments/old-client-debt-tba/?client_id=${clientId}`)
+  },
+  getOldSupplierDebtTBA: async (supplierId: number): Promise<TBAPaymentRecord[]> => {
+    return apiService.get(`/payments/old-seller-debt-tba/?supplier_id=${supplierId}`)
+  },
+  getNewSupplierDebtTBA: async (supplierId: number): Promise<TBAPaymentRecord[]> => {
+    return apiService.get(`/payments/new-seller-debt-tba/?supplier_id=${supplierId}`)
   },
 }

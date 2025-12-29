@@ -34,6 +34,7 @@
   },
   "actions": {
     "makePayment": "Оплатить",
+    "paymentHistory": "История платежей",
     "cancel": "Отмена",
     "submit": "Добавить долг",
     "submitting": "Добавление...",
@@ -154,5 +155,21 @@
       "card": "Карта",
       "transfer": "Перевод"
     }
+  },
+  "tbaPayments": {
+    "title": "История массовых платежей (TBA)",
+    "description": "Общая сумма массовых платежей для {{name}}",
+    "noPayments": "Массовые платежи не найдены",
+    "close": "Закрыть",
+    "columns": {
+      "id": "ID",
+      "amount": "Сумма",
+      "currency": "Валюта",
+      "method": "Способ",
+      "date": "Дата",
+      "distributed": "Распределено"
+    },
+    "distributedCount": "{{count}} долг",
+    "distributedCount_plural": "{{count}} долгов"
   }
 }

@@ -38,7 +38,8 @@
     "price": "Price",
     "total": "Total",
     "stockError": "Only {{stock}} items available in stock",
-    "invalidQuantity": "Please enter a valid quantity"
+    "invalidQuantity": "Please enter a valid quantity",
+    "maxStockReached": "Maximum stock reached ({{stock}} items available)"
   },
   
   "discount": {

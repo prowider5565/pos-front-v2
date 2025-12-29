@@ -85,6 +85,7 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
         <Table>
           <TableHeader>
             <TableRow>
+              {debtType === 'sale' && <TableHead>{t('table.date')}</TableHead>}
               <TableHead>{t('table.client')}</TableHead>
               <TableHead>{t('table.phone')}</TableHead>
               <TableHead>{t('table.totalDebt')}</TableHead>
@@ -97,26 +98,50 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
+                  {Array.from({ length: debtType === 'sale' ? 7 : 6 }).map((_, j) => (
                     <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
                   ))}
                 </TableRow>
               ))
             ) : data?.results.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={debtType === 'sale' ? 7 : 6} className="text-center py-8 text-muted-foreground">
                   {t('table.noResults')}
                 </TableCell>
               </TableRow>
             ) : (
               data?.results.map((client) => {
                 const remaining = parseFloat(client.debt_amounts.total_remaining.uzs_amount) + parseFloat(client.debt_amounts.total_remaining.usd_amount)
+                const formatDate = (dateString?: string) => {
+                  if (!dateString) return '—'
+                  const date = new Date(dateString)
+                  return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                }
                 return (
                   <TableRow key={client.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(client)}>
+                    {debtType === 'sale' && (
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(client.created_at)}
+                      </TableCell>
+                    )}
                     <TableCell>
-                      <div className="font-medium">{client.full_name || `Client #${client.client || client.id}`}</div>
+                      <div className="font-medium">
+                        {debtType === 'sale' 
+                          ? (client.client_full_name || client.full_name || `Client #${client.client || client.id}`)
+                          : (client.full_name || `Client #${client.client || client.id}`)
+                        }
+                      </div>
                     </TableCell>
-                    <TableCell>{client.phone_number || '—'}</TableCell>
+                    <TableCell>
+                      {debtType === 'sale' 
+                        ? (client.client_phone_number || client.phone_number || '—')
+                        : (client.phone_number || '—')
+                      }
+                    </TableCell>
                     <TableCell>
                       {formatCurrency(client.debt_amounts.total_debt.uzs_amount, client.debt_amounts.total_debt.usd_amount)}
                     </TableCell>

@@ -8,6 +8,7 @@ import {
   Package,
   Wallet,
   Receipt,
+  Coins,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -93,6 +94,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: t('navigation.clientDebts'),
           url: "/debts/clients",
           icon: Wallet,
+        },
+      ],
+    },
+    {
+      label: t('navigation.kassa'),
+      items: [
+        {
+          title: t('navigation.kassa'),
+          url: "/kassa",
+          icon: Coins,
         },
       ],
     },

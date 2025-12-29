@@ -19,6 +19,7 @@
     "totalRemaining": "Остаток"
   },
   "table": {
+    "date": "Дата",
     "supplier": "Поставщик",
     "client": "Клиент",
     "fullName": "ФИО",

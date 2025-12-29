@@ -19,6 +19,7 @@
     "totalRemaining": "Remaining"
   },
   "table": {
+    "date": "Date",
     "supplier": "Supplier",
     "client": "Client",
     "fullName": "Full Name",

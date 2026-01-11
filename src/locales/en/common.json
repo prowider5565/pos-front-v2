@@ -79,8 +79,7 @@
     "soldProducts": "Sold Products",
     "debts": "Debts",
     "supplierDebts": "Supplier Debts",
-    "clientDebts": "Client Debts",
-    "kassa": "Cash Register"
+    "clientDebts": "Client Debts"
   },
   "table": {
     "columns": "Columns",

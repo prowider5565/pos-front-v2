@@ -23,9 +23,6 @@ const SupplierNewDebtsDetail = lazy(() => import('@/app/debts/suppliers/supplier
 const ClientDebts = lazy(() => import('@/app/debts/clients/page'))
 const ClientOldDebtsDetail = lazy(() => import('@/app/debts/clients/clientId/old-debts/page'))
 
-// Kassa (Balance) page
-const Kassa = lazy(() => import('@/app/kassa/page'))
-
 // Auth pages
 const SignIn = lazy(() => import('@/app/auth/sign-in/page'))
 const ForgotPassword = lazy(() => import('@/app/auth/forgot-password/page'))
@@ -112,16 +109,6 @@ export const routes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <SaleDetail />
-      </ProtectedRoute>
-    )
-  },
-
-  // Kassa (Balance) Route (Protected)
-  {
-    path: "/kassa",
-    element: (
-      <ProtectedRoute>
-        <Kassa />
       </ProtectedRoute>
     )
   },

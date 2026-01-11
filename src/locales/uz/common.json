@@ -79,8 +79,7 @@
     "sotuv": "Sotuv",
     "debts": "Qarzlar",
     "supplierDebts": "Yetkazib beruvchi qarzlari",
-    "clientDebts": "Mijoz qarzlari",
-    "kassa": "Kassa"
+    "clientDebts": "Mijoz qarzlari"
   },
   "table": {
     "columns": "Ustunlar",

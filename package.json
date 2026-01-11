@@ -8,8 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:dev": "./tauri-dev.sh",
+    "tauri:build": "env -u LD_LIBRARY_PATH -u LD_PRELOAD tauri build"
+  },
+  "engines": {
+    "node": ">=20.19.0 || >=22.12.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

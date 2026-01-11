@@ -27,7 +27,8 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true) // Only for first page load
+  const [searching, setSearching] = useState(false) // For search/filter loading
   const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -37,10 +38,12 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Fetch products
-  const fetchProducts = useCallback(async (pageNum: number, isInitial: boolean = false) => {
+  const fetchProducts = useCallback(async (pageNum: number, isInitial: boolean = false, isFirstLoad: boolean = false) => {
     try {
-      if (isInitial) {
-        setLoading(true)
+      if (isFirstLoad) {
+        setInitialLoading(true)
+      } else if (isInitial) {
+        setSearching(true)
       } else {
         setLoadingMore(true)
       }
@@ -52,7 +55,7 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
         category: selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
       })
 
-      if (isInitial) {
+      if (isInitial || isFirstLoad) {
         setProducts(response.results)
       } else {
         setProducts(prev => [...prev, ...response.results])
@@ -65,24 +68,34 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
       console.error('Failed to fetch products:', error)
       toast.error(t('messages.loadError'))
     } finally {
-      if (isInitial) {
-        setLoading(false)
+      if (isFirstLoad) {
+        setInitialLoading(false)
+      } else if (isInitial) {
+        setSearching(false)
       } else {
         setLoadingMore(false)
       }
     }
   }, [searchQuery, selectedCategory, t])
 
+  // Track if this is the first load
+  const isFirstLoadRef = useRef(true)
+
   // Initial fetch and reset on search/category change
   useEffect(() => {
     setPage(1)
     setHasMore(true)
-    fetchProducts(1, true)
+    if (isFirstLoadRef.current) {
+      fetchProducts(1, true, true) // First load - show full page loading
+      isFirstLoadRef.current = false
+    } else {
+      fetchProducts(1, true, false) // Subsequent searches - keep search bar visible
+    }
   }, [searchQuery, selectedCategory, fetchProducts])
 
   // Setup intersection observer for infinite scroll
   useEffect(() => {
-    if (loading || loadingMore || !hasMore) return
+    if (initialLoading || searching || loadingMore || !hasMore) return
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -105,7 +118,7 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
         observerRef.current.unobserve(currentLoadMoreRef)
       }
     }
-  }, [loading, loadingMore, hasMore, page, fetchProducts])
+  }, [initialLoading, searching, loadingMore, hasMore, page, fetchProducts])
 
   // Fetch all categories
   useEffect(() => {
@@ -123,7 +136,8 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
   // Find selected category for display
   const selectedCategoryData = categories.find(c => c.id.toString() === selectedCategory)
 
-  if (loading) {
+  // Show full-page loading only on initial load
+  if (initialLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <LoadingSpinner size="lg" />
@@ -198,7 +212,12 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
       </div>
 
       {/* Products Grid */}
-      {products.length === 0 && !loading ? (
+      {searching ? (
+        <div className="flex items-center justify-center h-full min-h-[300px]">
+          <LoadingSpinner size="lg" />
+          <span className="ml-3 text-muted-foreground">{t('loading')}</span>
+        </div>
+      ) : products.length === 0 ? (
         <Card className="flex-1">
           <CardContent className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
             <div className="rounded-full bg-muted p-6 mb-4">

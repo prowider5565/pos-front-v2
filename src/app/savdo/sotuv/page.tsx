@@ -15,7 +15,7 @@ import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
-import type { SaleProduct } from "@/types/sales"
+import type { SaleProduct, PaymentMethod, Currency } from "@/types/sales"
 
 export default function SotuvPage() {
   const [themeCustomizerOpen, setThemeCustomizerOpen] = useState(false)
@@ -52,6 +52,11 @@ export default function SotuvPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [chequeModalOpen, setChequeModalOpen] = useState(false)
   const [lastSaleData, setLastSaleData] = useState<any>(null)
+
+  // Pending payment state (for uncommitted payment in input field)
+  const [pendingMethod, setPendingMethod] = useState<PaymentMethod>('CASH')
+  const [pendingCurrency, setPendingCurrency] = useState<Currency>('UZS')
+  const [pendingAmount, setPendingAmount] = useState<string>('')
 
   // Load + subscribe to exchange rate changes (from navbar input)
   useEffect(() => {
@@ -105,6 +110,10 @@ export default function SotuvPage() {
     setIsFinalTotalDirty(false)
     setNotes('')
     setSelectedClientId(null)
+    // Reset pending payment
+    setPendingMethod('CASH')
+    setPendingCurrency('UZS')
+    setPendingAmount('')
     toast.success(t('messages.cartCleared'))
   }, [clearCart, clearPayments, t])
 
@@ -158,17 +167,30 @@ export default function SotuvPage() {
     try {
       setIsSubmitting(true)
 
+      // Build payments array including pending payment if valid
+      const allPayments = [...payments.map(payment => ({
+        method: payment.method,
+        currency: payment.currency,
+        amount: payment.amount,
+      }))]
+      
+      // Include pending payment if it has a valid amount
+      const pendingAmountNum = parseFloat(pendingAmount)
+      if (pendingAmount && !isNaN(pendingAmountNum) && pendingAmountNum > 0) {
+        allPayments.push({
+          method: pendingMethod,
+          currency: pendingCurrency,
+          amount: pendingAmount,
+        })
+      }
+
       // Prepare request data
       const saleData = {
         items: cartItems.map(item => ({
           product_id: item.product.id,
           quantity: item.quantity,
         })),
-        payments: payments.map(payment => ({
-          method: payment.method,
-          currency: payment.currency,
-          amount: payment.amount,
-        })),
+        payments: allPayments,
         exchange_rate: exchangeRate.toString(),
         client_id: selectedClientId || undefined,
         discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
@@ -203,6 +225,9 @@ export default function SotuvPage() {
     remaining,
     notes,
     isFinalTotalTooHigh,
+    pendingAmount,
+    pendingMethod,
+    pendingCurrency,
     t,
     handleClearCart,
   ])
@@ -241,17 +266,30 @@ export default function SotuvPage() {
     try {
       setIsSubmitting(true)
 
+      // Build payments array including pending payment if valid
+      const allPayments = [...payments.map(payment => ({
+        method: payment.method,
+        currency: payment.currency,
+        amount: payment.amount,
+      }))]
+      
+      // Include pending payment if it has a valid amount
+      const pendingAmountNum = parseFloat(pendingAmount)
+      if (pendingAmount && !isNaN(pendingAmountNum) && pendingAmountNum > 0) {
+        allPayments.push({
+          method: pendingMethod,
+          currency: pendingCurrency,
+          amount: pendingAmount,
+        })
+      }
+
       // Prepare request data
       const saleData = {
         items: cartItems.map(item => ({
           product_id: item.product.id,
           quantity: item.quantity,
         })),
-        payments: payments.map(payment => ({
-          method: payment.method,
-          currency: payment.currency,
-          amount: payment.amount,
-        })),
+        payments: allPayments,
         exchange_rate: exchangeRate.toString(),
         client_id: selectedClientId || undefined,
         discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
@@ -296,6 +334,9 @@ export default function SotuvPage() {
     remaining,
     notes,
     isFinalTotalTooHigh,
+    pendingAmount,
+    pendingMethod,
+    pendingCurrency,
     t,
     handleClearCart,
   ])
@@ -369,6 +410,12 @@ export default function SotuvPage() {
           onSubmit={handleSubmit}
           onSubmitAndPrint={handleSubmitAndPrint}
           isSubmitting={isSubmitting}
+          pendingMethod={pendingMethod}
+          pendingCurrency={pendingCurrency}
+          pendingAmount={pendingAmount}
+          onPendingMethodChange={setPendingMethod}
+          onPendingCurrencyChange={setPendingCurrency}
+          onPendingAmountChange={setPendingAmount}
         />
       )}
 

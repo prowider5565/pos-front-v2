@@ -82,6 +82,16 @@ export const API_ENDPOINTS = {
     DETAIL: '/sales/',
   },
 
+  // Balance endpoints
+  BALANCE: {
+    EXPENSES: '/balance/expenses/',
+    REVENUES: '/balance/revenues/',
+    CREATE_EXPENSE: '/balance/expenses/',
+    CREATE_REVENUE: '/balance/revenues/',
+    CATEGORIES: '/balance/categories/',
+    CREATE_CATEGORY: '/balance/categories/',
+  },
+
 } as const
 
 /**

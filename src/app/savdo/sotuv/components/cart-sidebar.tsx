@@ -35,6 +35,13 @@ interface CartSidebarProps {
   onSubmit: () => void
   onSubmitAndPrint: () => void
   isSubmitting: boolean
+  // Pending payment state
+  pendingMethod: PaymentMethod
+  pendingCurrency: Currency
+  pendingAmount: string
+  onPendingMethodChange: (method: PaymentMethod) => void
+  onPendingCurrencyChange: (currency: Currency) => void
+  onPendingAmountChange: (amount: string) => void
 }
 
 export function CartSidebar({
@@ -57,6 +64,12 @@ export function CartSidebar({
   onSubmit,
   onSubmitAndPrint,
   isSubmitting,
+  pendingMethod,
+  pendingCurrency,
+  pendingAmount,
+  onPendingMethodChange,
+  onPendingCurrencyChange,
+  onPendingAmountChange,
 }: CartSidebarProps) {
   const { t } = useTranslation('sales')
 
@@ -152,6 +165,12 @@ export function CartSidebar({
               payments={payments}
               onAddPayment={onAddPayment}
               onRemovePayment={onRemovePayment}
+              pendingMethod={pendingMethod}
+              pendingCurrency={pendingCurrency}
+              pendingAmount={pendingAmount}
+              onPendingMethodChange={onPendingMethodChange}
+              onPendingCurrencyChange={onPendingCurrencyChange}
+              onPendingAmountChange={onPendingAmountChange}
             />
 
           </div>

@@ -7,8 +7,10 @@ export const useAnalyticsDashboard = (filters?: DateFilterParams) => {
   return useQuery<AnalyticsDashboard>({
     queryKey: ['analytics', 'dashboard', filters],
     queryFn: () => analyticsService.getDashboardMetrics(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Data is immediately stale, triggers background refetch
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   })
 }
 

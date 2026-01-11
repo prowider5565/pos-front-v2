@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -18,26 +17,35 @@ interface PaymentSectionProps {
   payments: PaymentEntry[]
   onAddPayment: (method: PaymentMethod, currency: Currency, amount: string) => void
   onRemovePayment: (paymentId: string) => void
+  // Controlled pending payment state
+  pendingMethod: PaymentMethod
+  pendingCurrency: Currency
+  pendingAmount: string
+  onPendingMethodChange: (method: PaymentMethod) => void
+  onPendingCurrencyChange: (currency: Currency) => void
+  onPendingAmountChange: (amount: string) => void
 }
 
 export function PaymentSection({
   payments,
   onAddPayment,
   onRemovePayment,
+  pendingMethod,
+  pendingCurrency,
+  pendingAmount,
+  onPendingMethodChange,
+  onPendingCurrencyChange,
+  onPendingAmountChange,
 }: PaymentSectionProps) {
   const { t } = useTranslation('sales')
-  
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH')
-  const [paymentCurrency, setPaymentCurrency] = useState<Currency>('UZS')
-  const [paymentAmount, setPaymentAmount] = useState('')
 
   const handleAddPayment = () => {
-    if (!paymentAmount || parseFloat(paymentAmount) <= 0) {
+    if (!pendingAmount || parseFloat(pendingAmount) <= 0) {
       return
     }
     
-    onAddPayment(paymentMethod, paymentCurrency, paymentAmount)
-    setPaymentAmount('')
+    onAddPayment(pendingMethod, pendingCurrency, pendingAmount)
+    onPendingAmountChange('')
   }
 
   const formatAmount = (amount: string, currency: Currency) => {
@@ -95,13 +103,13 @@ export function PaymentSection({
             type="number"
             min="0"
             step="0.01"
-            value={paymentAmount}
-            onChange={(e) => setPaymentAmount(e.target.value)}
+            value={pendingAmount}
+            onChange={(e) => onPendingAmountChange(e.target.value)}
             placeholder={t('payment.amount')}
             className="h-9"
           />
         </div>
-        <Select value={paymentCurrency} onValueChange={(value) => setPaymentCurrency(value as Currency)}>
+        <Select value={pendingCurrency} onValueChange={(value) => onPendingCurrencyChange(value as Currency)}>
           <SelectTrigger className="h-9 w-20">
             <SelectValue />
           </SelectTrigger>
@@ -110,7 +118,7 @@ export function PaymentSection({
             <SelectItem value="USD">USD</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}>
+        <Select value={pendingMethod} onValueChange={(value) => onPendingMethodChange(value as PaymentMethod)}>
           <SelectTrigger className="h-9 w-28">
             <SelectValue />
           </SelectTrigger>
@@ -123,7 +131,7 @@ export function PaymentSection({
         <Button
           type="button"
           onClick={handleAddPayment}
-          disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
+          disabled={!pendingAmount || parseFloat(pendingAmount) <= 0}
           size="sm"
           className="h-9 w-9 p-0"
         >

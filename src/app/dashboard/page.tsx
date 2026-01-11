@@ -22,7 +22,11 @@ export default function Page() {
     }
   })
   
+  // Use isFetching for background indicator, but show data if available (even if stale)
   const { data: analyticsData, isLoading } = useAnalyticsDashboard(filterParams)
+  
+  // Show skeleton only on initial load (no cached data), not on background refresh
+  const showSkeleton = isLoading && !analyticsData
 
   const handleFilterChange = (_type: FilterType, params: DateFilterParams) => {
     setFilterParams(params)
@@ -35,7 +39,7 @@ export default function Page() {
       actions={<DashboardFilter onFilterChange={handleFilterChange} />}
     >
         <div className="@container/main px-4 lg:px-6 space-y-6">
-          {isLoading ? (
+          {showSkeleton ? (
             <SectionCardsSkeleton />
           ) : (
             <SectionCards data={analyticsData} />

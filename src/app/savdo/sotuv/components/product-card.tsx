@@ -4,6 +4,7 @@ import { Package, Minus, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { LazyImage } from "@/components/ui/lazy-image"
 import { API_BASE_URL } from "@/config/api"
 import type { SaleProduct } from "@/types/sales"
@@ -38,6 +39,41 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
     } else {
       // Remove from cart if quantity becomes 0
       onUpdateQuantity(product.id, 0)
+    }
+  }
+
+  const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    const value = e.target.value
+    
+    // Allow empty input for easier editing
+    if (value === '') {
+      return
+    }
+    
+    const newQuantity = parseInt(value, 10)
+    
+    // Validate the input
+    if (isNaN(newQuantity) || newQuantity < 0) {
+      return
+    }
+    
+    // Clamp to valid range (0 to stock quantity)
+    if (newQuantity === 0) {
+      onUpdateQuantity(product.id, 0) // Remove from cart
+    } else if (newQuantity > product.quantity) {
+      onUpdateQuantity(product.id, product.quantity) // Cap at max stock
+    } else {
+      onUpdateQuantity(product.id, newQuantity)
+    }
+  }
+
+  const handleQuantityInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    // If input is empty or invalid on blur, reset to 1
+    const value = e.target.value
+    if (value === '' || parseInt(value, 10) <= 0) {
+      onUpdateQuantity(product.id, 1)
     }
   }
 
@@ -108,7 +144,16 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
             >
               <Minus className="h-4 w-4" />
             </Button>
-            <span className="w-12 text-center font-semibold text-lg">{cartQuantity}</span>
+            <Input
+              type="number"
+              min={1}
+              max={product.quantity}
+              value={cartQuantity}
+              onChange={handleQuantityInputChange}
+              onBlur={handleQuantityInputBlur}
+              onClick={(e) => e.stopPropagation()}
+              className="w-16 h-8 text-center font-semibold text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
             <Button
               variant="outline"
               size="icon"

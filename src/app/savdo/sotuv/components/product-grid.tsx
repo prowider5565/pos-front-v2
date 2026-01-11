@@ -23,9 +23,10 @@ interface ProductGridProps {
   isInCart: (productId: number) => boolean
   onUpdateQuantity: (productId: number, quantity: number) => void
   getItemQuantity: (productId: number) => number
+  isCartOpen?: boolean
 }
 
-export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQuantity }: ProductGridProps) {
+export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQuantity, isCartOpen = false }: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -231,7 +232,7 @@ export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQu
         </Card>
       ) : (
         <>
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className={`grid gap-4 grid-cols-2 md:grid-cols-3 ${isCartOpen ? 'lg:grid-cols-3 xl:grid-cols-3' : 'lg:grid-cols-4 xl:grid-cols-5'}`}>
             {products.map(product => (
               <ProductCard
                 key={product.id}

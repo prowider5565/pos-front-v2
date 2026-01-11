@@ -380,6 +380,7 @@ export default function SotuvPage() {
               isInCart={isInCart}
               onUpdateQuantity={updateQuantity}
               getItemQuantity={getItemQuantity}
+              isCartOpen={cartItems.length > 0}
             />
           </div>
         </div>

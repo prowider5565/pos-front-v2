@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from "react"
+import { forwardRef, useEffect, useState, useImperativeHandle } from "react"
 import { useTranslation } from "react-i18next"
 import { useAuth } from "@/contexts/auth-context"
 import { debtsService } from "@/services/debts.service"
@@ -10,19 +10,52 @@ interface ChequePreviewProps {
   oldDebts?: OldDebtsForChequeResponse | null
 }
 
-// Helper: Format a number with space as thousand separator
+export interface ChequePreviewHandle {
+  getAsciiText: () => string
+}
+
+// Helper: Format a number with comma as thousand separator (ASCII-safe)
 const formatNumber = (value: string | number): string => {
   const num = typeof value === 'string' ? parseFloat(value) : value
   if (isNaN(num)) return '0'
-  return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 }).replace(/,/g, ' ')
+  
+  // Format with 2 decimal places if it's a decimal number, otherwise no decimals
+  const hasDecimals = num % 1 !== 0
+  const formatted = hasDecimals ? num.toFixed(2) : num.toFixed(0)
+  
+  // Add comma separators (ASCII-safe, no special characters)
+  const parts = formatted.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  
+  return parts.join('.')
 }
 
-export const ChequePreview = forwardRef<HTMLDivElement, ChequePreviewProps>(
+// Helper: Pad text to specified width
+const padRight = (text: string, width: number): string => {
+  if (text.length >= width) return text.substring(0, width)
+  return text + ' '.repeat(width - text.length)
+}
+
+const padLeft = (text: string, width: number): string => {
+  if (text.length >= width) return text.substring(0, width)
+  return ' '.repeat(width - text.length) + text
+}
+
+const padCenter = (text: string, width: number): string => {
+  if (text.length >= width) return text.substring(0, width)
+  const totalPad = width - text.length
+  const leftPad = Math.floor(totalPad / 2)
+  const rightPad = totalPad - leftPad
+  return ' '.repeat(leftPad) + text + ' '.repeat(rightPad)
+}
+
+export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>(
   ({ saleData, oldDebts: providedOldDebts }, ref) => {
     const { t } = useTranslation()
     const { user } = useAuth()
     const [oldDebts, setOldDebts] = useState<OldDebtsForChequeResponse | null>(providedOldDebts || null)
     const [isLoading, setIsLoading] = useState(false)
+    const [asciiText, setAsciiText] = useState<string>("")
 
     // Fetch old debts if not provided and client exists
     useEffect(() => {
@@ -96,191 +129,174 @@ export const ChequePreview = forwardRef<HTMLDivElement, ChequePreviewProps>(
       ? saleData.items 
       : null
 
+    // Generate ASCII table text
+    useEffect(() => {
+      const generateAsciiCheque = (): string => {
+        const WIDTH = 42 // Total width for thermal printer (42 chars for 80mm)
+        let output = ''
+
+        // Title (centered)
+        const title = t("sales:cheque.title")
+        output += padCenter(title, WIDTH) + '\n'
+        output += '\n'
+
+        // Seller info
+        output += padRight(sellerName, WIDTH) + '\n'
+        output += padRight(sellerPhone, WIDTH) + '\n'
+        
+        // Exchange rate and date
+        const exchangeRateLine = `${t("sales:cheque.exchangeRate")} ${formatNumber(exchangeRate)}`
+        output += padRight(exchangeRateLine, WIDTH) + '\n'
+        output += padRight(saleDate, WIDTH) + '\n'
+        output += '\n'
+
+        // Client section
+        output += padRight(`${t("sales:cheque.client")}:`, WIDTH) + '\n'
+        output += padRight(clientName, WIDTH) + '\n'
+        output += padRight(clientPhone, WIDTH) + '\n'
+        output += '\n'
+
+        // Products table with borders (total width = 42)
+        const nCol = 2    // № column
+        const nameCol = 14 // Product name column
+        const qtyCol = 4  // Quantity column
+        const priceCol = 9 // Price column
+        const sumCol = 10  // Sum column
+        // Total: 2+14+4+9+10 = 39 + 3 borders (│) = 42 chars
+
+        // Table top border
+        output += '┌' + '─'.repeat(nCol) + '┬' + '─'.repeat(nameCol) + '┬' + 
+                  '─'.repeat(qtyCol) + '┬' + '─'.repeat(priceCol) + '┬' + 
+                  '─'.repeat(sumCol) + '┐\n'
+
+        // Table headers
+        output += '│' + padCenter(t("sales:cheque.tableHeaders.n") || "N", nCol) + 
+                  '│' + padCenter(t("sales:cheque.tableHeaders.productName") || "Product", nameCol) +
+                  '│' + padCenter(t("sales:cheque.tableHeaders.quantity") || "Qty", qtyCol) +
+                  '│' + padCenter(t("sales:cheque.tableHeaders.price") || "Price", priceCol) +
+                  '│' + padCenter(t("sales:cheque.tableHeaders.sum") || "Sum", sumCol) + '│\n'
+
+        // Header separator
+        output += '├' + '─'.repeat(nCol) + '┼' + '─'.repeat(nameCol) + '┼' + 
+                  '─'.repeat(qtyCol) + '┼' + '─'.repeat(priceCol) + '┼' + 
+                  '─'.repeat(sumCol) + '┤\n'
+
+        // Table rows
+        const itemsToDisplay = items || [
+          { id: 1, product: { name: 'Product 1' }, qty: 2, unit_price: '3000', subtotal: '6000' },
+          { id: 2, product: { name: 'Product 2' }, qty: 4, unit_price: '2000', subtotal: '8000' }
+        ]
+
+        itemsToDisplay.forEach((item, index) => {
+          const itemName = items ? item.product.name : `Product ${index + 1}`
+          const itemQty = items ? item.qty.toString() : '2'
+          const itemPrice = formatNumber(item.unit_price)
+          const itemSum = formatNumber(item.subtotal)
+
+          output += '│' + padLeft((index + 1).toString(), nCol) +
+                    '│' + padRight(itemName.substring(0, nameCol), nameCol) +
+                    '│' + padLeft(itemQty, qtyCol) +
+                    '│' + padLeft(itemPrice, priceCol) +
+                    '│' + padLeft(itemSum, sumCol) + '│\n'
+        })
+
+        // Table bottom border
+        output += '└' + '─'.repeat(nCol) + '┴' + '─'.repeat(nameCol) + '┴' + 
+                  '─'.repeat(qtyCol) + '┴' + '─'.repeat(priceCol) + '┴' + 
+                  '─'.repeat(sumCol) + '┘\n'
+        output += '\n'
+
+        // Total sum (UZS and USD on separate lines)
+        const totalLabel = t("sales:cheque.totalSum") || "Product sum:"
+        output += padRight(totalLabel, WIDTH) + '\n'
+        output += padRight('  UZS:', 16) + padLeft(formatNumber(totalUzs), 26) + '\n'
+        const totalUsd = (parseFloat(totalUzs) / parseFloat(exchangeRate)).toFixed(2)
+        output += padRight('  USD:', 16) + padLeft(totalUsd, 26) + '\n'
+
+        // Discount section (if applicable)
+        if (hasDiscount) {
+          output += '\n'
+          output += padRight(t("sales:cheque.discount") || "Discount:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(discountUzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(discountUsd, 26) + '\n'
+          
+          output += '\n'
+          output += padRight(t("sales:cheque.totalAfterDiscount") || "After discount:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(totalAfterDiscountUzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(totalAfterDiscountUsd, 26) + '\n'
+        }
+
+        // Payment section
+        if (saleData?.debt_amounts) {
+          output += '\n'
+          output += padRight(t("sales:cheque.totalPaid") || "Paid:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(paidUzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(paidUsd, 26) + '\n'
+        }
+        output += '\n'
+
+        // Thank you
+        output += padCenter(t("sales:cheque.thankYou"), WIDTH) + '\n'
+        output += '─'.repeat(WIDTH) + '\n'
+
+        // Old debts
+        if (hasOldDebts) {
+          output += padRight(t("sales:cheque.oldDebt") || "Old debt:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(oldDebts.total_uzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(oldDebts.total_usd, 26) + '\n'
+        }
+
+        // Debt from current sale
+        if (hasRemainingDebt) {
+          output += '\n'
+          output += padRight(t("sales:cheque.debtFromSale") || "Debt from sale:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(remainingUzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(remainingUsd, 26) + '\n'
+          
+          // Total current debt
+          output += '\n'
+          output += '─'.repeat(WIDTH) + '\n'
+          output += padRight(t("sales:cheque.totalCurrentDebt") || "Total debt:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(totalDebtUzs.toString()), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(totalDebtUsd.toFixed(2), 26) + '\n'
+        }
+
+        // Total current debt (only old debt exists)
+        if (!hasRemainingDebt && hasOldDebts) {
+          output += '\n'
+          output += '─'.repeat(WIDTH) + '\n'
+          output += padRight(t("sales:cheque.totalCurrentDebt") || "Total debt:", WIDTH) + '\n'
+          output += padRight('  UZS:', 16) + padLeft(formatNumber(oldDebts.total_uzs), 26) + '\n'
+          output += padRight('  USD:', 16) + padLeft(oldDebts.total_usd, 26) + '\n'
+        }
+
+        return output
+      }
+
+      const text = generateAsciiCheque()
+      setAsciiText(text)
+    }, [saleData, oldDebts, t, sellerName, sellerPhone, exchangeRate, saleDate, clientName, clientPhone,
+        totalUzs, discountUzs, discountUsd, paidUzs, paidUsd, totalAfterDiscountUzs, totalAfterDiscountUsd,
+        remainingUzs, remainingUsd, hasDiscount, hasOldDebts, hasRemainingDebt, totalDebtUzs, totalDebtUsd, items])
+
+    // Expose getAsciiText method via ref
+    useImperativeHandle(ref, () => ({
+      getAsciiText: () => asciiText
+    }))
+
     if (isLoading) {
       return (
-        <div ref={ref} className="bg-white text-black font-mono p-6">
+        <div className="bg-white text-black font-mono p-6">
           <div className="text-center py-4">Loading debts...</div>
         </div>
       )
     }
     
     return (
-      <div ref={ref} className="bg-white text-black font-mono p-4 text-xs">
-        {/* Title */}
-        <div className="text-center font-bold text-sm mb-3">
-          {t("sales:cheque.title")}
-        </div>
-
-        {/* Seller Info */}
-        <div className="flex justify-between mb-1">
-          <span>{sellerName}</span>
-          <span>{sellerPhone}</span>
-        </div>
-
-        {/* Exchange Rate & Date */}
-        <div className="flex justify-between mb-3">
-          <span>{t("sales:cheque.exchangeRate")} {formatNumber(exchangeRate)}</span>
-          <span>{saleDate}</span>
-        </div>
-
-        {/* Client Section */}
-        <div className="mb-2">
-          <div className="font-semibold">{t("sales:cheque.client")}:</div>
-          <div className="flex justify-between">
-            <span>{clientName}</span>
-            <span>{clientPhone}</span>
-          </div>
-        </div>
-
-        {/* Products Table */}
-        <table className="w-full border-collapse mb-3">
-          <thead>
-            <tr className="border-t border-b border-black">
-              <th className="text-left py-1 pr-1 w-6">{t("sales:cheque.tableHeaders.n") || "№"}</th>
-              <th className="text-left py-1 px-1">{t("sales:cheque.tableHeaders.productName") || "Товар"}</th>
-              <th className="text-right py-1 px-1 w-12">{t("sales:cheque.tableHeaders.quantity") || "Кол"}</th>
-              <th className="text-right py-1 px-1 w-20">{t("sales:cheque.tableHeaders.price") || "Цена"}</th>
-              <th className="text-right py-1 pl-1 w-24">{t("sales:cheque.tableHeaders.sum") || "Сумма"}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items ? (
-              items.map((item, index) => (
-                <tr key={item.id} className="border-b border-gray-300">
-                  <td className="py-1 pr-1">{index + 1}</td>
-                  <td className="py-1 px-1 truncate max-w-[120px]" title={item.product.name}>
-                    {item.product.name}
-                  </td>
-                  <td className="text-right py-1 px-1">{item.qty}</td>
-                  <td className="text-right py-1 px-1">{formatNumber(item.unit_price)}</td>
-                  <td className="text-right py-1 pl-1">{formatNumber(item.subtotal)}</td>
-                </tr>
-              ))
-            ) : (
-              <>
-                <tr className="border-b border-gray-300">
-                  <td className="py-1 pr-1">1</td>
-                  <td className="py-1 px-1">Product 1</td>
-                  <td className="text-right py-1 px-1">2</td>
-                  <td className="text-right py-1 px-1">3 000</td>
-                  <td className="text-right py-1 pl-1">6 000</td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td className="py-1 pr-1">2</td>
-                  <td className="py-1 px-1">Product 2</td>
-                  <td className="text-right py-1 px-1">4</td>
-                  <td className="text-right py-1 px-1">2 000</td>
-                  <td className="text-right py-1 pl-1">8 000</td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
-
-        {/* Total Sum */}
-        <div className="flex justify-between font-semibold mb-2">
-          <span>{t("sales:cheque.totalSumUZS") || "Товар сумма(СУМ):"}</span>
-          <span>{formatNumber(totalUzs)}</span>
-        </div>
-
-        {/* Discount Section */}
-        {hasDiscount && (
-          <>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.discountInUZS")}</span>
-              <span>{formatNumber(discountUzs)} so'm</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.discountInUSD")}</span>
-              <span>{discountUsd} $</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.totalAfterDiscountInUZS")}</span>
-              <span>{formatNumber(totalAfterDiscountUzs)} so'm</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>{t("sales:cheque.totalAfterDiscountInUSD")}</span>
-              <span>{totalAfterDiscountUsd} $</span>
-            </div>
-          </>
-        )}
-
-        {/* Payment Section */}
-        {saleData?.debt_amounts && (
-          <>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.totalPaidInUZS")}</span>
-              <span>{formatNumber(paidUzs)} so'm</span>
-            </div>
-            <div className="flex justify-between mb-3">
-              <span>{t("sales:cheque.totalPaidInUSD")}</span>
-              <span>{paidUsd} $</span>
-            </div>
-          </>
-        )}
-
-        {/* Thank You */}
-        <div className="text-center font-semibold mb-2">
-          {t("sales:cheque.thankYou")}
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-black mb-2"></div>
-
-        {/* Old Debts */}
-        {hasOldDebts && (
-          <>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.oldDebtInUZS")}</span>
-              <span>{formatNumber(oldDebts.total_uzs)}</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>{t("sales:cheque.oldDebtInUSD")}</span>
-              <span>{oldDebts.total_usd}</span>
-            </div>
-          </>
-        )}
-
-        {/* Debt from Current Sale */}
-        {hasRemainingDebt && (
-          <>
-            <div className="border-t border-black mb-2"></div>
-            <div className="flex justify-between">
-              <span>{t("sales:cheque.debtFromSaleInUZS")}</span>
-              <span>{formatNumber(remainingUzs)}</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>{t("sales:cheque.debtFromSaleInUSD")}</span>
-              <span>{remainingUsd}</span>
-            </div>
-
-            {/* Total Current Debt */}
-            <div className="border-t border-black mb-2"></div>
-            <div className="flex justify-between font-semibold">
-              <span>{t("sales:cheque.totalCurrentDebtInUZS")}</span>
-              <span>{formatNumber(totalDebtUzs.toString())}</span>
-            </div>
-            <div className="flex justify-between font-semibold">
-              <span>{t("sales:cheque.totalCurrentDebtInUSD")}</span>
-              <span>{totalDebtUsd.toFixed(2)}</span>
-            </div>
-          </>
-        )}
-
-        {/* Total Current Debt (only old debt exists) */}
-        {!hasRemainingDebt && hasOldDebts && (
-          <>
-            <div className="border-t border-black mb-2"></div>
-            <div className="flex justify-between font-semibold">
-              <span>{t("sales:cheque.totalCurrentDebtInUZS")}</span>
-              <span>{formatNumber(oldDebts.total_uzs)}</span>
-            </div>
-            <div className="flex justify-between font-semibold">
-              <span>{t("sales:cheque.totalCurrentDebtInUSD")}</span>
-              <span>{oldDebts.total_usd}</span>
-            </div>
-          </>
-        )}
+      <div className="bg-white text-black p-4">
+        <pre className="font-mono text-xs whitespace-pre" style={{ fontFamily: 'monospace' }}>
+          {asciiText}
+        </pre>
       </div>
     )
   }

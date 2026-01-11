@@ -193,30 +193,23 @@
     "client": "Клиент",
     "fullName": "Полное имя",
     "phoneNumber": "Номер телефона",
-    "exchangeRate": "Курс валюты",
+    "exchangeRate": "Курс:",
     "date": "Дата",
     "tableHeaders": {
       "n": "N",
       "productName": "Название товара",
-      "quantity": "Количество",
+      "quantity": "Кол-во",
       "price": "Цена",
-      "totalPriceUZS": "Итого цена UZS",
-      "totalPriceUSD": "Итого цена USD"
+      "sum": "Сумма"
     },
-    "totalSum": "Общая сумма:",
-    "discountInUZS": "Скидка в сумах",
-    "discountInUSD": "Скидка в долларах",
-    "totalAfterDiscountInUZS": "Итого после скидки в сумах",
-    "totalAfterDiscountInUSD": "Итого после скидки в долларах",
-    "totalPaidInUZS": "Всего оплачено в сумах",
-    "totalPaidInUSD": "Всего оплачено в долларах",
+    "totalSum": "Товар сумма(СУМ):",
+    "discount": "Скидка:",
+    "totalAfterDiscount": "После скидки:",
+    "totalPaid": "Оплачено:",
     "thankYou": "СПАСИБО ЗА ВАШУ ПОКУПКУ",
     "debtInformation": "ИНФОРМАЦИЯ О ДОЛГЕ",
-    "oldDebtInUZS": "Старый долг в сумах",
-    "oldDebtInUSD": "Старый долг в долларах",
-    "debtFromSaleInUZS": "Долг от этой продажи в сумах",
-    "debtFromSaleInUSD": "Долг от этой продажи в долларах",
-    "totalCurrentDebtInUZS": "Общий текущий долг в сумах",
-    "totalCurrentDebtInUSD": "Общий текущий долг в долларах"
+    "oldDebt": "Старый долг:",
+    "debtFromSale": "Долг от этой продажи:",
+    "totalCurrentDebt": "Общий текущий долг:"
   }
 }

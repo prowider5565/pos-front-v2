@@ -193,30 +193,23 @@
     "client": "Mijoz",
     "fullName": "To'liq ism",
     "phoneNumber": "Telefon raqami",
-    "exchangeRate": "Valyuta kursi",
+    "exchangeRate": "Kurs:",
     "date": "Sana",
     "tableHeaders": {
       "n": "N",
       "productName": "Mahsulot nomi",
-      "quantity": "Miqdori",
+      "quantity": "Soni",
       "price": "Narxi",
-      "totalPriceUZS": "Jami narxi UZS",
-      "totalPriceUSD": "Jami narxi USD"
+      "sum": "Summa"
     },
-    "totalSum": "Jami summa:",
-    "discountInUZS": "Jami chegirma so'mda",
-    "discountInUSD": "Jami chegirma dollarda",
-    "totalAfterDiscountInUZS": "Jami chegirmadan so'ng so'mda",
-    "totalAfterDiscountInUSD": "Jami chegirmadan so'ng dollarda",
-    "totalPaidInUZS": "Jami to'langan so'mda",
-    "totalPaidInUSD": "Jami to'langan dollarda",
+    "totalSum": "Tovar summasi(SUM):",
+    "discount": "Chegirma:",
+    "totalAfterDiscount": "Chegirmadan keyin:",
+    "totalPaid": "To'langan:",
     "thankYou": "XARIDINGIZ UCHUN RAHMAT",
     "debtInformation": "QARZ HAQIDA MA'LUMOT",
-    "oldDebtInUZS": "Eski qarz so'mda",
-    "oldDebtInUSD": "Eski qarz dollarda",
-    "debtFromSaleInUZS": "Ushbu sotuvdan qarz so'mda",
-    "debtFromSaleInUSD": "Ushbu sotuvdan qarz dollarda",
-    "totalCurrentDebtInUZS": "Jami joriy qarz so'mda",
-    "totalCurrentDebtInUSD": "Jami joriy qarz dollarda"
+    "oldDebt": "Eski qarz:",
+    "debtFromSale": "Ushbu sotuvdan qarz:",
+    "totalCurrentDebt": "Jami joriy qarz:"
   }
 }

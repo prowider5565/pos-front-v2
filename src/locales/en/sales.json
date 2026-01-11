@@ -193,30 +193,23 @@
     "client": "Client",
     "fullName": "Full name",
     "phoneNumber": "Phone number",
-    "exchangeRate": "Exchange Rate",
+    "exchangeRate": "Rate:",
     "date": "Date",
     "tableHeaders": {
       "n": "N",
       "productName": "Product Name",
-      "quantity": "Quantity",
+      "quantity": "Qty",
       "price": "Price",
-      "totalPriceUZS": "Total Price UZS",
-      "totalPriceUSD": "Total Price USD"
+      "sum": "Sum"
     },
-    "totalSum": "Total Sum:",
-    "discountInUZS": "Discount in UZS",
-    "discountInUSD": "Discount in USD",
-    "totalAfterDiscountInUZS": "Total After Discount in UZS",
-    "totalAfterDiscountInUSD": "Total After Discount in USD",
-    "totalPaidInUZS": "Total Paid in UZS",
-    "totalPaidInUSD": "Total Paid in USD",
+    "totalSum": "Product sum(UZS):",
+    "discount": "Discount:",
+    "totalAfterDiscount": "After discount:",
+    "totalPaid": "Paid:",
     "thankYou": "THANK YOU FOR YOUR PURCHASE",
     "debtInformation": "DEBT INFORMATION",
-    "oldDebtInUZS": "Old Debt in UZS",
-    "oldDebtInUSD": "Old Debt in USD",
-    "debtFromSaleInUZS": "Debt From This Sale in UZS",
-    "debtFromSaleInUSD": "Debt From This Sale in USD",
-    "totalCurrentDebtInUZS": "Total Current Debt in UZS",
-    "totalCurrentDebtInUSD": "Total Current Debt in USD"
+    "oldDebt": "Old debt:",
+    "debtFromSale": "Debt from this sale:",
+    "totalCurrentDebt": "Total current debt:"
   }
 }

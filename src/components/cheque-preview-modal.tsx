@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ChequePreview } from "./cheque-preview"
+import { ChequePreview, type ChequePreviewHandle } from "./cheque-preview"
 import { toast } from "sonner"
 import type { SaleDetail } from "@/types/sales"
 
@@ -24,7 +24,7 @@ export function ChequePreviewModal({
   onOpenChange,
   saleData,
 }: ChequePreviewModalProps) {
-  const chequeRef = useRef<HTMLDivElement>(null)
+  const chequeRef = useRef<ChequePreviewHandle>(null)
 
   const handlePrint = async () => {
     console.log('Print button clicked')
@@ -35,10 +35,11 @@ export function ChequePreviewModal({
     }
 
     try {
-      // Extract plain text from the cheque preview
-      const chequeText = chequeRef.current.innerText
+      // Get ASCII text from the cheque preview
+      const chequeText = chequeRef.current.getAsciiText()
       
       console.log('Sending to Tauri print command...')
+      console.log('Cheque text:', chequeText)
       
       // Call Tauri Rust function to print
       const result = await invoke<string>('print_receipt', { content: chequeText })

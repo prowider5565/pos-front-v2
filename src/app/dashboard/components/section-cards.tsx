@@ -37,17 +37,6 @@ export function SectionCards({ data }: SectionCardsProps) {
           <div className="text-xl font-semibold tabular-nums text-muted-foreground whitespace-nowrap sm:text-2xl">
             ${data ? formatCurrency(data.total_sales_revenue.amounts.usd) : '0.00'}
           </div>
-          <CardAction>
-            <Badge variant="outline">
-              {data?.total_sales_revenue.state.direction === 'Up' ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
-              {data?.total_sales_revenue.state.direction === 'Up' ? '+' : '-'}
-              {data?.total_sales_revenue.state.percentage ?? 0}%
-            </Badge>
-          </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">

@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "tauri:dev": "./tauri-dev.sh",
-    "tauri:build": "env -u LD_LIBRARY_PATH -u LD_PRELOAD tauri build"
+    "tauri:build": "tauri build"
   },
   "engines": {
     "node": ">=20.19.0 || >=22.12.0"

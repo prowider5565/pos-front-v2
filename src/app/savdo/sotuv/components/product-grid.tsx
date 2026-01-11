@@ -21,9 +21,11 @@ import { toast } from "sonner"
 interface ProductGridProps {
   onAddToCart: (product: SaleProduct) => void
   isInCart: (productId: number) => boolean
+  onUpdateQuantity: (productId: number, quantity: number) => void
+  getItemQuantity: (productId: number) => number
 }
 
-export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
+export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQuantity }: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -236,6 +238,8 @@ export function ProductGrid({ onAddToCart, isInCart }: ProductGridProps) {
                 product={product}
                 onAddToCart={onAddToCart}
                 isInCart={isInCart(product.id)}
+                onUpdateQuantity={onUpdateQuantity}
+                cartQuantity={getItemQuantity(product.id)}
               />
             ))}
           </div>

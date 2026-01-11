@@ -31,6 +31,7 @@ export default function SotuvPage() {
     clearCart,
     subtotal,
     isInCart,
+    getItemQuantity,
   } = useSalesCart()
 
   // Payment management
@@ -336,6 +337,8 @@ export default function SotuvPage() {
             <ProductGrid
               onAddToCart={handleAddToCart}
               isInCart={isInCart}
+              onUpdateQuantity={updateQuantity}
+              getItemQuantity={getItemQuantity}
             />
           </div>
         </div>

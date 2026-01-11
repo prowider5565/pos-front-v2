@@ -1,8 +1,9 @@
 "use client"
 
-import { Package } from "lucide-react"
+import { Package, Minus, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { LazyImage } from "@/components/ui/lazy-image"
 import { API_BASE_URL } from "@/config/api"
 import type { SaleProduct } from "@/types/sales"
@@ -11,31 +12,50 @@ interface ProductCardProps {
   product: SaleProduct
   onAddToCart: (product: SaleProduct) => void
   isInCart: boolean
+  onUpdateQuantity: (productId: number, quantity: number) => void
+  cartQuantity: number
 }
 
-export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, cartQuantity }: ProductCardProps) {
   const handleClick = () => {
-    // Allow toggle - add if not in cart, or trigger remove if already in cart
-    if (product.quantity > 0) {
+    // Only add to cart if not already in cart and has stock
+    if (product.quantity > 0 && !isInCart) {
       onAddToCart(product)
+    }
+  }
+
+  const incrementQuantity = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (cartQuantity < product.quantity) {
+      onUpdateQuantity(product.id, cartQuantity + 1)
+    }
+  }
+
+  const decrementQuantity = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (cartQuantity > 1) {
+      onUpdateQuantity(product.id, cartQuantity - 1)
+    } else {
+      // Remove from cart if quantity becomes 0
+      onUpdateQuantity(product.id, 0)
     }
   }
 
   return (
     <Card
       key={product.id}
-      role={product.quantity > 0 ? "button" : undefined}
-      tabIndex={product.quantity > 0 ? 0 : -1}
+      role={product.quantity > 0 && !isInCart ? "button" : undefined}
+      tabIndex={product.quantity > 0 && !isInCart ? 0 : -1}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (product.quantity <= 0) return
+        if (product.quantity <= 0 || isInCart) return
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
           handleClick()
         }
       }}
       className={`overflow-hidden transition-all hover:shadow-lg hover:border-primary group p-0 pb-4 ${
-        product.quantity > 0 ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'
+        product.quantity > 0 && !isInCart ? 'cursor-pointer' : isInCart ? '' : 'opacity-60 cursor-not-allowed'
       } ${isInCart ? 'border-2 border-primary' : ''}`}
     >
       {/* Product Image - flush with card top */}
@@ -76,6 +96,30 @@ export function ProductCard({ product, onAddToCart, isInCart }: ProductCardProps
             <span className="text-sm font-medium">{product.quantity}</span>
           </div>
         </div>
+
+        {/* Quantity Controls - shown when product is in cart */}
+        {isInCart && (
+          <div className="flex items-center justify-center gap-2 pt-2 border-t">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={decrementQuantity}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-12 text-center font-semibold text-lg">{cartQuantity}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={incrementQuantity}
+              disabled={cartQuantity >= product.quantity}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

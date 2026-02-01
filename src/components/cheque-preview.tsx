@@ -158,11 +158,11 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
 
         // Products table with borders (total width = 38)
         const nCol = 2    // № column
-        const nameCol = 12 // Product name column
-        const qtyCol = 4  // Quantity column
+        const nameCol = 11 // Product name column
+        const qtyCol = 3  // Quantity column
         const priceCol = 8 // Price column
         const sumCol = 9  // Sum column
-        // Total: 2+12+4+8+9 = 35 + 3 borders (|) = 38 chars
+        // Total: 2+11+3+8+9 = 33 + 5 separators = 38 chars
 
         // Table top border (ASCII: asterisk and dash)
         output += '*' + '-'.repeat(nCol) + '*' + '-'.repeat(nameCol) + '*' + 

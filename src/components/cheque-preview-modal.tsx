@@ -27,7 +27,7 @@ export function ChequePreviewModal({
   const chequeRef = useRef<ChequePreviewHandle>(null)
 
   const handlePrint = async () => {
-    console.log('Print button clicked')
+    console.log('Print Cheque button clicked')
     
     if (!chequeRef.current) {
       console.error('Cheque ref is null')
@@ -41,8 +41,8 @@ export function ChequePreviewModal({
       console.log('Sending to Tauri print command...')
       console.log('Cheque text:', chequeText)
       
-      // Call Tauri Rust function to print
-      const result = await invoke<string>('print_receipt', { content: chequeText })
+      // Call Tauri Rust function to print raw text
+      const result = await invoke<string>('print_raw_text', { content: chequeText })
       
       console.log('Print result:', result)
       toast.success('Print Sent', {

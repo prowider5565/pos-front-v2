@@ -94,7 +94,7 @@ export const LANGUAGES = {
   uz: { code: 'uz', name: 'Uzbek', nativeName: "O'zbek" },
 } as const
 
-export const DEFAULT_LANGUAGE = 'en'
+export const DEFAULT_LANGUAGE = 'uz'
 
 // Initialize i18n
 i18n

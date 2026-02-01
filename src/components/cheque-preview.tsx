@@ -132,7 +132,7 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
     // Generate ASCII table text
     useEffect(() => {
       const generateAsciiCheque = (): string => {
-        const WIDTH = 42 // Total width for thermal printer (42 chars for 80mm)
+        const WIDTH = 38 // Total width for thermal printer (accounting for notepad margins)
         let output = ''
 
         // Title (centered)
@@ -156,30 +156,30 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
         output += padRight(clientPhone, WIDTH) + '\n'
         output += '\n'
 
-        // Products table with borders (total width = 42)
+        // Products table with borders (total width = 38)
         const nCol = 2    // № column
-        const nameCol = 14 // Product name column
+        const nameCol = 12 // Product name column
         const qtyCol = 4  // Quantity column
-        const priceCol = 9 // Price column
-        const sumCol = 10  // Sum column
-        // Total: 2+14+4+9+10 = 39 + 3 borders (│) = 42 chars
+        const priceCol = 8 // Price column
+        const sumCol = 9  // Sum column
+        // Total: 2+12+4+8+9 = 35 + 3 borders (|) = 38 chars
 
-        // Table top border
-        output += '┌' + '─'.repeat(nCol) + '┬' + '─'.repeat(nameCol) + '┬' + 
-                  '─'.repeat(qtyCol) + '┬' + '─'.repeat(priceCol) + '┬' + 
-                  '─'.repeat(sumCol) + '┐\n'
+        // Table top border (ASCII: asterisk and dash)
+        output += '*' + '-'.repeat(nCol) + '*' + '-'.repeat(nameCol) + '*' + 
+                  '-'.repeat(qtyCol) + '*' + '-'.repeat(priceCol) + '*' + 
+                  '-'.repeat(sumCol) + '*\n'
 
         // Table headers
-        output += '│' + padCenter(t("sales:cheque.tableHeaders.n") || "N", nCol) + 
-                  '│' + padCenter(t("sales:cheque.tableHeaders.productName") || "Product", nameCol) +
-                  '│' + padCenter(t("sales:cheque.tableHeaders.quantity") || "Qty", qtyCol) +
-                  '│' + padCenter(t("sales:cheque.tableHeaders.price") || "Price", priceCol) +
-                  '│' + padCenter(t("sales:cheque.tableHeaders.sum") || "Sum", sumCol) + '│\n'
+        output += '|' + padCenter(t("sales:cheque.tableHeaders.n") || "N", nCol) + 
+                  '|' + padCenter(t("sales:cheque.tableHeaders.productName") || "Product", nameCol) +
+                  '|' + padCenter(t("sales:cheque.tableHeaders.quantity") || "Qty", qtyCol) +
+                  '|' + padCenter(t("sales:cheque.tableHeaders.price") || "Price", priceCol) +
+                  '|' + padCenter(t("sales:cheque.tableHeaders.sum") || "Sum", sumCol) + '|\n'
 
         // Header separator
-        output += '├' + '─'.repeat(nCol) + '┼' + '─'.repeat(nameCol) + '┼' + 
-                  '─'.repeat(qtyCol) + '┼' + '─'.repeat(priceCol) + '┼' + 
-                  '─'.repeat(sumCol) + '┤\n'
+        output += '*' + '-'.repeat(nCol) + '*' + '-'.repeat(nameCol) + '*' + 
+                  '-'.repeat(qtyCol) + '*' + '-'.repeat(priceCol) + '*' + 
+                  '-'.repeat(sumCol) + '*\n'
 
         // Table rows
         const itemsToDisplay = items || [
@@ -193,81 +193,81 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
           const itemPrice = formatNumber(item.unit_price)
           const itemSum = formatNumber(item.subtotal)
 
-          output += '│' + padLeft((index + 1).toString(), nCol) +
-                    '│' + padRight(itemName.substring(0, nameCol), nameCol) +
-                    '│' + padLeft(itemQty, qtyCol) +
-                    '│' + padLeft(itemPrice, priceCol) +
-                    '│' + padLeft(itemSum, sumCol) + '│\n'
+          output += '|' + padLeft((index + 1).toString(), nCol) +
+                    '|' + padRight(itemName.substring(0, nameCol), nameCol) +
+                    '|' + padLeft(itemQty, qtyCol) +
+                    '|' + padLeft(itemPrice, priceCol) +
+                    '|' + padLeft(itemSum, sumCol) + '|\n'
         })
 
-        // Table bottom border
-        output += '└' + '─'.repeat(nCol) + '┴' + '─'.repeat(nameCol) + '┴' + 
-                  '─'.repeat(qtyCol) + '┴' + '─'.repeat(priceCol) + '┴' + 
-                  '─'.repeat(sumCol) + '┘\n'
+        // Table bottom border (ASCII: asterisk and dash)
+        output += '*' + '-'.repeat(nCol) + '*' + '-'.repeat(nameCol) + '*' + 
+                  '-'.repeat(qtyCol) + '*' + '-'.repeat(priceCol) + '*' + 
+                  '-'.repeat(sumCol) + '*\n'
         output += '\n'
 
         // Total sum (UZS and USD on separate lines)
         const totalLabel = t("sales:cheque.totalSum") || "Product sum:"
         output += padRight(totalLabel, WIDTH) + '\n'
-        output += padRight('  UZS:', 16) + padLeft(formatNumber(totalUzs), 26) + '\n'
+        output += padRight('  UZS:', 14) + padLeft(formatNumber(totalUzs), 24) + '\n'
         const totalUsd = (parseFloat(totalUzs) / parseFloat(exchangeRate)).toFixed(2)
-        output += padRight('  USD:', 16) + padLeft(totalUsd, 26) + '\n'
+        output += padRight('  USD:', 14) + padLeft(totalUsd, 24) + '\n'
 
         // Discount section (if applicable)
         if (hasDiscount) {
           output += '\n'
           output += padRight(t("sales:cheque.discount") || "Discount:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(discountUzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(discountUsd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(discountUzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(discountUsd, 24) + '\n'
           
           output += '\n'
           output += padRight(t("sales:cheque.totalAfterDiscount") || "After discount:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(totalAfterDiscountUzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(totalAfterDiscountUsd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(totalAfterDiscountUzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(totalAfterDiscountUsd, 24) + '\n'
         }
 
         // Payment section
         if (saleData?.debt_amounts) {
           output += '\n'
           output += padRight(t("sales:cheque.totalPaid") || "Paid:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(paidUzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(paidUsd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(paidUzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(paidUsd, 24) + '\n'
         }
         output += '\n'
 
         // Thank you
         output += padCenter(t("sales:cheque.thankYou"), WIDTH) + '\n'
-        output += '─'.repeat(WIDTH) + '\n'
+        output += '='.repeat(WIDTH) + '\n'
 
         // Old debts
         if (hasOldDebts) {
           output += padRight(t("sales:cheque.oldDebt") || "Old debt:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(oldDebts.total_uzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(oldDebts.total_usd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(oldDebts.total_uzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(oldDebts.total_usd, 24) + '\n'
         }
 
         // Debt from current sale
         if (hasRemainingDebt) {
           output += '\n'
           output += padRight(t("sales:cheque.debtFromSale") || "Debt from sale:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(remainingUzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(remainingUsd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(remainingUzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(remainingUsd, 24) + '\n'
           
           // Total current debt
           output += '\n'
-          output += '─'.repeat(WIDTH) + '\n'
+          output += '='.repeat(WIDTH) + '\n'
           output += padRight(t("sales:cheque.totalCurrentDebt") || "Total debt:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(totalDebtUzs.toString()), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(totalDebtUsd.toFixed(2), 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(totalDebtUzs.toString()), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(totalDebtUsd.toFixed(2), 24) + '\n'
         }
 
         // Total current debt (only old debt exists)
         if (!hasRemainingDebt && hasOldDebts) {
           output += '\n'
-          output += '─'.repeat(WIDTH) + '\n'
+          output += '='.repeat(WIDTH) + '\n'
           output += padRight(t("sales:cheque.totalCurrentDebt") || "Total debt:", WIDTH) + '\n'
-          output += padRight('  UZS:', 16) + padLeft(formatNumber(oldDebts.total_uzs), 26) + '\n'
-          output += padRight('  USD:', 16) + padLeft(oldDebts.total_usd, 26) + '\n'
+          output += padRight('  UZS:', 14) + padLeft(formatNumber(oldDebts.total_uzs), 24) + '\n'
+          output += padRight('  USD:', 14) + padLeft(oldDebts.total_usd, 24) + '\n'
         }
 
         return output

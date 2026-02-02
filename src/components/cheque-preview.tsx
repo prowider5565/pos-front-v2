@@ -67,6 +67,7 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
             setOldDebts(debts)
           } catch (error) {
             console.error('Failed to fetch old debts for cheque:', error)
+            // Set empty debts on error
             setOldDebts({ total_usd: "0", total_uzs: "0" })
           } finally {
             setIsLoading(false)

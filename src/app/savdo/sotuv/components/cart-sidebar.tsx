@@ -147,7 +147,6 @@ export function CartSidebar({
             <ClientSelector
               selectedClientId={selectedClientId}
               onClientSelect={onClientSelect}
-              hasRemaining={remaining > 0}
             />
 
             {/* Optional comment */}

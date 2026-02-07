@@ -21,6 +21,38 @@ export default function SotuvPage() {
   const [themeCustomizerOpen, setThemeCustomizerOpen] = useState(false)
   const { config } = useSidebarConfig()
   const { t } = useTranslation('sales')
+
+  const getApiErrorMessage = (error: any) => {
+    const data = error?.response?.data
+
+    const collectMessages = (value: unknown, acc: string[]) => {
+      if (typeof value === "string" && value.trim()) {
+        acc.push(value.trim())
+        return
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item) => collectMessages(item, acc))
+        return
+      }
+      if (value && typeof value === "object") {
+        Object.values(value as Record<string, unknown>).forEach((item) =>
+          collectMessages(item, acc)
+        )
+      }
+    }
+
+    const messages: string[] = []
+    collectMessages(data, messages)
+
+    if (typeof data?.message === "string" && data.message.trim()) {
+      messages.unshift(data.message.trim())
+    }
+
+    const unique = Array.from(new Set(messages)).filter(Boolean)
+    if (unique.length > 0) return unique.join("\n")
+
+    return t('messages.error')
+  }
   
   // Cart management
   const {
@@ -158,12 +190,6 @@ export default function SotuvPage() {
       return
     }
 
-    // Check client requirement
-    if (remaining > 0 && !selectedClientId) {
-      toast.error(t('validation.clientRequired'))
-      return
-    }
-
     try {
       setIsSubmitting(true)
 
@@ -212,7 +238,7 @@ export default function SotuvPage() {
 
     } catch (error: any) {
       console.error('Failed to create sale:', error)
-      toast.error(error.response?.data?.message || t('messages.error'))
+      toast.error(getApiErrorMessage(error))
     } finally {
       setIsSubmitting(false)
     }
@@ -254,12 +280,6 @@ export default function SotuvPage() {
     // Final total must not exceed subtotal
     if (isFinalTotalTooHigh) {
       toast.error(t('validation.discountTooHigh'))
-      return
-    }
-
-    // Check client requirement
-    if (remaining > 0 && !selectedClientId) {
-      toast.error(t('validation.clientRequired'))
       return
     }
 
@@ -321,7 +341,7 @@ export default function SotuvPage() {
 
     } catch (error: any) {
       console.error('Failed to create sale:', error)
-      toast.error(error.response?.data?.message || t('messages.error'))
+      toast.error(getApiErrorMessage(error))
     } finally {
       setIsSubmitting(false)
     }

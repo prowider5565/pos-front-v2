@@ -1,4 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarConfigProvider } from '@/contexts/sidebar-context'
 import { AuthProvider } from '@/contexts/auth-context'
@@ -19,6 +20,7 @@ function App() {
             </Router>
           </SidebarConfigProvider>
         </AuthProvider>
+        <Toaster position="top-right" richColors />
       </ThemeProvider>
     </div>
   )

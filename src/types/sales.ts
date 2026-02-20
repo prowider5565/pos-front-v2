@@ -245,7 +245,7 @@ export interface SaleDetailPayment {
  */
 export interface SaleDetail {
   id: number
-  client: SaleDetailClient
+  client: SaleDetailClient | null
   sale_date: string
   status: SaleStatus
   exchange_rate: string

@@ -51,7 +51,30 @@ export default function SotuvPage() {
     const unique = Array.from(new Set(messages)).filter(Boolean)
     if (unique.length > 0) return unique.join("\n")
 
+    if (typeof error?.message === "string" && error.message.trim()) {
+      return error.message.trim()
+    }
+
     return t('messages.error')
+  }
+
+  const extractSaleId = (sale: unknown): number | null => {
+    if (!sale || typeof sale !== "object") return null
+
+    const root = sale as Record<string, unknown>
+    const data = root.data as Record<string, unknown> | undefined
+
+    const candidate = root.id
+      ?? root.sale_id
+      ?? (root.sale as Record<string, unknown> | undefined)?.id
+      ?? data?.id
+      ?? data?.sale_id
+      ?? (data?.sale as Record<string, unknown> | undefined)?.id
+
+    const parsed = Number(candidate)
+    if (!Number.isInteger(parsed) || parsed <= 0) return null
+
+    return parsed
   }
   
   // Cart management
@@ -319,24 +342,26 @@ export default function SotuvPage() {
 
       // Submit sale and get response
       const createdSale = await salesService.createSale(saleData)
+      const saleId = extractSaleId(createdSale)
 
-      // Fetch full sale details for cheque
-      const saleDetail = await salesService.getSaleDetail(createdSale.id)
-      
-      // Store sale data for cheque
-      setLastSaleData(saleDetail)
-
-      // Success message
+      // Success message for create action
       if (remaining > 0) {
         toast.success(t('messages.saleCreatedWithDebt'))
       } else {
         toast.success(t('messages.saleCreated'))
       }
 
-      // Clear form
+      // Clear form after successful sale creation
       handleClearCart()
-      
-      // Open cheque modal
+
+      if (!saleId) {
+        toast.error(t('history.detail.loadError'))
+        return
+      }
+
+      // Fetch full sale details for cheque
+      const saleDetail = await salesService.getSaleDetail(saleId)
+      setLastSaleData(saleDetail)
       setChequeModalOpen(true)
 
     } catch (error: any) {

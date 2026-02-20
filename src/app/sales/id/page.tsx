@@ -24,11 +24,13 @@ export default function SaleDetailPage() {
   const { t } = useTranslation('sales')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const saleId = Number(id)
+  const hasValidSaleId = Number.isInteger(saleId) && saleId > 0
 
   const { data: sale, isLoading, error } = useQuery({
     queryKey: ['sale-detail', id],
-    queryFn: () => salesService.getSaleDetail(Number(id)),
-    enabled: !!id,
+    queryFn: () => salesService.getSaleDetail(saleId),
+    enabled: hasValidSaleId,
   })
 
   if (isLoading) {
@@ -54,6 +56,7 @@ export default function SaleDetailPage() {
   }
 
   const formatAmount = (amount: string) => parseFloat(amount).toLocaleString()
+  const client = sale.client
 
   return (
     <BaseLayout
@@ -85,16 +88,16 @@ export default function SaleDetailPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{sale.client.full_name}</span>
+                    <span className="font-medium">{client?.full_name ?? ''}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{sale.client.phone_number}</span>
+                    <span className="text-sm">{client?.phone_number ?? ''}</span>
                   </div>
-                  {sale.client.address && (
+                  {client?.address && (
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{sale.client.address}</span>
+                      <span className="text-sm">{client.address}</span>
                     </div>
                   )}
                 </div>

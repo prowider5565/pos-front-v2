@@ -55,9 +55,15 @@ class SalesService {
   /**
    * Get detailed information about a specific sale
    */
-  async getSaleDetail(saleId: number): Promise<SaleDetail> {
+  async getSaleDetail(saleId: number | string | null | undefined): Promise<SaleDetail> {
+    const normalizedSaleId = Number(saleId)
+
+    if (!Number.isInteger(normalizedSaleId) || normalizedSaleId <= 0) {
+      throw new Error(`Invalid sale ID: ${String(saleId)}`)
+    }
+
     const response = await apiClient.get<SaleDetail>(
-      `${API_ENDPOINTS.SALES.DETAIL}${saleId}/`
+      `${API_ENDPOINTS.SALES.DETAIL}${normalizedSaleId}/`
     )
     return response.data
   }

@@ -31,7 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { paymentsService, type PaymentType } from "@/services/payments.service"
+import {
+  paymentsService,
+  type BulkPaymentPayload,
+  type PaymentType,
+} from "@/services/payments.service"
 
 const paymentFormSchema = z.object({
   total_amount: z.string().min(1, "Amount is required"),
@@ -72,15 +76,17 @@ export function BulkPaymentDialog({
     },
   })
 
+  const buildPayload = (data: PaymentFormValues): BulkPaymentPayload => ({
+    payments: [{ total_amount: data.total_amount, currency: data.currency }],
+    distribution_strategy: data.distribution_strategy,
+    method: data.method,
+    ...(type === 'old-client' ? { client_id: entityId } : { supplier_id: entityId }),
+  })
+
   const onSubmit = async (data: PaymentFormValues) => {
     setIsLoading(true)
     try {
-      const payload = {
-        payments: [{ total_amount: data.total_amount, currency: data.currency }],
-        distribution_strategy: data.distribution_strategy,
-        method: data.method,
-        ...(type === 'old-client' ? { client_id: entityId } : { supplier_id: entityId }),
-      }
+      const payload = buildPayload(data)
 
       await paymentsService.bulkPayment(type, payload)
       toast.success(t('payment.success'))
@@ -104,6 +110,21 @@ export function BulkPaymentDialog({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const onTestPrintPayload = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) {
+      toast.error("Fill required fields first")
+      return
+    }
+
+    const payload = buildPayload(form.getValues())
+    const rustInvokePayload = { content: JSON.stringify(payload, null, 2) }
+
+    console.log("Bulk payment payload:", payload)
+    console.log("Rust print invoke payload (test):", rustInvokePayload)
+    toast.success("Test payload logged to console")
   }
 
   return (
@@ -203,6 +224,15 @@ export function BulkPaymentDialog({
             />
 
             <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onTestPrintPayload}
+                disabled={isLoading}
+                className="cursor-pointer"
+              >
+                Test Print Payload
+              </Button>
               <Button
                 type="button"
                 variant="outline"

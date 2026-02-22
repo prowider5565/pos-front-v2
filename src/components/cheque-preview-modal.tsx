@@ -25,6 +25,41 @@ export function ChequePreviewModal({
   saleData,
 }: ChequePreviewModalProps) {
   const chequeRef = useRef<ChequePreviewHandle>(null)
+  
+  const handleTestPayload = () => {
+    if (!chequeRef.current) {
+      console.error('Cheque ref is null')
+      return
+    }
+
+    const chequeText = chequeRef.current.getAsciiText()
+    const payload = { content: chequeText }
+
+    console.log('Rust print payload (test):', payload)
+    toast.success('Print payload logged', {
+      description: 'Check browser/devtools console for exact Rust payload.',
+    })
+  }
+
+  const handleFakePrint = async () => {
+    if (!chequeRef.current) {
+      console.error('Cheque ref is null')
+      return
+    }
+
+    try {
+      const chequeText = chequeRef.current.getAsciiText()
+      const result = await invoke<string>('fake_print_receipt', { content: chequeText })
+      toast.success('Fake print completed', {
+        description: result,
+      })
+    } catch (error) {
+      console.error('Fake print error:', error)
+      toast.error('Fake print failed', {
+        description: String(error),
+      })
+    }
+  }
 
   const handlePrint = async () => {
     console.log('Print button clicked')
@@ -70,6 +105,12 @@ export function ChequePreviewModal({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
+          </Button>
+          <Button variant="secondary" onClick={handleTestPayload}>
+            Test Payload
+          </Button>
+          <Button variant="secondary" onClick={handleFakePrint}>
+            Fake Print
           </Button>
           <Button onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />

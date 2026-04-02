@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "tauri:dev": "tauri dev",
+    "tauri:dev": "env -u LD_LIBRARY_PATH -u SNAP -u SNAP_ARCH -u SNAP_COMMON -u SNAP_CONTEXT -u SNAP_COOKIE -u SNAP_DATA -u SNAP_EUID -u SNAP_INSTANCE_NAME -u SNAP_LAUNCHER_ARCH_TRIPLET -u SNAP_LIBRARY_PATH -u SNAP_NAME -u SNAP_REAL_HOME -u SNAP_REVISION -u SNAP_UID -u SNAP_USER_COMMON -u SNAP_USER_DATA -u GTK_PATH -u GTK_EXE_PREFIX -u GTK_IM_MODULE_FILE -u GIO_MODULE_DIR -u GIO_LAUNCHED_DESKTOP_FILE -u GIO_LAUNCHED_DESKTOP_FILE_PID -u GDK_PIXBUF_MODULEDIR -u GDK_PIXBUF_MODULE_FILE -u GSETTINGS_SCHEMA_DIR -u LOCPATH -u XDG_DATA_HOME XDG_DATA_DIRS=${XDG_DATA_DIRS_VSCODE_SNAP_ORIG:-/usr/local/share:/usr/share:/var/lib/snapd/desktop} XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG:-/etc/xdg} tauri dev",
     "tauri:build": "tauri build"
   },
   "engines": {

@@ -155,7 +155,7 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
         // Generate ASCII table text
         useEffect(() => {
             const generateAsciiCheque = (): string => {
-                const WIDTH = 42 // Total width for thermal printer (42 chars for 80mm)
+                const WIDTH = 45 // Slightly wider layout for thermal printer content
                 let output = ''
 
                 const metaLabelWidth = 12
@@ -169,9 +169,9 @@ export const ChequePreview = forwardRef<ChequePreviewHandle, ChequePreviewProps>
                 output += '\n'
 
                 const nCol = 3
-                const nameCol = 15
+                const nameCol = 17
                 const qtyCol = 4
-                const priceCol = 6
+                const priceCol = 7
                 const sumCol = 8
 
                 output += '┌' + '─'.repeat(nCol) + '┬' + '─'.repeat(nameCol) + '┬' +

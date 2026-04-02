@@ -153,12 +153,8 @@ fn print_receipt(content: String) -> Result<String, String> {
     let content_bytes = convert_to_cp437(&content);
     print_data.extend_from_slice(&content_bytes);
     
-    // Add line feeds before cutting
-    print_data.extend_from_slice(&[
-        0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A,
-        0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A,
-        0x0A
-    ]); // 21 line feeds
+    // Leave a small bottom margin before cutting.
+    print_data.extend_from_slice(&[0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
     
     // GS V 1 - Partial cut
     print_data.extend_from_slice(&[0x1D, 0x56, 0x01]);

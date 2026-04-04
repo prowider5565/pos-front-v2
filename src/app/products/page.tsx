@@ -18,10 +18,10 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { suppliersService, type Supplier, type SuppliersListResponse } from "@/services/suppliers.service"
-import { ProductCreateDialog } from "./components/product-create-dialog"
+import { SupplierFormDialog } from "@/app/suppliers/components/supplier-form-dialog"
 
 export default function MahsulotlarSuppliersPage() {
-  const { t } = useTranslation(['products', 'common'])
+  const { t } = useTranslation(['products', 'common', 'suppliers'])
   const navigate = useNavigate()
   
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -105,7 +105,7 @@ export default function MahsulotlarSuppliersPage() {
               className="cursor-pointer w-full sm:w-auto"
             >
               <Plus className="mr-2 size-4" />
-              {t('createProduct')}
+              {t('suppliers:addSupplier')}
             </Button>
           </div>
         </div>
@@ -189,12 +189,12 @@ export default function MahsulotlarSuppliersPage() {
       )}
       </div>
 
-      {/* Product Create Dialog */}
-      <ProductCreateDialog
+      {/* Supplier Create Dialog */}
+      <SupplierFormDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={() => {
-          // Refresh suppliers list after product creation
+          // Refresh suppliers list after supplier creation
           fetchSuppliers(currentPage, searchQuery)
         }}
       />

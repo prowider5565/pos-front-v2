@@ -152,7 +152,7 @@ fn build_print_data(content: &str) -> Vec<u8> {
     const NORMAL_SIZE: &[u8] = b"\x1d\x21\x00";
     const TIGHTER_LINE_SPACING: &[u8] = b"\x1b\x33\x12";
     const CUT_PAPER: &[u8] = b"\x1d\x56\x00";
-    const LINE_FEEDS_AFTER_PRINT: usize = 8;
+    const LINE_FEEDS_AFTER_PRINT: usize = 17;
 
     let normalized = content.replace("\r\n", "\n");
     let (encoded, _, _) = IBM866.encode(&normalized);

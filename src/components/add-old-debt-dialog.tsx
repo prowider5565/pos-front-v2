@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { Plus } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ import { debtsService } from "@/services/debts.service"
 import { suppliersService } from "@/services/suppliers.service"
 import { clientsService } from "@/services/clients.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
+import { ClientFormDialog } from "@/app/clients/components/client-form-dialog"
 
 const addOldDebtSchema = z.object({
   entity_id: z.string().min(1, "Please select a supplier or client"),
@@ -65,6 +67,7 @@ export function AddOldDebtDialog({
   onSuccess,
 }: AddOldDebtDialogProps) {
   const { t } = useTranslation("debts")
+  const [isClientDialogOpen, setIsClientDialogOpen] = useState(false)
 
   const form = useForm<AddOldDebtFormValues>({
     resolver: zodResolver(addOldDebtSchema),
@@ -83,7 +86,7 @@ export function AddOldDebtDialog({
     enabled: open && entityType === "supplier",
   })
 
-  const { data: clientsData } = useQuery({
+  const { data: clientsData, refetch: refetchClients } = useQuery({
     queryKey: ['clients-list'],
     queryFn: () => clientsService.getClients(1, 1000),
     enabled: open && entityType === "client",
@@ -148,28 +151,42 @@ export function AddOldDebtDialog({
                   <FormLabel>
                     {entityType === "supplier" ? t("addOldDebt.selectSupplier") : t("addOldDebt.selectClient")}
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={entityType === "supplier" ? t("addOldDebt.selectSupplier") : t("addOldDebt.selectClient")} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {entityType === "supplier" ? (
-                        suppliersData?.results.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                            {supplier.full_name} {supplier.company_name ? `(${supplier.company_name})` : ''}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        clientsData?.results.map((client) => (
-                          <SelectItem key={client.id} value={client.id.toString()}>
-                            {client.full_name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-2">
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={entityType === "supplier" ? t("addOldDebt.selectSupplier") : t("addOldDebt.selectClient")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {entityType === "supplier" ? (
+                          suppliersData?.results.map((supplier) => (
+                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                              {supplier.full_name} {supplier.company_name ? `(${supplier.company_name})` : ''}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          clientsData?.results.map((client) => (
+                            <SelectItem key={client.id} value={client.id.toString()}>
+                              {client.full_name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {entityType === "client" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0 cursor-pointer"
+                        onClick={() => setIsClientDialogOpen(true)}
+                        aria-label={t("addOldDebt.selectClient")}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    )}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -253,6 +270,15 @@ export function AddOldDebtDialog({
           </form>
         </Form>
       </DialogContent>
+
+      <ClientFormDialog
+        open={isClientDialogOpen}
+        onOpenChange={setIsClientDialogOpen}
+        client={null}
+        onSuccess={() => {
+          refetchClients()
+        }}
+      />
     </Dialog>
   )
 }

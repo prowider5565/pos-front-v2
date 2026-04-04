@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { invoke } from "@tauri-apps/api/core"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -10,17 +11,20 @@ import { useSidebarConfig } from "@/hooks/use-sidebar-config"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { ProductGrid } from "./components/product-grid"
 import { CartSidebar } from "./components/cart-sidebar"
-import { ChequePreviewModal } from "@/components/cheque-preview-modal"
+import { buildChequeText } from "@/components/cheque-preview"
+import { useAuth } from "@/contexts/auth-context"
 import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
+import { debtsService } from "@/services/debts.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
-import type { SaleProduct, PaymentMethod, Currency } from "@/types/sales"
+import type { SaleProduct, PaymentMethod, Currency, SaleDetail } from "@/types/sales"
 
 export default function SotuvPage() {
   const [themeCustomizerOpen, setThemeCustomizerOpen] = useState(false)
   const { config } = useSidebarConfig()
   const { t } = useTranslation('sales')
+  const { user } = useAuth()
 
   const getApiErrorMessage = (error: any) => {
     const data = error?.response?.data
@@ -105,8 +109,6 @@ export default function SotuvPage() {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
   const [exchangeRate, setExchangeRate] = useState<number>(12600)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [chequeModalOpen, setChequeModalOpen] = useState(false)
-  const [lastSaleData, setLastSaleData] = useState<any>(null)
 
   // Pending payment state (for uncommitted payment in input field)
   const [pendingMethod, setPendingMethod] = useState<PaymentMethod>('CASH')
@@ -187,6 +189,23 @@ export default function SotuvPage() {
 
   // Calculate totals
   const remaining = calculateRemaining(computedTotal, exchangeRate)
+
+  const printSaleCheque = useCallback(async (saleDetail: SaleDetail) => {
+    const oldDebts = saleDetail.client?.id
+      ? await debtsService.getOldDebtsForCheque(saleDetail.client.id)
+      : { total_usd: "0", total_uzs: "0" }
+
+    const chequeText = buildChequeText({
+      saleData: saleDetail,
+      oldDebts,
+      username: user?.username,
+    })
+
+    const result = await invoke<string>('print_receipt', { content: chequeText })
+    toast.success('Cheque printed', {
+      description: result,
+    })
+  }, [user?.username])
 
   // Handle form submission
   const handleSubmit = useCallback(async () => {
@@ -359,10 +378,9 @@ export default function SotuvPage() {
         return
       }
 
-      // Fetch full sale details for cheque
+      // Fetch full sale details and print immediately
       const saleDetail = await salesService.getSaleDetail(saleId)
-      setLastSaleData(saleDetail)
-      setChequeModalOpen(true)
+      await printSaleCheque(saleDetail)
 
     } catch (error: any) {
       console.error('Failed to create sale:', error)
@@ -384,6 +402,7 @@ export default function SotuvPage() {
     pendingCurrency,
     t,
     handleClearCart,
+    printSaleCheque,
   ])
 
   return (
@@ -469,13 +488,6 @@ export default function SotuvPage() {
       <ThemeCustomizer
         open={themeCustomizerOpen}
         onOpenChange={setThemeCustomizerOpen}
-      />
-
-      {/* Cheque Preview Modal */}
-      <ChequePreviewModal
-        open={chequeModalOpen}
-        onOpenChange={setChequeModalOpen}
-        saleData={lastSaleData}
       />
     </SidebarProvider>
   )

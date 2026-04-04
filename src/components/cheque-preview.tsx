@@ -137,13 +137,14 @@ export const buildChequeText = ({
 
     pushMetaLine("Sana:", saleDateOnly)
     pushMetaLine("Ism:", displayUsername)
+    pushMetaLine("Kurs:", formatNumber(exchangeRate))
     output += '\n'
 
     const nCol = 3
-    const nameCol = 17
+    const nameCol = 15
     const qtyCol = 4
     const priceCol = 7
-    const sumCol = 8
+    const sumCol = 10
 
     output += '┌' + '─'.repeat(nCol) + '┬' + '─'.repeat(nameCol) + '┬' +
         '─'.repeat(qtyCol) + '┬' + '─'.repeat(priceCol) + '┬' +

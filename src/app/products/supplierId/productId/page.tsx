@@ -394,6 +394,8 @@ export default function MahsulotlarProductDetailPage() {
     }
   }, [quantity, buyPrice, paymentAmount, currency, exchangeRate])
 
+  const showPaymentSummary = calculations.totalCost > 0
+
   // Open edit dialog with batch data
   useEffect(() => {
     if (isEditDialogOpen && editingBatch) {
@@ -951,39 +953,40 @@ export default function MahsulotlarProductDetailPage() {
                     </div>
                   </div>
 
-                  {/* Payment Calculations */}
-                  {paymentAmount && parseFloat(paymentAmount) > 0 && (
-                    <div className="space-y-2 pt-4 border-t">
-                      <h4 className="text-sm font-semibold">{t('paymentSummary')}</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t('totalCost')}:</span>
-                          <span className="font-medium">{calculations.totalCost.toLocaleString()} UZS</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t('paidAmount')}:</span>
-                          <span className="font-medium">{calculations.paidInUZS.toLocaleString()} UZS</span>
-                        </div>
-                        {!calculations.isOverpayment ? (
-                          <>
-                            <div className="flex justify-between text-primary font-semibold">
-                              <span>{t('remainingDebt')} (UZS):</span>
-                              <span>{calculations.remainingUZS.toLocaleString()} UZS</span>
-                            </div>
-                            <div className="flex justify-between text-primary font-semibold">
-                              <span>{t('remainingDebt')} (USD):</span>
-                              <span>${calculations.remainingUSD.toLocaleString()}</span>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="flex justify-between text-red-500 font-semibold">
-                            <span>{t('overpaymentWarning')}</span>
-                            <span>+{Math.abs(calculations.remainingUZS).toLocaleString()} UZS</span>
-                          </div>
-                        )}
-                      </div>
+                </div>
+              )}
+
+              {/* Payment Summary */}
+              {showPaymentSummary && (
+                <div className="space-y-2 rounded-md border p-4">
+                  <h4 className="text-sm font-semibold">{t('paymentSummary')}</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('totalCost')}:</span>
+                      <span className="font-medium">{calculations.totalCost.toLocaleString()} UZS</span>
                     </div>
-                  )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('paidAmount')}:</span>
+                      <span className="font-medium">{calculations.paidInUZS.toLocaleString()} UZS</span>
+                    </div>
+                    {!calculations.isOverpayment ? (
+                      <>
+                        <div className="flex justify-between text-primary font-semibold">
+                          <span>{t('remainingDebt')} (UZS):</span>
+                          <span>{calculations.remainingUZS.toLocaleString()} UZS</span>
+                        </div>
+                        <div className="flex justify-between text-primary font-semibold">
+                          <span>{t('remainingDebt')} (USD):</span>
+                          <span>${calculations.remainingUSD.toLocaleString()}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex justify-between text-red-500 font-semibold">
+                        <span>{t('overpaymentWarning')}</span>
+                        <span>+{Math.abs(calculations.remainingUZS).toLocaleString()} UZS</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

@@ -380,14 +380,18 @@ export default function MahsulotlarProductDetailPage() {
     const rate = parseFloat(exchangeRate || '1') || 1
 
     const totalCost = qty * price
+    const totalCostUsd = rate > 0 ? totalCost / rate : 0
     const paidInUZS = currency === "USD" ? payment * rate : payment
+    const paidInUSD = currency === "USD" ? payment : rate > 0 ? paidInUZS / rate : 0
     const remainingUZS = totalCost - paidInUZS
     const remainingUSD = remainingUZS / rate
     const isOverpayment = paidInUZS > totalCost && totalCost > 0
 
     return {
       totalCost,
+      totalCostUsd,
       paidInUZS,
+      paidInUSD,
       remainingUZS,
       remainingUSD: remainingUSD > 0 ? remainingUSD : 0,
       isOverpayment,
@@ -966,8 +970,16 @@ export default function MahsulotlarProductDetailPage() {
                       <span className="font-medium">{calculations.totalCost.toLocaleString()} UZS</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('totalCost')} (USD):</span>
+                      <span className="font-medium">${calculations.totalCostUsd.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">{t('paidAmount')}:</span>
                       <span className="font-medium">{calculations.paidInUZS.toLocaleString()} UZS</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('paidAmount')} (USD):</span>
+                      <span className="font-medium">${calculations.paidInUSD.toLocaleString()}</span>
                     </div>
                     {!calculations.isOverpayment ? (
                       <>

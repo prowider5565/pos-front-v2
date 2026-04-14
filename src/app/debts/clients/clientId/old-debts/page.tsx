@@ -360,11 +360,20 @@ export default function ClientOldDebtsDetailPage() {
               {selectedDebt && (
                 <div className="space-y-2 p-4 bg-muted rounded-lg">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">{t('oldDebtPayment.remainingAmount')}:</span>
+                    <span className="text-sm text-muted-foreground">{t('oldDebtPayment.remainingAmount')} (UZS):</span>
                     <span className="font-medium">
                       {formatCurrency(
-                        selectedDebt.debt_amounts.total_remaining[selectedDebt.currency === 'USD' ? 'usd_amount' : 'uzs_amount'],
-                        selectedDebt.currency
+                        selectedDebt.debt_amounts.total_remaining.uzs_amount,
+                        'UZS'
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">{t('oldDebtPayment.remainingAmount')} (USD):</span>
+                    <span className="font-medium">
+                      {formatCurrency(
+                        selectedDebt.debt_amounts.total_remaining.usd_amount,
+                        'USD'
                       )}
                     </span>
                   </div>

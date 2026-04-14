@@ -167,6 +167,8 @@ export function FullyPaidSalesTable({ filterParams }: FullyPaidSalesTableProps) 
   const { t } = useTranslation(["dashboard", "common"])
   const [page, setPage] = React.useState(1)
   const { data, isLoading, isError } = useFullyPaidSales(filterParams, page)
+  const results = data?.results ?? []
+  const totalCount = data?.count ?? results.length
   
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -179,7 +181,7 @@ export function FullyPaidSalesTable({ filterParams }: FullyPaidSalesTableProps) 
   const columns = React.useMemo(() => createColumns(t), [t])
 
   const table = useReactTable({
-    data: data?.results ?? [],
+    data: results,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -204,7 +206,7 @@ export function FullyPaidSalesTable({ filterParams }: FullyPaidSalesTableProps) 
     )
   }
 
-  if (!data || data.results.length === 0) {
+  if (results.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         No fully paid sales found
@@ -224,7 +226,7 @@ export function FullyPaidSalesTable({ filterParams }: FullyPaidSalesTableProps) 
           className="max-w-sm"
         />
         <div className="ml-auto text-sm text-muted-foreground">
-          {t('dashboard:table.total')}: {t('dashboard:metrics.salesCount', { count: data.count })}
+          {t('dashboard:table.total')}: {t('dashboard:metrics.salesCount', { count: totalCount })}
         </div>
       </div>
 
@@ -274,12 +276,12 @@ export function FullyPaidSalesTable({ filterParams }: FullyPaidSalesTableProps) 
         </Table>
       </div>
 
-      {data && data.count > 0 && (
+      {totalCount > 0 && (
         <PaginationControls
           currentPage={page}
-          totalCount={data.count}
-          hasNext={!!data.next}
-          hasPrevious={!!data.previous}
+          totalCount={totalCount}
+          hasNext={!!data?.next}
+          hasPrevious={!!data?.previous}
           onPageChange={setPage}
         />
       )}

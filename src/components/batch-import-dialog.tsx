@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -45,11 +46,15 @@ const batchImportSchema = z.object({
     const num = parseFloat(val)
     return !isNaN(num) && num > 0
   }, "Purchase price must be greater than 0"),
-  currency: z.enum(["UZS", "USD"]),
-  exchange_rate: z.string().min(1, "Exchange rate is required").refine((val) => {
+  sell_price: z.string().min(1, "Sell price is required").refine((val) => {
     const num = parseFloat(val)
     return !isNaN(num) && num > 0
-  }, "Exchange rate must be greater than 0"),
+  }, "Sell price must be greater than 0"),
+  has_payment: z.boolean(),
+  currency: z.enum(["UZS", "USD"]),
+  exchange_rate: z.string().optional(),
+  amount: z.string().optional(),
+  method: z.string().optional(),
 })
 
 type BatchImportFormValues = z.infer<typeof batchImportSchema>
@@ -75,8 +80,12 @@ export function BatchImportDialog({
       product_id: productId ? String(productId) : "",
       qty: "",
       purchase_price: "",
+      sell_price: "",
+      has_payment: false,
       currency: "UZS",
       exchange_rate: "",
+      amount: "",
+      method: "CASH",
     },
   })
 
@@ -118,18 +127,59 @@ export function BatchImportDialog({
     }
   }, [open, productId, form])
 
+  const quantity = useWatch({ control: form.control, name: "qty" })
+  const purchasePrice = useWatch({ control: form.control, name: "purchase_price" })
+  const hasPayment = useWatch({ control: form.control, name: "has_payment" })
+  const currency = useWatch({ control: form.control, name: "currency" })
+  const exchangeRate = useWatch({ control: form.control, name: "exchange_rate" })
+  const paymentAmount = useWatch({ control: form.control, name: "amount" })
+
+  const calculations = useMemo(() => {
+    const qty = parseFloat(quantity || "0") || 0
+    const price = parseFloat(purchasePrice || "0") || 0
+    const rate = parseFloat(exchangeRate || "1") || 1
+    const payment = parseFloat(paymentAmount || "0") || 0
+
+    const totalCostUzs = qty * price
+    const totalCostUsd = rate > 0 ? totalCostUzs / rate : 0
+    const paidAmountUzs = currency === "USD" ? payment * rate : payment
+    const paidAmountUsd = currency === "USD" ? payment : rate > 0 ? paidAmountUzs / rate : 0
+    const remainingDebtUzs = totalCostUzs - paidAmountUzs
+    const remainingDebtUsd = rate > 0 ? remainingDebtUzs / rate : 0
+    const isOverpayment = paidAmountUzs > totalCostUzs && totalCostUzs > 0
+
+    return {
+      totalCostUzs,
+      totalCostUsd,
+      paidAmountUzs,
+      paidAmountUsd,
+      remainingDebtUzs,
+      remainingDebtUsd: remainingDebtUsd > 0 ? remainingDebtUsd : 0,
+      isOverpayment,
+    }
+  }, [quantity, purchasePrice, exchangeRate, paymentAmount, currency])
+
+  const showPaymentSummary = calculations.totalCostUzs > 0
+
   const mutation = useMutation({
     mutationFn: async (data: BatchImportFormValues) => {
-      await productsService.createBatch({
+      const payload: Parameters<typeof productsService.createBatch>[0] = {
         product: Number(data.product_id),
         quantity: parseFloat(data.qty),
         buy_price: data.purchase_price,
-        sell_price: "0", // Default sell price, can be updated later
-        finance: {
+        sell_price: data.sell_price,
+      }
+
+      if (data.has_payment && data.amount && parseFloat(data.amount) > 0) {
+        payload.finance = {
           currency: data.currency,
-          exchange_rate: data.exchange_rate,
-        },
-      })
+          exchange_rate: data.exchange_rate || "1",
+          amount: data.amount,
+          method: data.method || "CASH",
+        }
+      }
+
+      await productsService.createBatch(payload)
     },
     onSuccess: () => {
       toast.success(t('common:messages.success'), {
@@ -157,6 +207,13 @@ export function BatchImportDialog({
   })
 
   const onSubmit = (data: BatchImportFormValues) => {
+    if (data.has_payment && calculations.isOverpayment) {
+      toast.error(t('products:paymentExceedsCost'), {
+        description: t('products:overpaymentWarning')
+      })
+      return
+    }
+
     mutation.mutate(data)
   }
 
@@ -245,37 +302,15 @@ export function BatchImportDialog({
 
             <FormField
               control={form.control}
-              name="currency"
+              name="sell_price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Currency</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="UZS">UZS</SelectItem>
-                      <SelectItem value="USD">USD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="exchange_rate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Exchange Rate</FormLabel>
+                  <FormLabel>Sell Price</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
-                      placeholder="Enter exchange rate"
+                      placeholder="Enter sell price"
                       {...field}
                     />
                   </FormControl>
@@ -283,6 +318,168 @@ export function BatchImportDialog({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="has_payment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>{t('products:addPayment')}</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {hasPayment && (
+              <div className="space-y-4 rounded-md border bg-muted/50 p-4">
+                <h4 className="text-sm font-medium">{t('products:paymentDetails')}</h4>
+
+                <FormField
+                  control={form.control}
+                  name="exchange_rate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('products:exchangeRate')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter exchange rate"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-12 gap-3">
+                  <div className="col-span-6">
+                    <FormField
+                      control={form.control}
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('products:paymentAmount')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="Enter payment amount"
+                              className={calculations.isOverpayment ? "border-red-500 focus-visible:ring-red-500" : ""}
+                              {...field}
+                            />
+                          </FormControl>
+                          {calculations.isOverpayment && (
+                            <p className="text-sm font-medium text-red-500">
+                              {t('products:overpaymentWarning')}
+                            </p>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('products:currency')}</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="UZS">UZS</SelectItem>
+                              <SelectItem value="USD">USD</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="method"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('products:paymentMethod')}</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="CASH">{t('products:paymentMethods.CASH')}</SelectItem>
+                              <SelectItem value="CARD">{t('products:paymentMethods.CARD')}</SelectItem>
+                              <SelectItem value="TRANSFER">{t('products:paymentMethods.TRANSFER')}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showPaymentSummary && (
+              <div className="space-y-2 rounded-md border p-4">
+                <h4 className="text-sm font-semibold">{t('products:paymentSummary')}</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('products:totalCost')} (UZS):</span>
+                    <span className="font-medium">{calculations.totalCostUzs.toLocaleString()} UZS</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('products:totalCost')} (USD):</span>
+                    <span className="font-medium">${calculations.totalCostUsd.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('products:paidAmount')} (UZS):</span>
+                    <span className="font-medium">{calculations.paidAmountUzs.toLocaleString()} UZS</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t('products:paidAmount')} (USD):</span>
+                    <span className="font-medium">${calculations.paidAmountUsd.toLocaleString()}</span>
+                  </div>
+                  {!calculations.isOverpayment ? (
+                    <>
+                      <div className="flex justify-between font-semibold text-primary">
+                        <span>{t('products:remainingDebt')} (UZS):</span>
+                        <span>{calculations.remainingDebtUzs.toLocaleString()} UZS</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-primary">
+                        <span>{t('products:remainingDebt')} (USD):</span>
+                        <span>${calculations.remainingDebtUsd.toLocaleString()}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between font-semibold text-red-500">
+                      <span>{t('products:overpaymentWarning')}</span>
+                      <span>+{Math.abs(calculations.remainingDebtUzs).toLocaleString()} UZS</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <DialogFooter>
               <Button
@@ -292,7 +489,7 @@ export function BatchImportDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={mutation.isPending}>
+              <Button type="submit" disabled={mutation.isPending || (hasPayment && calculations.isOverpayment)}>
                 {mutation.isPending ? "Importing..." : "Import Batch"}
               </Button>
             </DialogFooter>

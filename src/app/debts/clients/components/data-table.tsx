@@ -214,6 +214,8 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
           type="old-client"
           entityId={selectedClient.client || selectedClient.id}
           entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+          remainingUzs={selectedClient.debt_amounts.total_remaining.uzs_amount}
+          remainingUsd={selectedClient.debt_amounts.total_remaining.usd_amount}
           onSuccess={onPaymentSuccess}
         />
       )}

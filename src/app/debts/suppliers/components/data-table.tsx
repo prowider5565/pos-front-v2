@@ -179,6 +179,8 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
           type={paymentType}
           entityId={selectedSupplier.id}
           entityName={selectedSupplier.full_name || selectedSupplier.company_name}
+          remainingUzs={selectedSupplier.debt_amounts.total_remaining.uzs_amount}
+          remainingUsd={selectedSupplier.debt_amounts.total_remaining.usd_amount}
           onSuccess={onPaymentSuccess}
         />
       )}

@@ -52,6 +52,8 @@ interface BulkPaymentDialogProps {
   type: PaymentType
   entityId: number
   entityName: string
+  remainingUzs?: string
+  remainingUsd?: string
   onSuccess?: () => void
 }
 
@@ -61,6 +63,8 @@ export function BulkPaymentDialog({
   type,
   entityId,
   entityName,
+  remainingUzs,
+  remainingUsd,
   onSuccess,
 }: BulkPaymentDialogProps) {
   const { t } = useTranslation(['debts', 'common'])
@@ -138,6 +142,23 @@ export function BulkPaymentDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {(remainingUzs !== undefined || remainingUsd !== undefined) && (
+              <div className="space-y-2 rounded-lg bg-muted p-4">
+                {remainingUzs !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">{t('payment.remainingDebt')} (UZS):</span>
+                    <span className="font-medium">{parseFloat(remainingUzs).toLocaleString()} UZS</span>
+                  </div>
+                )}
+                {remainingUsd !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">{t('payment.remainingDebt')} (USD):</span>
+                    <span className="font-medium">${parseFloat(remainingUsd).toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <FormField
               control={form.control}
               name="total_amount"

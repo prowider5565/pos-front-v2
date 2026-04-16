@@ -65,7 +65,8 @@ const productCreateSchema = z.object({
   method: z.enum(["CASH", "CARD", "TRANSFER"]).optional(),
 })
 
-type ProductCreateFormValues = z.infer<typeof productCreateSchema>
+type ProductCreateFormInput = z.input<typeof productCreateSchema>
+type ProductCreateFormValues = z.output<typeof productCreateSchema>
 
 interface ProductCreateDialogProps {
   open: boolean
@@ -92,7 +93,7 @@ export function ProductCreateDialog({
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null)
 
-  const form = useForm<ProductCreateFormValues>({
+  const form = useForm<ProductCreateFormInput, unknown, ProductCreateFormValues>({
     resolver: zodResolver(productCreateSchema),
     defaultValues: {
       name: "",

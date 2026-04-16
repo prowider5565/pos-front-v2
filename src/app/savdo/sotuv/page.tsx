@@ -189,6 +189,42 @@ export default function SotuvPage() {
 
   // Calculate totals
   const remaining = calculateRemaining(computedTotal, exchangeRate)
+  const hasSelectedClient = selectedClientId !== null
+
+  const buildSalePayments = useCallback(() => {
+    if (!hasSelectedClient) {
+      // Walk-in sales should be submitted as fully paid in UZS.
+      return [{
+        method: 'CASH' as PaymentMethod,
+        currency: 'UZS' as Currency,
+        amount: computedTotal.toString(),
+      }]
+    }
+
+    const allPayments = [...payments.map(payment => ({
+      method: payment.method,
+      currency: payment.currency,
+      amount: payment.amount,
+    }))]
+
+    const pendingAmountNum = parseFloat(pendingAmount)
+    if (pendingAmount && !isNaN(pendingAmountNum) && pendingAmountNum > 0) {
+      allPayments.push({
+        method: pendingMethod,
+        currency: pendingCurrency,
+        amount: pendingAmount,
+      })
+    }
+
+    return allPayments
+  }, [
+    hasSelectedClient,
+    computedTotal,
+    payments,
+    pendingAmount,
+    pendingMethod,
+    pendingCurrency,
+  ])
 
   const printSaleCheque = useCallback(async (saleDetail: SaleDetail) => {
     const oldDebts = saleDetail.client?.id
@@ -235,22 +271,8 @@ export default function SotuvPage() {
     try {
       setIsSubmitting(true)
 
-      // Build payments array including pending payment if valid
-      const allPayments = [...payments.map(payment => ({
-        method: payment.method,
-        currency: payment.currency,
-        amount: payment.amount,
-      }))]
-      
-      // Include pending payment if it has a valid amount
-      const pendingAmountNum = parseFloat(pendingAmount)
-      if (pendingAmount && !isNaN(pendingAmountNum) && pendingAmountNum > 0) {
-        allPayments.push({
-          method: pendingMethod,
-          currency: pendingCurrency,
-          amount: pendingAmount,
-        })
-      }
+      const allPayments = buildSalePayments()
+      const payloadRemaining = hasSelectedClient ? remaining : 0
 
       // Prepare request data
       const saleData = {
@@ -269,7 +291,7 @@ export default function SotuvPage() {
       await salesService.createSale(saleData)
 
       // Success
-      if (remaining > 0) {
+      if (payloadRemaining > 0) {
         toast.success(t('messages.saleCreatedWithDebt'))
       } else {
         toast.success(t('messages.saleCreated'))
@@ -291,11 +313,10 @@ export default function SotuvPage() {
     selectedClientId,
     discountAmount,
     remaining,
+    hasSelectedClient,
     notes,
     isFinalTotalTooHigh,
-    pendingAmount,
-    pendingMethod,
-    pendingCurrency,
+    buildSalePayments,
     t,
     handleClearCart,
   ])
@@ -328,22 +349,8 @@ export default function SotuvPage() {
     try {
       setIsSubmitting(true)
 
-      // Build payments array including pending payment if valid
-      const allPayments = [...payments.map(payment => ({
-        method: payment.method,
-        currency: payment.currency,
-        amount: payment.amount,
-      }))]
-      
-      // Include pending payment if it has a valid amount
-      const pendingAmountNum = parseFloat(pendingAmount)
-      if (pendingAmount && !isNaN(pendingAmountNum) && pendingAmountNum > 0) {
-        allPayments.push({
-          method: pendingMethod,
-          currency: pendingCurrency,
-          amount: pendingAmount,
-        })
-      }
+      const allPayments = buildSalePayments()
+      const payloadRemaining = hasSelectedClient ? remaining : 0
 
       // Prepare request data
       const saleData = {
@@ -364,7 +371,7 @@ export default function SotuvPage() {
       const saleId = extractSaleId(createdSale)
 
       // Success message for create action
-      if (remaining > 0) {
+      if (payloadRemaining > 0) {
         toast.success(t('messages.saleCreatedWithDebt'))
       } else {
         toast.success(t('messages.saleCreated'))
@@ -395,11 +402,10 @@ export default function SotuvPage() {
     selectedClientId,
     discountAmount,
     remaining,
+    hasSelectedClient,
     notes,
     isFinalTotalTooHigh,
-    pendingAmount,
-    pendingMethod,
-    pendingCurrency,
+    buildSalePayments,
     t,
     handleClearCart,
     printSaleCheque,

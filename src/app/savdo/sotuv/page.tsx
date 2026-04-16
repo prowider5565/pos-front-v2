@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { invoke } from "@tauri-apps/api/core"
+import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -25,6 +26,7 @@ export default function SotuvPage() {
   const { config } = useSidebarConfig()
   const { t } = useTranslation('sales')
   const { user } = useAuth()
+  const queryClient = useQueryClient()
 
   const getApiErrorMessage = (error: any) => {
     const data = error?.response?.data
@@ -86,11 +88,14 @@ export default function SotuvPage() {
     cartItems,
     addToCart,
     updateQuantity,
+    setQuantityDraft,
+    commitQuantityDraft,
     removeItem,
     clearCart,
     subtotal,
     isInCart,
     getItemQuantity,
+    getItemQuantityDraft,
   } = useSalesCart()
 
   // Payment management
@@ -243,6 +248,16 @@ export default function SotuvPage() {
     })
   }, [user?.username])
 
+  const invalidateDebtQueries = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['debts', 'clients'] }),
+      queryClient.invalidateQueries({ queryKey: ['debts', 'suppliers'] }),
+      queryClient.invalidateQueries({ queryKey: ['client-old-debts-detail'] }),
+      queryClient.invalidateQueries({ queryKey: ['supplier-new-debts-detail'] }),
+      queryClient.invalidateQueries({ queryKey: ['supplier-old-debts-detail'] }),
+    ])
+  }, [queryClient])
+
   // Handle form submission
   const handleSubmit = useCallback(async () => {
     // Validation
@@ -289,6 +304,7 @@ export default function SotuvPage() {
 
       // Submit sale
       await salesService.createSale(saleData)
+      await invalidateDebtQueries()
 
       // Success
       if (payloadRemaining > 0) {
@@ -319,6 +335,7 @@ export default function SotuvPage() {
     buildSalePayments,
     t,
     handleClearCart,
+    invalidateDebtQueries,
   ])
 
   // Handle submit and print
@@ -368,6 +385,7 @@ export default function SotuvPage() {
 
       // Submit sale and get response
       const createdSale = await salesService.createSale(saleData)
+      await invalidateDebtQueries()
       const saleId = extractSaleId(createdSale)
 
       // Success message for create action
@@ -408,6 +426,7 @@ export default function SotuvPage() {
     buildSalePayments,
     t,
     handleClearCart,
+    invalidateDebtQueries,
     printSaleCheque,
   ])
 
@@ -450,6 +469,9 @@ export default function SotuvPage() {
               isInCart={isInCart}
               onUpdateQuantity={updateQuantity}
               getItemQuantity={getItemQuantity}
+              getItemQuantityDraft={getItemQuantityDraft}
+              onQuantityInputChange={setQuantityDraft}
+              onQuantityInputCommit={commitQuantityDraft}
               isCartOpen={cartItems.length > 0}
             />
           </div>
@@ -473,6 +495,9 @@ export default function SotuvPage() {
           selectedClientId={selectedClientId}
           exchangeRate={exchangeRate}
           onUpdateQuantity={updateQuantity}
+          getItemQuantityDraft={getItemQuantityDraft}
+          onQuantityInputChange={setQuantityDraft}
+          onQuantityInputCommit={commitQuantityDraft}
           onRemoveItem={handleRemoveItem}
           onClearCart={handleClearCart}
           onAddPayment={addPayment}

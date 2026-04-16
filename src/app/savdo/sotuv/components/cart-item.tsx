@@ -10,9 +10,19 @@ interface CartItemProps {
   item: CartItemType
   onUpdateQuantity: (productId: number, quantity: number) => void
   onRemove: (productId: number) => void
+  quantityInputValue: string
+  onQuantityInputChange: (productId: number, value: string) => void
+  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
 }
 
-export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
+export function CartItem({
+  item,
+  onUpdateQuantity,
+  onRemove,
+  quantityInputValue,
+  onQuantityInputChange,
+  onQuantityInputCommit,
+}: CartItemProps) {
   const { t } = useTranslation('sales')
   
   const { product, quantity } = item
@@ -22,12 +32,25 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
   const isAtMinQuantity = quantity <= 1
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value)
-    if (!isNaN(value) && value > 0) {
-      onUpdateQuantity(product.id, value)
-    } else if (e.target.value === '' || value === 0) {
-      // Allow empty or 0 temporarily while user is typing
-      return
+    const value = e.target.value
+    if (value === '' || /^\d+$/.test(value)) {
+      onQuantityInputChange(product.id, value)
+
+      const numericValue = parseInt(value, 10)
+      if (!Number.isNaN(numericValue) && numericValue > 0 && numericValue <= product.quantity) {
+        onUpdateQuantity(product.id, numericValue)
+      }
+    }
+  }
+
+  const handleQuantityBlur = () => {
+    onQuantityInputCommit(product.id, product.quantity)
+  }
+
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.currentTarget.blur()
     }
   }
 
@@ -78,11 +101,12 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
             <Minus className="h-3 w-3" />
           </Button>
           <Input
-            type="number"
-            min="1"
-            max={product.quantity}
-            value={quantity}
+            type="text"
+            inputMode="numeric"
+            value={quantityInputValue}
             onChange={handleQuantityChange}
+            onBlur={handleQuantityBlur}
+            onKeyDown={handleQuantityKeyDown}
             className="h-7 w-14 text-center px-1"
           />
           <Button

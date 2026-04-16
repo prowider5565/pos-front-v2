@@ -6,6 +6,7 @@ import type { DebtAmounts } from '@/types/debts'
 interface SummaryCardsProps {
   metadata?: DebtAmounts
   isLoading: boolean
+  onTotalPaidClick?: () => void
 }
 
 function formatAmount(uzs: string, usd: string) {
@@ -19,7 +20,7 @@ function formatAmount(uzs: string, usd: string) {
   )
 }
 
-export function SummaryCards({ metadata, isLoading }: SummaryCardsProps) {
+export function SummaryCards({ metadata, isLoading, onTotalPaidClick }: SummaryCardsProps) {
   const { t } = useTranslation('debts')
 
   if (isLoading) {
@@ -56,7 +57,18 @@ export function SummaryCards({ metadata, isLoading }: SummaryCardsProps) {
           {formatAmount(metadata.total_debt.uzs_amount, metadata.total_debt.usd_amount)}
         </CardContent>
       </Card>
-      <Card>
+      <Card
+        className={onTotalPaidClick ? 'cursor-pointer transition-colors hover:bg-muted/40' : undefined}
+        onClick={onTotalPaidClick}
+        role={onTotalPaidClick ? 'button' : undefined}
+        tabIndex={onTotalPaidClick ? 0 : undefined}
+        onKeyDown={onTotalPaidClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onTotalPaidClick()
+          }
+        } : undefined}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {t('summary.totalPaid')}
@@ -64,6 +76,11 @@ export function SummaryCards({ metadata, isLoading }: SummaryCardsProps) {
         </CardHeader>
         <CardContent>
           {formatAmount(metadata.total_paid.uzs_amount, metadata.total_paid.usd_amount)}
+          {onTotalPaidClick && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              {t('summary.clickToViewPayments')}
+            </div>
+          )}
         </CardContent>
       </Card>
       <Card>

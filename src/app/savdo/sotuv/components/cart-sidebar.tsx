@@ -27,6 +27,9 @@ interface CartSidebarProps {
   selectedClientId: number | null
   exchangeRate: number
   onUpdateQuantity: (productId: number, quantity: number) => void
+  getItemQuantityDraft: (productId: number) => string
+  onQuantityInputChange: (productId: number, value: string) => void
+  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
   onRemoveItem: (productId: number) => void
   onClearCart: () => void
   onAddPayment: (method: PaymentMethod, currency: Currency, amount: string) => void
@@ -56,6 +59,9 @@ export function CartSidebar({
   selectedClientId,
   exchangeRate,
   onUpdateQuantity,
+  getItemQuantityDraft,
+  onQuantityInputChange,
+  onQuantityInputCommit,
   onRemoveItem,
   onClearCart,
   onAddPayment,
@@ -136,6 +142,9 @@ export function CartSidebar({
                       key={item.product.id}
                       item={item}
                       onUpdateQuantity={onUpdateQuantity}
+                      quantityInputValue={getItemQuantityDraft(item.product.id)}
+                      onQuantityInputChange={onQuantityInputChange}
+                      onQuantityInputCommit={onQuantityInputCommit}
                       onRemove={onRemoveItem}
                     />
                   ))}

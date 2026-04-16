@@ -16,7 +16,10 @@
   "summary": {
     "totalDebt": "Jami qarz",
     "totalPaid": "To'langan",
-    "totalRemaining": "Qoldiq"
+    "totalRemaining": "Qoldiq",
+    "clickToViewPayments": "Barcha to'lovlarni ko'rish uchun bosing",
+    "allPaymentsTitle": "Barcha amalga oshirilgan to'lovlar",
+    "allPaymentsDescription": "Joriy yetkazib beruvchi qarzlari bo'limidagi barcha to'lovlarni ko'rish"
   },
   "table": {
     "date": "Sana",

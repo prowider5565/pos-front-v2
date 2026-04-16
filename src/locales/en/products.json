@@ -27,6 +27,7 @@
   "price": "Price",
   "sellPrice": "Sell Price",
   "buyPrice": "Buy Price",
+  "buyPriceUsd": "Buy Price in USD",
   "quantity": "Quantity",
   "totalQuantity": "Total Quantity",
   "images": "Images",

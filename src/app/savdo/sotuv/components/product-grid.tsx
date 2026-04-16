@@ -23,10 +23,22 @@ interface ProductGridProps {
   isInCart: (productId: number) => boolean
   onUpdateQuantity: (productId: number, quantity: number) => void
   getItemQuantity: (productId: number) => number
+  getItemQuantityDraft: (productId: number) => string
+  onQuantityInputChange: (productId: number, value: string) => void
+  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
   isCartOpen?: boolean
 }
 
-export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQuantity, isCartOpen = false }: ProductGridProps) {
+export function ProductGrid({
+  onAddToCart,
+  isInCart,
+  onUpdateQuantity,
+  getItemQuantity,
+  getItemQuantityDraft,
+  onQuantityInputChange,
+  onQuantityInputCommit,
+  isCartOpen = false,
+}: ProductGridProps) {
   const { t } = useTranslation('sales')
   const [products, setProducts] = useState<SaleProduct[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -241,6 +253,9 @@ export function ProductGrid({ onAddToCart, isInCart, onUpdateQuantity, getItemQu
                 isInCart={isInCart(product.id)}
                 onUpdateQuantity={onUpdateQuantity}
                 cartQuantity={getItemQuantity(product.id)}
+                quantityInputValue={getItemQuantityDraft(product.id)}
+                onQuantityInputChange={onQuantityInputChange}
+                onQuantityInputCommit={onQuantityInputCommit}
               />
             ))}
           </div>

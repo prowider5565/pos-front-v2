@@ -16,6 +16,7 @@ import { PaginationControls } from '@/components/ui/pagination-controls'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BulkPaymentDialog } from '@/components/bulk-payment-dialog'
 import { SalePaymentDialog } from '@/components/sale-payment-dialog'
+import { ClientSalePaymentDialog } from '@/components/client-sale-payment-dialog'
 import { PaymentHistoryDialog } from '@/components/payment-history-dialog'
 import { TBAPaymentsDialog } from '@/components/tba-payments-dialog'
 import type { ClientDebt, ClientDebtsResponse } from '@/types/debts'
@@ -40,6 +41,67 @@ function formatCurrency(uzs: string, usd: string) {
   return parts.length > 0 ? parts.join(' / ') : '—'
 }
 
+interface GroupedClientDebt {
+  clientId: number
+  clientName: string
+  phoneNumber: string
+  totalDebtUzs: number
+  totalDebtUsd: number
+  totalPaidUzs: number
+  totalPaidUsd: number
+  totalRemainingUzs: number
+  totalRemainingUsd: number
+  saleDebts: ClientDebt[]
+  latestCreatedAt?: string
+}
+
+function groupSaleDebtsByClient(debts: ClientDebt[]): GroupedClientDebt[] {
+  const grouped = new Map<number, GroupedClientDebt>()
+
+  debts.forEach(debt => {
+    const clientId = debt.client || debt.id
+    const clientName = debt.client_full_name || debt.full_name || `Client #${clientId}`
+    const phoneNumber = debt.client_phone_number || debt.phone_number || '—'
+
+    if (!grouped.has(clientId)) {
+      grouped.set(clientId, {
+        clientId,
+        clientName,
+        phoneNumber,
+        totalDebtUzs: 0,
+        totalDebtUsd: 0,
+        totalPaidUzs: 0,
+        totalPaidUsd: 0,
+        totalRemainingUzs: 0,
+        totalRemainingUsd: 0,
+        saleDebts: [],
+        latestCreatedAt: debt.created_at
+      })
+    }
+
+    const group = grouped.get(clientId)!
+    group.totalDebtUzs += parseFloat(debt.debt_amounts.total_debt.uzs_amount)
+    group.totalDebtUsd += parseFloat(debt.debt_amounts.total_debt.usd_amount)
+    group.totalPaidUzs += parseFloat(debt.debt_amounts.total_paid.uzs_amount)
+    group.totalPaidUsd += parseFloat(debt.debt_amounts.total_paid.usd_amount)
+    group.totalRemainingUzs += parseFloat(debt.debt_amounts.total_remaining.uzs_amount)
+    group.totalRemainingUsd += parseFloat(debt.debt_amounts.total_remaining.usd_amount)
+    group.saleDebts.push(debt)
+
+    // Update latest created_at
+    if (debt.created_at && (!group.latestCreatedAt || debt.created_at > group.latestCreatedAt)) {
+      group.latestCreatedAt = debt.created_at
+    }
+  })
+
+  return Array.from(grouped.values()).sort((a, b) => {
+    if (a.latestCreatedAt && b.latestCreatedAt) {
+      return new Date(b.latestCreatedAt).getTime() - new Date(a.latestCreatedAt).getTime()
+    }
+    return a.clientName.localeCompare(b.clientName)
+  })
+}
+
 export function DataTable({ data, isLoading, page: _page, search, debtType, onPageChange, onSearchChange, onPaymentSuccess }: DataTableProps) {
   const { t } = useTranslation('debts')
   const navigate = useNavigate()
@@ -47,6 +109,7 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
   const [tbaDialogOpen, setTbaDialogOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<ClientDebt | null>(null)
+  const [selectedGroupedClient, setSelectedGroupedClient] = useState<GroupedClientDebt | null>(null)
 
   const handleSearchChange = (value: string) => {
     onSearchChange(value)
@@ -117,7 +180,68 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                   {t('table.noResults')}
                 </TableCell>
               </TableRow>
+            ) : debtType === 'sale' ? (
+              // Grouped sale debts by client
+              groupSaleDebtsByClient(data.results).map((groupedClient) => {
+                const remaining = groupedClient.totalRemainingUzs + groupedClient.totalRemainingUsd
+                const formatDate = (dateString?: string) => {
+                  if (!dateString) return '—'
+                  const date = new Date(dateString)
+                  return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                }
+                return (
+                  <TableRow key={groupedClient.clientId} className="cursor-pointer hover:bg-muted/50" onClick={() => {
+                    // For sale debts, show payment history for the first debt
+                    if (groupedClient.saleDebts.length > 0) {
+                      setSelectedClient(groupedClient.saleDebts[0])
+                      setHistoryDialogOpen(true)
+                    }
+                  }}>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(groupedClient.latestCreatedAt)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">
+                        {groupedClient.clientName}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {groupedClient.phoneNumber}
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(groupedClient.totalDebtUzs.toString(), groupedClient.totalDebtUsd.toString())}
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(groupedClient.totalPaidUzs.toString(), groupedClient.totalPaidUsd.toString())}
+                    </TableCell>
+                    <TableCell>
+                      <span className={remaining > 0 ? 'text-destructive font-medium' : remaining < 0 ? 'text-green-600 font-medium' : ''}>
+                        {formatCurrency(groupedClient.totalRemainingUzs.toString(), groupedClient.totalRemainingUsd.toString())}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {remaining > 0 && (
+                          <Button size="sm" variant="outline" onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedGroupedClient(groupedClient)
+                            setPaymentDialogOpen(true)
+                          }}>
+                            <CreditCard className="h-4 w-4 mr-1" />
+                            {t('actions.makePayment')}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             ) : (
+              // Old debts - individual rows
               data?.results.map((client) => {
                 const remaining = parseFloat(client.debt_amounts.total_remaining.uzs_amount) + parseFloat(client.debt_amounts.total_remaining.usd_amount)
                 const formatDate = (dateString?: string) => {
@@ -131,24 +255,13 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                 }
                 return (
                   <TableRow key={client.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(client)}>
-                    {debtType === 'sale' && (
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(client.created_at)}
-                      </TableCell>
-                    )}
                     <TableCell>
                       <div className="font-medium">
-                        {debtType === 'sale' 
-                          ? (client.client_full_name || client.full_name || `Client #${client.client || client.id}`)
-                          : (client.full_name || `Client #${client.client || client.id}`)
-                        }
+                        {client.full_name || `Client #${client.client || client.id}`}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {debtType === 'sale' 
-                        ? (client.client_phone_number || client.phone_number || '—')
-                        : (client.phone_number || '—')
-                      }
+                      {client.phone_number || '—'}
                     </TableCell>
                     <TableCell>
                       {formatCurrency(client.debt_amounts.total_debt.uzs_amount, client.debt_amounts.total_debt.usd_amount)}
@@ -163,12 +276,10 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {debtType === 'old' && (
-                          <Button size="sm" variant="ghost" onClick={(e) => handleViewTBA(e, client)}>
-                            <History className="h-4 w-4 mr-1" />
-                            {t('actions.paymentHistory')}
-                          </Button>
-                        )}
+                        <Button size="sm" variant="ghost" onClick={(e) => handleViewTBA(e, client)}>
+                          <History className="h-4 w-4 mr-1" />
+                          {t('actions.paymentHistory')}
+                        </Button>
                         {remaining > 0 && (
                           <Button size="sm" variant="outline" onClick={(e) => handleMakePayment(e, client)}>
                             <CreditCard className="h-4 w-4 mr-1" />
@@ -237,6 +348,16 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
           type="old-client"
           entityId={selectedClient.client || selectedClient.id}
           entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+        />
+      )}
+
+      {selectedGroupedClient && debtType === 'sale' && (
+        <ClientSalePaymentDialog
+          open={paymentDialogOpen}
+          onOpenChange={setPaymentDialogOpen}
+          clientName={selectedGroupedClient.clientName}
+          saleDebts={selectedGroupedClient.saleDebts}
+          onSuccess={onPaymentSuccess}
         />
       )}
     </div>

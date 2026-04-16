@@ -97,7 +97,8 @@
       "amountUzs": "Summa (UZS)",
       "amountUsd": "Summa (USD)",
       "currency": "Valyuta",
-      "exchangeRate": "Valyuta kursi"
+      "exchangeRate": "Valyuta kursi",
+      "saleId": "Sotuv ID"
     }
   },
 

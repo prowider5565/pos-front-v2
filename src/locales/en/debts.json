@@ -89,6 +89,7 @@
     "exchangeRate": "Exchange Rate",
     "date": "Date",
     "seller": "Seller",
+    "saleId": "Sale ID",
     "loading": "Loading payment history...",
     "close": "Close",
     "noPayments": "No payments found",

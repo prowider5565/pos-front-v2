@@ -128,15 +128,22 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
     setTbaDialogOpen(true)
   }
 
-  const handleRowClick = (client: ClientDebt) => {
+  const handleRowClick = (client: ClientDebt, groupedClient?: GroupedClientDebt) => {
     if (debtType === 'old') {
       // Navigate to old debts detail page for this client
       const clientId = client.client || client.id
       navigate(`/debts/clients/${clientId}/old-debts`)
     } else {
       // Show payment history dialog for sale debts
-      setSelectedClient(client)
-      setHistoryDialogOpen(true)
+      if (groupedClient) {
+        // For grouped clients, show all payments for all their sales
+        setSelectedGroupedClient(groupedClient)
+        setHistoryDialogOpen(true)
+      } else {
+        // For individual sales (fallback)
+        setSelectedClient(client)
+        setHistoryDialogOpen(true)
+      }
     }
   }
 
@@ -194,13 +201,7 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                   })
                 }
                 return (
-                  <TableRow key={groupedClient.clientId} className="cursor-pointer hover:bg-muted/50" onClick={() => {
-                    // For sale debts, show payment history for the first debt
-                    if (groupedClient.saleDebts.length > 0) {
-                      setSelectedClient(groupedClient.saleDebts[0])
-                      setHistoryDialogOpen(true)
-                    }
-                  }}>
+                  <TableRow key={groupedClient.clientId} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(groupedClient.saleDebts[0], groupedClient)}>
                     <TableCell className="text-muted-foreground">
                       {formatDate(groupedClient.latestCreatedAt)}
                     </TableCell>
@@ -331,13 +332,24 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
         />
       )}
 
-      {selectedClient && (
+      {selectedClient && debtType === 'sale' && !selectedGroupedClient && (
         <PaymentHistoryDialog
           open={historyDialogOpen}
           onOpenChange={setHistoryDialogOpen}
-          type={debtType === 'sale' ? 'sale' : 'old-client'}
-          entityId={debtType === 'sale' ? selectedClient.id : (selectedClient.client || selectedClient.id)}
+          type="sale"
+          entityId={selectedClient.id}
           entityName={selectedClient.full_name || `Client #${selectedClient.client || selectedClient.id}`}
+        />
+      )}
+
+      {selectedGroupedClient && debtType === 'sale' && (
+        <PaymentHistoryDialog
+          open={historyDialogOpen}
+          onOpenChange={setHistoryDialogOpen}
+          type="client-sales"
+          entityId={selectedGroupedClient.clientId}
+          entityName={selectedGroupedClient.clientName}
+          saleIds={selectedGroupedClient.saleDebts.map(debt => debt.id)}
         />
       )}
 

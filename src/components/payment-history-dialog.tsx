@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { paymentsService, type PaymentRecord, type SalePaymentRecord } from "@/services/payments.service"
 
-type HistoryType = 'new-supplier' | 'old-supplier' | 'old-client' | 'sale'
+type HistoryType = 'new-supplier' | 'old-supplier' | 'old-client' | 'sale' | 'client-sales'
 
 interface PaymentHistoryDialogProps {
   open: boolean
@@ -15,9 +15,10 @@ interface PaymentHistoryDialogProps {
   type: HistoryType
   entityId: number
   entityName: string
+  saleIds?: number[] // For client-sales type
 }
 
-export function PaymentHistoryDialog({ open, onOpenChange, type, entityId, entityName }: PaymentHistoryDialogProps) {
+export function PaymentHistoryDialog({ open, onOpenChange, type, entityId, entityName, saleIds }: PaymentHistoryDialogProps) {
   const { t } = useTranslation('debts')
   const [isLoading, setIsLoading] = useState(false)
   const [payments, setPayments] = useState<PaymentRecord[] | SalePaymentRecord[]>([])
@@ -32,6 +33,14 @@ export function PaymentHistoryDialog({ open, onOpenChange, type, entityId, entit
           const data = await paymentsService.getSalePayments(entityId)
           setPayments(data)
           setTotalPaid('')
+        } else if (type === 'client-sales') {
+          if (saleIds && saleIds.length > 0) {
+            const data = await paymentsService.getClientSalePayments(saleIds)
+            // Sort by created_at descending
+            data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            setPayments(data)
+            setTotalPaid('')
+          }
         } else if (type === 'new-supplier') {
           const data = await paymentsService.getNewSupplierPayments(entityId)
           setPayments(data.payments)
@@ -52,9 +61,10 @@ export function PaymentHistoryDialog({ open, onOpenChange, type, entityId, entit
       }
     }
     fetchPayments()
-  }, [open, type, entityId])
+  }, [open, type, entityId, saleIds])
 
   const isSaleType = type === 'sale'
+  const isClientSalesType = type === 'client-sales'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,27 +84,39 @@ export function PaymentHistoryDialog({ open, onOpenChange, type, entityId, entit
             <TableHeader>
               <TableRow>
                 <TableHead>#</TableHead>
+                {isClientSalesType && <TableHead>{t('paymentHistory.saleId')}</TableHead>}
                 <TableHead>{t('paymentHistory.amount')}</TableHead>
                 <TableHead>{t('paymentHistory.currency')}</TableHead>
                 {isSaleType && <TableHead>{t('paymentHistory.method')}</TableHead>}
                 {isSaleType && <TableHead>{t('paymentHistory.date')}</TableHead>}
+                {isClientSalesType && <TableHead>{t('paymentHistory.date')}</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: isSaleType ? 5 : 3 }).map((_, j) => (
+                    {Array.from({ length: isSaleType ? 5 : isClientSalesType ? 5 : 3 }).map((_, j) => (
                       <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : payments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isSaleType ? 5 : 3} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={isSaleType ? 5 : isClientSalesType ? 5 : 3} className="text-center py-8 text-muted-foreground">
                     {t('paymentHistory.noPayments')}
                   </TableCell>
                 </TableRow>
+              ) : isClientSalesType ? (
+                (payments as SalePaymentRecord[]).map((p, idx) => (
+                  <TableRow key={`${p.sale}-${p.id}`}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>#{p.sale}</TableCell>
+                    <TableCell>{parseFloat(p.amount).toLocaleString()}</TableCell>
+                    <TableCell>{p.currency}</TableCell>
+                    <TableCell>{new Date(p.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
               ) : isSaleType ? (
                 (payments as SalePaymentRecord[]).map((p, idx) => (
                   <TableRow key={p.id}>

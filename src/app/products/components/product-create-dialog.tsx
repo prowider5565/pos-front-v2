@@ -118,6 +118,17 @@ export function ProductCreateDialog({
   const paymentAmount = useWatch({ control: form.control, name: "amount" })
   const currency = useWatch({ control: form.control, name: "currency" })
   const exchangeRate = useWatch({ control: form.control, name: "exchange_rate" })
+  const buyPriceNumber = parseFloat(buyPrice || "0") || 0
+  const exchangeRateNumber = parseFloat(exchangeRate || "0") || 0
+  const buyPriceUsd = exchangeRateNumber > 0 ? buyPriceNumber / exchangeRateNumber : 0
+
+  const sanitizeDecimalInput = (value: string) => value.replace(/[^0-9.]/g, '')
+
+  const formatTwoDecimals = (value: string) => {
+    if (!value) return ""
+    const parsed = parseFloat(value)
+    return Number.isNaN(parsed) ? "" : parsed.toFixed(2)
+  }
 
   // Calculate payment values and overpayment
   const calculations = useMemo(() => {
@@ -604,6 +615,25 @@ export function ProductCreateDialog({
 
               <FormField
                 control={form.control}
+                name="exchange_rate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('exchangeRate')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="12500.00"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="quantity"
                 render={({ field }) => (
                   <FormItem>
@@ -632,24 +662,65 @@ export function ProductCreateDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('buyPrice')}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="text"
-                          placeholder="10,000.00" 
-                          value={field.value}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                            field.onChange(value)
-                          }}
-                          onBlur={(e) => {
-                            const value = e.target.value
-                            if (value && !isNaN(parseFloat(value))) {
-                              field.onChange(parseFloat(value).toFixed(2))
-                            }
-                            field.onBlur()
-                          }}
-                        />
-                      </FormControl>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <FormDescription>UZS</FormDescription>
+                          <FormControl>
+                            <Input 
+                              type="text"
+                              placeholder="10,000.00" 
+                              value={field.value}
+                              onChange={(e) => {
+                                field.onChange(sanitizeDecimalInput(e.target.value))
+                              }}
+                              onBlur={(e) => {
+                                field.onChange(formatTwoDecimals(e.target.value))
+                                field.onBlur()
+                              }}
+                            />
+                          </FormControl>
+                        </div>
+
+                        <div className="space-y-2">
+                          <FormDescription>USD</FormDescription>
+                          <Input
+                            type="text"
+                            placeholder="0.00"
+                            value={field.value ? buyPriceUsd.toFixed(2) : ""}
+                            onChange={(e) => {
+                              const sanitized = sanitizeDecimalInput(e.target.value)
+                              if (!sanitized) {
+                                field.onChange("")
+                                return
+                              }
+
+                              const usdValue = parseFloat(sanitized)
+                              if (Number.isNaN(usdValue)) return
+
+                              if (exchangeRateNumber > 0) {
+                                field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const sanitized = sanitizeDecimalInput(e.target.value)
+                              if (!sanitized) {
+                                field.onChange("")
+                                return
+                              }
+
+                              const usdValue = parseFloat(sanitized)
+                              if (Number.isNaN(usdValue)) return
+
+                              if (exchangeRateNumber > 0) {
+                                field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <FormDescription>
+                        {t('exchangeRate')}: 1 USD = {exchangeRateNumber > 0 ? exchangeRateNumber.toLocaleString() : 0} UZS
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -667,14 +738,10 @@ export function ProductCreateDialog({
                           placeholder="15,000.00" 
                           value={field.value}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                            field.onChange(value)
+                            field.onChange(sanitizeDecimalInput(e.target.value))
                           }}
                           onBlur={(e) => {
-                            const value = e.target.value
-                            if (value && !isNaN(parseFloat(value))) {
-                              field.onChange(parseFloat(value).toFixed(2))
-                            }
+                            field.onChange(formatTwoDecimals(e.target.value))
                             field.onBlur()
                           }}
                         />
@@ -715,26 +782,6 @@ export function ProductCreateDialog({
 
               {hasPayment && (
                 <Card className="p-4 space-y-4">
-                  {/* Exchange Rate - Full width */}
-                  <FormField
-                    control={form.control}
-                    name="exchange_rate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('exchangeRate')}</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            step="0.01"
-                            placeholder="12500.00" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   {/* Amount, Currency, Payment Method - Single row */}
                   <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-6">

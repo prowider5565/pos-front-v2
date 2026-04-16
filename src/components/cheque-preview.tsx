@@ -122,6 +122,7 @@ export const buildChequeText = ({
     const totalUzs = saleData?.debt_amounts?.total_amount?.uzs_amount || "0"
     const discountUzs = saleData?.debt_amounts?.discount_amount?.uzs_amount || "0"
     const paidUzs = saleData?.debt_amounts?.paid_amount?.uzs_amount || "0"
+    const paidUsd = saleData?.debt_amounts?.paid_amount?.usd_amount || "0"
     const totalAfterDiscountUzs = saleData?.debt_amounts?.total_after_discount?.uzs_amount || "0"
     const remainingUzs = saleData?.debt_amounts?.remaining_amount?.uzs_amount || "0"
 
@@ -184,17 +185,13 @@ export const buildChequeText = ({
     output += buildHorizontalRule("└", "┴", "┘", columnWidths)
     output += "\n"
 
-    output += padRight("Jami:", 12) + padLeft(`${formatNumber(totalUzs)} so'm`, WIDTH - 12) + "\n"
+    output += padRight("To'landi so'mda:", 20) + padLeft(`${formatNumber(paidUzs)} so'm`, WIDTH - 20) + "\n"
+    output += padRight("To'landi dollarda:", 20) + padLeft(`${formatNumber(paidUsd)} USD`, WIDTH - 20) + "\n"
 
     if (hasDiscount) {
         output += "\n"
         output += padRight("Chegirma:", 20) + padLeft(`${formatNumber(discountUzs)} so'm`, WIDTH - 20) + "\n"
         output += padRight("Chegirmadan keyin:", 20) + padLeft(`${formatNumber(totalAfterDiscountUzs)} so'm`, WIDTH - 20) + "\n"
-    }
-
-    if (saleData?.debt_amounts) {
-        output += "\n"
-        output += padRight("To'landi:", 20) + padLeft(`${formatNumber(paidUzs)} so'm`, WIDTH - 20) + "\n"
     }
 
     if (hasOldDebts) {

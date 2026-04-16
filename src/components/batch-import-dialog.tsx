@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -73,6 +74,14 @@ export function BatchImportDialog({
   onSuccess,
 }: BatchImportDialogProps) {
   const { t } = useTranslation(['products', 'common'])
+
+  const sanitizeDecimalInput = (value: string) => value.replace(/[^0-9.]/g, '')
+
+  const formatTwoDecimals = (value: string) => {
+    if (!value) return ""
+    const parsed = parseFloat(value)
+    return Number.isNaN(parsed) ? "" : parsed.toFixed(2)
+  }
 
   const form = useForm<BatchImportFormValues>({
     resolver: zodResolver(batchImportSchema),
@@ -133,6 +142,9 @@ export function BatchImportDialog({
   const currency = useWatch({ control: form.control, name: "currency" })
   const exchangeRate = useWatch({ control: form.control, name: "exchange_rate" })
   const paymentAmount = useWatch({ control: form.control, name: "amount" })
+  const purchasePriceNumber = parseFloat(purchasePrice || "0") || 0
+  const exchangeRateNumber = parseFloat(exchangeRate || "0") || 0
+  const purchasePriceUsd = exchangeRateNumber > 0 ? purchasePriceNumber / exchangeRateNumber : 0
 
   const calculations = useMemo(() => {
     const qty = parseFloat(quantity || "0") || 0
@@ -283,18 +295,88 @@ export function BatchImportDialog({
 
             <FormField
               control={form.control}
-              name="purchase_price"
+              name="exchange_rate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Purchase Price</FormLabel>
+                  <FormLabel>{t('products:exchangeRate')}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
-                      placeholder="Enter purchase price"
+                      placeholder="Enter exchange rate"
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="purchase_price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Purchase Price</FormLabel>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <FormDescription>UZS</FormDescription>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Enter purchase price"
+                          value={field.value}
+                          onChange={(e) => {
+                            field.onChange(sanitizeDecimalInput(e.target.value))
+                          }}
+                          onBlur={(e) => {
+                            field.onChange(formatTwoDecimals(e.target.value))
+                            field.onBlur()
+                          }}
+                        />
+                      </FormControl>
+                    </div>
+
+                    <div className="space-y-2">
+                      <FormDescription>USD</FormDescription>
+                      <Input
+                        type="text"
+                        placeholder="0.00"
+                        value={field.value ? purchasePriceUsd.toFixed(2) : ""}
+                        onChange={(e) => {
+                          const sanitized = sanitizeDecimalInput(e.target.value)
+                          if (!sanitized) {
+                            field.onChange("")
+                            return
+                          }
+
+                          const usdValue = parseFloat(sanitized)
+                          if (Number.isNaN(usdValue)) return
+
+                          if (exchangeRateNumber > 0) {
+                            field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const sanitized = sanitizeDecimalInput(e.target.value)
+                          if (!sanitized) {
+                            field.onChange("")
+                            return
+                          }
+
+                          const usdValue = parseFloat(sanitized)
+                          if (Number.isNaN(usdValue)) return
+
+                          if (exchangeRateNumber > 0) {
+                            field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <FormDescription>
+                    {t('products:exchangeRate')}: 1 USD = {exchangeRateNumber > 0 ? exchangeRateNumber.toLocaleString() : 0} UZS
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -340,25 +422,6 @@ export function BatchImportDialog({
             {hasPayment && (
               <div className="space-y-4 rounded-md border bg-muted/50 p-4">
                 <h4 className="text-sm font-medium">{t('products:paymentDetails')}</h4>
-
-                <FormField
-                  control={form.control}
-                  name="exchange_rate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('products:exchangeRate')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="Enter exchange rate"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <div className="grid grid-cols-12 gap-3">
                   <div className="col-span-6">

@@ -27,6 +27,7 @@
   "price": "Цена",
   "sellPrice": "Цена продажи",
   "buyPrice": "Цена покупки",
+  "buyPriceUsd": "Цена покупки в USD",
   "quantity": "Количество",
   "totalQuantity": "Общее количество",
   "images": "Изображения",

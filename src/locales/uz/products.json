@@ -27,6 +27,7 @@
   "price": "Narxi",
   "sellPrice": "Sotish narxi",
   "buyPrice": "Xarid narxi",
+  "buyPriceUsd": "Xarid narxi USD da",
   "quantity": "Miqdori",
   "totalQuantity": "Umumiy miqdor",
   "images": "Rasmlar",

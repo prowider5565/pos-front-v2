@@ -86,11 +86,14 @@ export default function SotuvPage() {
     cartItems,
     addToCart,
     updateQuantity,
+    setQuantityDraft,
+    commitQuantityDraft,
     removeItem,
     clearCart,
     subtotal,
     isInCart,
     getItemQuantity,
+    getItemQuantityDraft,
   } = useSalesCart()
 
   // Payment management
@@ -444,6 +447,9 @@ export default function SotuvPage() {
               isInCart={isInCart}
               onUpdateQuantity={updateQuantity}
               getItemQuantity={getItemQuantity}
+              getItemQuantityDraft={getItemQuantityDraft}
+              onQuantityInputChange={setQuantityDraft}
+              onQuantityInputCommit={commitQuantityDraft}
               isCartOpen={cartItems.length > 0}
             />
           </div>
@@ -467,6 +473,9 @@ export default function SotuvPage() {
           selectedClientId={selectedClientId}
           exchangeRate={exchangeRate}
           onUpdateQuantity={updateQuantity}
+          getItemQuantityDraft={getItemQuantityDraft}
+          onQuantityInputChange={setQuantityDraft}
+          onQuantityInputCommit={commitQuantityDraft}
           onRemoveItem={handleRemoveItem}
           onClearCart={handleClearCart}
           onAddPayment={addPayment}

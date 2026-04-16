@@ -6,6 +6,7 @@ import type { CartItem, SaleProduct } from '@/types/sales'
  */
 export function useSalesCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [quantityDrafts, setQuantityDrafts] = useState<Record<number, string>>({})
 
   /**
    * Add a product to cart or remove if already exists (toggle behavior)
@@ -22,6 +23,15 @@ export function useSalesCart() {
         return [...prev, { product, quantity: 1 }]
       }
     })
+    setQuantityDrafts(prev => {
+      const next = { ...prev }
+      if (next[product.id]) {
+        delete next[product.id]
+      } else {
+        next[product.id] = '1'
+      }
+      return next
+    })
   }, [])
 
   /**
@@ -32,6 +42,11 @@ export function useSalesCart() {
       removeItem(productId)
       return
     }
+
+    setQuantityDrafts(prev => ({
+      ...prev,
+      [productId]: String(quantity),
+    }))
 
     setCartItems(prev =>
       prev.map(item =>
@@ -47,6 +62,11 @@ export function useSalesCart() {
    */
   const removeItem = useCallback((productId: number) => {
     setCartItems(prev => prev.filter(item => item.product.id !== productId))
+    setQuantityDrafts(prev => {
+      const next = { ...prev }
+      delete next[productId]
+      return next
+    })
   }, [])
 
   /**
@@ -54,7 +74,51 @@ export function useSalesCart() {
    */
   const clearCart = useCallback(() => {
     setCartItems([])
+    setQuantityDrafts({})
   }, [])
+
+  const setQuantityDraft = useCallback((productId: number, value: string) => {
+    setQuantityDrafts(prev => ({
+      ...prev,
+      [productId]: value,
+    }))
+  }, [])
+
+  const getItemQuantityDraft = useCallback((productId: number) => {
+    const draft = quantityDrafts[productId]
+    if (draft !== undefined) return draft
+
+    const item = cartItems.find(item => item.product.id === productId)
+    return item ? String(item.quantity) : ''
+  }, [cartItems, quantityDrafts])
+
+  const commitQuantityDraft = useCallback((productId: number, maxQuantity?: number) => {
+    const draft = quantityDrafts[productId]
+    const item = cartItems.find(cartItem => cartItem.product.id === productId)
+
+    if (!item) return
+
+    const trimmedDraft = draft?.trim() ?? String(item.quantity)
+    if (trimmedDraft === '') {
+      setQuantityDrafts(prev => ({
+        ...prev,
+        [productId]: String(item.quantity),
+      }))
+      return
+    }
+
+    const parsedQuantity = parseInt(trimmedDraft, 10)
+    if (Number.isNaN(parsedQuantity) || parsedQuantity <= 0) {
+      setQuantityDrafts(prev => ({
+        ...prev,
+        [productId]: String(item.quantity),
+      }))
+      return
+    }
+
+    const nextQuantity = maxQuantity ? Math.min(parsedQuantity, maxQuantity) : parsedQuantity
+    updateQuantity(productId, nextQuantity)
+  }, [cartItems, quantityDrafts, updateQuantity])
 
   /**
    * Calculate subtotal (sum of all items before discount)
@@ -91,11 +155,14 @@ export function useSalesCart() {
     cartItems,
     addToCart,
     updateQuantity,
+    setQuantityDraft,
+    commitQuantityDraft,
     removeItem,
     clearCart,
     subtotal,
     calculateTotal,
     isInCart,
     getItemQuantity,
+    getItemQuantityDraft,
   }
 }

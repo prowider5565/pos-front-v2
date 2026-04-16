@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { Package, Minus, Plus } from "lucide-react"
 import { toast } from "sonner"
@@ -18,17 +17,22 @@ interface ProductCardProps {
   isInCart: boolean
   onUpdateQuantity: (productId: number, quantity: number) => void
   cartQuantity: number
+  quantityInputValue: string
+  onQuantityInputChange: (productId: number, value: string) => void
+  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
 }
 
-export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, cartQuantity }: ProductCardProps) {
+export function ProductCard({
+  product,
+  onAddToCart,
+  isInCart,
+  onUpdateQuantity,
+  cartQuantity,
+  quantityInputValue,
+  onQuantityInputChange,
+  onQuantityInputCommit,
+}: ProductCardProps) {
   const { t } = useTranslation("sales")
-  // Local state for input value - allows free editing without affecting cart immediately
-  const [inputValue, setInputValue] = useState<string>(cartQuantity.toString())
-
-  // Sync local input value when cart quantity changes externally (e.g., from +/- buttons or cart sidebar)
-  useEffect(() => {
-    setInputValue(cartQuantity.toString())
-  }, [cartQuantity])
   const handleClick = () => {
     if (product.quantity <= 0) return
     
@@ -65,10 +69,14 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
     // Allow any input including empty - just update local state
     // Only allow digits
     if (value === '' || /^\d+$/.test(value)) {
-      setInputValue(value)
+      onQuantityInputChange(product.id, value)
+
+      const numericValue = parseInt(value, 10)
+      if (!Number.isNaN(numericValue) && numericValue > 0 && numericValue <= product.quantity) {
+        onUpdateQuantity(product.id, numericValue)
+      }
       
       // Alert user when quantity matches max stock
-      const numericValue = parseInt(value, 10)
       if (!isNaN(numericValue) && numericValue === product.quantity) {
         toast.warning(t("cartItem.maxStockReached", { stock: product.quantity }))
       }
@@ -77,28 +85,7 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
 
   const handleQuantityInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.stopPropagation()
-    const value = inputValue.trim()
-    
-    // If input is empty or invalid on blur, reset to current cart quantity
-    if (value === '') {
-      setInputValue(cartQuantity.toString())
-      return
-    }
-    
-    const newQuantity = parseInt(value, 10)
-    
-    // Validate and apply the quantity
-    if (isNaN(newQuantity) || newQuantity <= 0) {
-      // Reset to current cart quantity if invalid
-      setInputValue(cartQuantity.toString())
-    } else if (newQuantity > product.quantity) {
-      // Cap at max stock
-      onUpdateQuantity(product.id, product.quantity)
-      setInputValue(product.quantity.toString())
-    } else {
-      // Apply valid quantity
-      onUpdateQuantity(product.id, newQuantity)
-    }
+    onQuantityInputCommit(product.id, product.quantity)
   }
 
   const handleQuantityInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -178,7 +165,7 @@ export function ProductCard({ product, onAddToCart, isInCart, onUpdateQuantity, 
             <Input
               type="text"
               inputMode="numeric"
-              value={inputValue}
+              value={quantityInputValue}
               onChange={handleQuantityInputChange}
               onBlur={handleQuantityInputBlur}
               onKeyDown={handleQuantityInputKeyDown}

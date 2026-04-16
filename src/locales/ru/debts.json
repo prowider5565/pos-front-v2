@@ -16,7 +16,10 @@
   "summary": {
     "totalDebt": "Общий долг",
     "totalPaid": "Оплачено",
-    "totalRemaining": "Остаток"
+    "totalRemaining": "Остаток",
+    "clickToViewPayments": "Нажмите, чтобы посмотреть все платежи",
+    "allPaymentsTitle": "Все выполненные платежи",
+    "allPaymentsDescription": "Просмотр всех платежей по текущей вкладке долгов поставщиков"
   },
   "table": {
     "date": "Дата",

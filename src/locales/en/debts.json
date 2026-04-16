@@ -16,7 +16,10 @@
   "summary": {
     "totalDebt": "Total Debt",
     "totalPaid": "Total Paid",
-    "totalRemaining": "Remaining"
+    "totalRemaining": "Remaining",
+    "clickToViewPayments": "Click to view all payments",
+    "allPaymentsTitle": "All Payments Made",
+    "allPaymentsDescription": "View all payments made so far for the current supplier debt tab"
   },
   "table": {
     "date": "Date",

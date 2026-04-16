@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { DataTable } from './components/data-table'
 import { SummaryCards } from './components/summary-cards'
+import { PaymentsSummaryDialog } from './components/payments-summary-dialog'
 import { AddOldDebtDialog } from '@/components/add-old-debt-dialog'
 import { useNewSupplierDebts, useOldSupplierDebts } from '@/hooks/use-debts'
 
@@ -23,6 +24,7 @@ export default function SupplierDebtsPage() {
   const [oldDebouncedSearch, setOldDebouncedSearch] = useState('')
 
   const [addDebtDialogOpen, setAddDebtDialogOpen] = useState(false)
+  const [paymentsSummaryDialogOpen, setPaymentsSummaryDialogOpen] = useState(false)
 
   // Debounce new search
   useEffect(() => {
@@ -64,8 +66,12 @@ export default function SupplierDebtsPage() {
       description={t('suppliers.description')}
     >
       <div className="px-4 lg:px-6 space-y-6">
-        <SummaryCards metadata={currentData.data?.metadata} isLoading={currentData.isLoading} />
-        
+        <SummaryCards
+          metadata={currentData.data?.metadata}
+          isLoading={currentData.isLoading}
+          onTotalPaidClick={() => setPaymentsSummaryDialogOpen(true)}
+        />
+
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'new' | 'old')}>
           <TabsContent value="new" className="mt-0 space-y-4">
             <TabsList className="w-full">
@@ -119,6 +125,14 @@ export default function SupplierDebtsPage() {
           onOpenChange={setAddDebtDialogOpen}
           entityType="supplier"
           onSuccess={() => oldDebts.refetch()}
+        />
+
+        <PaymentsSummaryDialog
+          open={paymentsSummaryDialogOpen}
+          onOpenChange={setPaymentsSummaryDialogOpen}
+          debtType={activeTab}
+          search={activeTab === 'new' ? newDebouncedSearch : oldDebouncedSearch}
+          metadata={currentData.data?.metadata}
         />
       </div>
     </BaseLayout>

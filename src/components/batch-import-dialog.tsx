@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -75,7 +75,14 @@ export function BatchImportDialog({
 }: BatchImportDialogProps) {
   const { t } = useTranslation(['products', 'common'])
 
-  const sanitizeDecimalInput = (value: string) => value.replace(/[^0-9.]/g, '')
+  const [purchasePriceUsdInput, setPurchasePriceUsdInput] = useState("")
+  const [isPurchasePriceUsdEditing, setIsPurchasePriceUsdEditing] = useState(false)
+
+  const sanitizeDecimalInput = (value: string) => {
+    const cleaned = value.replace(/[^0-9.]/g, '')
+    const [integer, ...fractionParts] = cleaned.split('.')
+    return integer + (fractionParts.length > 0 ? `.${fractionParts.join('')}` : '')
+  }
 
   const formatTwoDecimals = (value: string) => {
     if (!value) return ""
@@ -145,6 +152,17 @@ export function BatchImportDialog({
   const purchasePriceNumber = parseFloat(purchasePrice || "0") || 0
   const exchangeRateNumber = parseFloat(exchangeRate || "0") || 0
   const purchasePriceUsd = exchangeRateNumber > 0 ? purchasePriceNumber / exchangeRateNumber : 0
+
+  useEffect(() => {
+    if (isPurchasePriceUsdEditing) return
+
+    if (!purchasePrice) {
+      setPurchasePriceUsdInput("")
+      return
+    }
+
+    setPurchasePriceUsdInput(exchangeRateNumber > 0 ? purchasePriceUsd.toFixed(2) : "")
+  }, [purchasePrice, exchangeRateNumber, purchasePriceUsd, isPurchasePriceUsdEditing])
 
   const calculations = useMemo(() => {
     const qty = parseFloat(quantity || "0") || 0
@@ -342,34 +360,43 @@ export function BatchImportDialog({
                       <Input
                         type="text"
                         placeholder="0.00"
-                        value={field.value ? purchasePriceUsd.toFixed(2) : ""}
+                        value={purchasePriceUsdInput}
+                        onFocus={() => setIsPurchasePriceUsdEditing(true)}
                         onChange={(e) => {
-                          const sanitized = sanitizeDecimalInput(e.target.value)
-                          if (!sanitized) {
+                          const rawValue = e.target.value
+                          setPurchasePriceUsdInput(rawValue)
+
+                          const sanitized = sanitizeDecimalInput(rawValue)
+                          if (!sanitized || sanitized === ".") {
                             field.onChange("")
                             return
                           }
 
                           const usdValue = parseFloat(sanitized)
-                          if (Number.isNaN(usdValue)) return
+                          if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) return
 
-                          if (exchangeRateNumber > 0) {
-                            field.onChange((usdValue * exchangeRateNumber).toFixed(2))
-                          }
+                          field.onChange((usdValue * exchangeRateNumber).toFixed(2))
                         }}
                         onBlur={(e) => {
-                          const sanitized = sanitizeDecimalInput(e.target.value)
-                          if (!sanitized) {
+                          setIsPurchasePriceUsdEditing(false)
+                          const rawValue = e.target.value
+                          const sanitized = sanitizeDecimalInput(rawValue)
+                          if (!sanitized || sanitized === ".") {
                             field.onChange("")
+                            setPurchasePriceUsdInput("")
+                            field.onBlur()
                             return
                           }
 
                           const usdValue = parseFloat(sanitized)
-                          if (Number.isNaN(usdValue)) return
-
-                          if (exchangeRateNumber > 0) {
-                            field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                          if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) {
+                            field.onBlur()
+                            return
                           }
+
+                          field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                          setPurchasePriceUsdInput(usdValue.toFixed(2))
+                          field.onBlur()
                         }}
                       />
                     </div>

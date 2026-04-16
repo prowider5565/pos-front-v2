@@ -123,13 +123,31 @@ export function ProductCreateDialog({
   const exchangeRateNumber = parseFloat(exchangeRate || "0") || 0
   const buyPriceUsd = exchangeRateNumber > 0 ? buyPriceNumber / exchangeRateNumber : 0
 
-  const sanitizeDecimalInput = (value: string) => value.replace(/[^0-9.]/g, '')
+  const [buyPriceUsdInput, setBuyPriceUsdInput] = useState("")
+  const [isBuyPriceUsdEditing, setIsBuyPriceUsdEditing] = useState(false)
+
+  const sanitizeDecimalInput = (value: string) => {
+    const cleaned = value.replace(/[^0-9.]/g, '')
+    const [integer, ...fractionParts] = cleaned.split('.')
+    return integer + (fractionParts.length > 0 ? `.${fractionParts.join('')}` : '')
+  }
 
   const formatTwoDecimals = (value: string) => {
     if (!value) return ""
     const parsed = parseFloat(value)
     return Number.isNaN(parsed) ? "" : parsed.toFixed(2)
   }
+
+  useEffect(() => {
+    if (isBuyPriceUsdEditing) return
+
+    if (!buyPrice) {
+      setBuyPriceUsdInput("")
+      return
+    }
+
+    setBuyPriceUsdInput(exchangeRateNumber > 0 ? buyPriceUsd.toFixed(2) : "")
+  }, [buyPrice, exchangeRateNumber, buyPriceUsd, isBuyPriceUsdEditing])
 
   // Calculate payment values and overpayment
   const calculations = useMemo(() => {
@@ -687,34 +705,43 @@ export function ProductCreateDialog({
                           <Input
                             type="text"
                             placeholder="0.00"
-                            value={field.value ? buyPriceUsd.toFixed(2) : ""}
+                            value={buyPriceUsdInput}
+                            onFocus={() => setIsBuyPriceUsdEditing(true)}
                             onChange={(e) => {
-                              const sanitized = sanitizeDecimalInput(e.target.value)
-                              if (!sanitized) {
+                              const rawValue = e.target.value
+                              setBuyPriceUsdInput(rawValue)
+
+                              const sanitized = sanitizeDecimalInput(rawValue)
+                              if (!sanitized || sanitized === ".") {
                                 field.onChange("")
                                 return
                               }
 
                               const usdValue = parseFloat(sanitized)
-                              if (Number.isNaN(usdValue)) return
+                              if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) return
 
-                              if (exchangeRateNumber > 0) {
-                                field.onChange((usdValue * exchangeRateNumber).toFixed(2))
-                              }
+                              field.onChange((usdValue * exchangeRateNumber).toFixed(2))
                             }}
                             onBlur={(e) => {
-                              const sanitized = sanitizeDecimalInput(e.target.value)
-                              if (!sanitized) {
+                              setIsBuyPriceUsdEditing(false)
+                              const rawValue = e.target.value
+                              const sanitized = sanitizeDecimalInput(rawValue)
+                              if (!sanitized || sanitized === ".") {
                                 field.onChange("")
+                                setBuyPriceUsdInput("")
+                                field.onBlur()
                                 return
                               }
 
                               const usdValue = parseFloat(sanitized)
-                              if (Number.isNaN(usdValue)) return
-
-                              if (exchangeRateNumber > 0) {
-                                field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                              if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) {
+                                field.onBlur()
+                                return
                               }
+
+                              field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                              setBuyPriceUsdInput(usdValue.toFixed(2))
+                              field.onBlur()
                             }}
                           />
                         </div>

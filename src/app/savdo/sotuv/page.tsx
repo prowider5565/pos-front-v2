@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { invoke } from "@tauri-apps/api/core"
+import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -25,6 +26,7 @@ export default function SotuvPage() {
   const { config } = useSidebarConfig()
   const { t } = useTranslation('sales')
   const { user } = useAuth()
+  const queryClient = useQueryClient()
 
   const getApiErrorMessage = (error: any) => {
     const data = error?.response?.data
@@ -210,6 +212,16 @@ export default function SotuvPage() {
     })
   }, [user?.username])
 
+  const invalidateDebtQueries = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['debts', 'clients'] }),
+      queryClient.invalidateQueries({ queryKey: ['debts', 'suppliers'] }),
+      queryClient.invalidateQueries({ queryKey: ['client-old-debts-detail'] }),
+      queryClient.invalidateQueries({ queryKey: ['supplier-new-debts-detail'] }),
+      queryClient.invalidateQueries({ queryKey: ['supplier-old-debts-detail'] }),
+    ])
+  }, [queryClient])
+
   // Handle form submission
   const handleSubmit = useCallback(async () => {
     // Validation
@@ -270,6 +282,7 @@ export default function SotuvPage() {
 
       // Submit sale
       await salesService.createSale(saleData)
+      await invalidateDebtQueries()
 
       // Success
       if (remaining > 0) {
@@ -301,6 +314,7 @@ export default function SotuvPage() {
     pendingCurrency,
     t,
     handleClearCart,
+    invalidateDebtQueries,
   ])
 
   // Handle submit and print
@@ -364,6 +378,7 @@ export default function SotuvPage() {
 
       // Submit sale and get response
       const createdSale = await salesService.createSale(saleData)
+      await invalidateDebtQueries()
       const saleId = extractSaleId(createdSale)
 
       // Success message for create action
@@ -405,6 +420,7 @@ export default function SotuvPage() {
     pendingCurrency,
     t,
     handleClearCart,
+    invalidateDebtQueries,
     printSaleCheque,
   ])
 

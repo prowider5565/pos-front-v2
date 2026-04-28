@@ -57,6 +57,20 @@ export default function SaleDetailPage() {
 
   const formatAmount = (amount: string) => parseFloat(amount).toLocaleString()
   const client = sale.client
+  const debtAmounts = sale.debt_amounts
+  const zeroAmount = { uzs_amount: "0", usd_amount: "0" }
+  const totalAmount = debtAmounts?.total_amount ?? zeroAmount
+  const discountAmount = debtAmounts?.discount_amount ?? zeroAmount
+  const paidAmount = debtAmounts?.paid_amount ?? zeroAmount
+  const remainingAmount = debtAmounts?.remaining_amount ?? zeroAmount
+  const totalAfterDiscount = debtAmounts?.total_after_discount ?? {
+    uzs_amount: String(
+      Math.max(0, (parseFloat(totalAmount.uzs_amount) || 0) - (parseFloat(discountAmount.uzs_amount) || 0))
+    ),
+    usd_amount: String(
+      Math.max(0, (parseFloat(totalAmount.usd_amount) || 0) - (parseFloat(discountAmount.usd_amount) || 0))
+    ),
+  }
 
   return (
     <BaseLayout
@@ -139,30 +153,30 @@ export default function SaleDetailPage() {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.total')}</p>
-                  <p className="font-semibold">{formatAmount(sale.debt_amounts.total_amount.uzs_amount)} UZS</p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.total_amount.usd_amount).toFixed(2)}</p>
+                  <p className="font-semibold">{formatAmount(totalAmount.uzs_amount)} UZS</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(totalAmount.usd_amount).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.discount')}</p>
-                  <p className="font-semibold">{formatAmount(sale.debt_amounts.discount_amount.uzs_amount)} UZS</p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.discount_amount.usd_amount).toFixed(2)}</p>
+                  <p className="font-semibold">{formatAmount(discountAmount.uzs_amount)} UZS</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(discountAmount.usd_amount).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.afterDiscount')}</p>
-                  <p className="font-semibold">{formatAmount(sale.debt_amounts.total_after_discount.uzs_amount)} UZS</p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.total_after_discount.usd_amount).toFixed(2)}</p>
+                  <p className="font-semibold">{formatAmount(totalAfterDiscount.uzs_amount)} UZS</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(totalAfterDiscount.usd_amount).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.paid')}</p>
-                  <p className="font-semibold text-green-600">{formatAmount(sale.debt_amounts.paid_amount.uzs_amount)} UZS</p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.paid_amount.usd_amount).toFixed(2)}</p>
+                  <p className="font-semibold text-green-600">{formatAmount(paidAmount.uzs_amount)} UZS</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(paidAmount.usd_amount).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">{t('history.columns.remaining')}</p>
-                  <p className={`font-semibold ${parseFloat(sale.debt_amounts.remaining_amount.uzs_amount) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                    {formatAmount(sale.debt_amounts.remaining_amount.uzs_amount)} UZS
+                  <p className={`font-semibold ${parseFloat(remainingAmount.uzs_amount) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                    {formatAmount(remainingAmount.uzs_amount)} UZS
                   </p>
-                  <p className="text-xs text-muted-foreground">${parseFloat(sale.debt_amounts.remaining_amount.usd_amount).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground">${parseFloat(remainingAmount.usd_amount).toFixed(2)}</p>
                 </div>
               </div>
             </div>

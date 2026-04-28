@@ -250,13 +250,37 @@ export default function SotuvPage() {
     pendingCurrency,
   ])
 
+  const buildPrintableSaleDetail = useCallback((saleDetail: SaleDetail) => {
+    const cartItemsByProductId = new Map(
+      cartItems.map(item => [item.product.id, item] as const)
+    )
+
+    return {
+      ...saleDetail,
+      items: saleDetail.items.map(item => {
+        const cartItem = cartItemsByProductId.get(item.product.id)
+        if (!cartItem) return item
+
+        const adjustedUnitPrice = cartItem.unitPrice
+        const adjustedSubtotal = adjustedUnitPrice * cartItem.quantity
+
+        return {
+          ...item,
+          qty: cartItem.quantity,
+          unit_price: formatAmount(adjustedUnitPrice),
+          subtotal: formatAmount(adjustedSubtotal),
+        }
+      }),
+    }
+  }, [cartItems, formatAmount])
+
   const printSaleCheque = useCallback(async (saleDetail: SaleDetail) => {
     const oldDebts = saleDetail.client?.id
       ? await debtsService.getOldDebtsForCheque(saleDetail.client.id)
       : { total_usd: "0", total_uzs: "0" }
 
     const chequeText = buildChequeText({
-      saleData: saleDetail,
+      saleData: buildPrintableSaleDetail(saleDetail),
       oldDebts,
       username: user?.username,
     })
@@ -265,7 +289,7 @@ export default function SotuvPage() {
     toast.success('Cheque printed', {
       description: result,
     })
-  }, [user?.username])
+  }, [buildPrintableSaleDetail, user?.username])
 
   const invalidateDebtQueries = useCallback(async () => {
     await Promise.all([

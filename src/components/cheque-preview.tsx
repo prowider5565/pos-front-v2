@@ -34,15 +34,6 @@ const formatNumber = (value: string | number): string => {
     return parts.join(".")
 }
 
-const formatUsd = (value: string | number, exchangeRate: string | number): string => {
-    const amount = typeof value === "string" ? parseFloat(value) : value
-    const rate = typeof exchangeRate === "string" ? parseFloat(exchangeRate) : exchangeRate
-
-    if (isNaN(amount) || isNaN(rate) || rate <= 0) return "0.00"
-
-    return (amount / rate).toFixed(2)
-}
-
 const padRight = (text: string, width: number): string => {
     if (text.length >= width) return text.substring(0, width)
     return text + " ".repeat(width - text.length)
@@ -124,11 +115,20 @@ export const buildChequeText = ({
     const paidUsd = saleData?.debt_amounts?.paid_amount?.usd_amount || "0"
     const totalAfterDiscountUzs = saleData?.debt_amounts?.total_after_discount?.uzs_amount || "0"
     const remainingUzs = saleData?.debt_amounts?.remaining_amount?.uzs_amount || "0"
+    const remainingUsd = saleData?.debt_amounts?.remaining_amount?.usd_amount || "0"
+
+    const fetchedDebtUzs = parseFloat(oldDebts?.total_uzs || "0")
+    const fetchedDebtUsd = parseFloat(oldDebts?.total_usd || "0")
+    const currentSaleDebtUzs = parseFloat(remainingUzs) || 0
+    const currentSaleDebtUsd = parseFloat(remainingUsd) || 0
+    const previousDebtUzs = Math.max(0, fetchedDebtUzs - currentSaleDebtUzs)
+    const previousDebtUsd = Math.max(0, fetchedDebtUsd - currentSaleDebtUsd)
+    const totalCurrentDebtUzs = previousDebtUzs + currentSaleDebtUzs
+    const totalCurrentDebtUsd = previousDebtUsd + currentSaleDebtUsd
 
     const hasDiscount = parseFloat(discountUzs) > 0
-    const hasOldDebts = !!oldDebts && (parseFloat(oldDebts.total_uzs) > 0 || parseFloat(oldDebts.total_usd) > 0)
-    const hasRemainingDebt = parseFloat(remainingUzs) > 0
-    const totalDebtUzs = parseFloat(oldDebts?.total_uzs || "0") + parseFloat(remainingUzs)
+    const hasOldDebts = previousDebtUzs > 0 || previousDebtUsd > 0
+    const hasRemainingDebt = currentSaleDebtUzs > 0 || currentSaleDebtUsd > 0
     const items = saleData?.items && saleData.items.length > 0 ? saleData.items : null
 
     const WIDTH = 45
@@ -195,20 +195,20 @@ export const buildChequeText = ({
 
     if (hasOldDebts) {
         output += "\n"
-        output += padRight("Eski qarz so'mda:", 20) + padLeft(`${formatNumber(oldDebts.total_uzs)} so'm`, WIDTH - 20) + "\n"
-        output += padRight("Eski qarz dollarda:", 20) + padLeft(`${formatUsd(oldDebts.total_uzs, exchangeRate)} USD`, WIDTH - 20) + "\n"
+        output += padRight("Eski qarz so'mda:", 20) + padLeft(`${formatNumber(previousDebtUzs)} so'm`, WIDTH - 20) + "\n"
+        output += padRight("Eski qarz dollarda:", 20) + padLeft(`${formatNumber(previousDebtUsd)} USD`, WIDTH - 20) + "\n"
     }
 
     if (hasRemainingDebt) {
         output += padRight("Ushbu sotuv qarzi so'mda:", 20) + padLeft(`${formatNumber(remainingUzs)} so'm`, WIDTH - 20) + "\n"
-        output += padRight("Ushbu sotuv qarzi dollarda:", 20) + padLeft(`${formatUsd(remainingUzs, exchangeRate)} USD`, WIDTH - 20) + "\n"
-        output += padRight("Jami qarz so'mda:", 20) + padLeft(`${formatNumber(totalDebtUzs.toString())} so'm`, WIDTH - 20) + "\n"
-        output += padRight("Jami qarz dollarda:", 20) + padLeft(`${formatUsd(totalDebtUzs, exchangeRate)} USD`, WIDTH - 20) + "\n"
+        output += padRight("Ushbu sotuv qarzi dollarda:", 20) + padLeft(`${formatNumber(remainingUsd)} USD`, WIDTH - 20) + "\n"
+        output += padRight("Jami qarz so'mda:", 20) + padLeft(`${formatNumber(totalCurrentDebtUzs)} so'm`, WIDTH - 20) + "\n"
+        output += padRight("Jami qarz dollarda:", 20) + padLeft(`${formatNumber(totalCurrentDebtUsd)} USD`, WIDTH - 20) + "\n"
     }
 
     if (!hasRemainingDebt && hasOldDebts) {
-        output += padRight("Jami qarz so'mda:", 20) + padLeft(`${formatNumber(oldDebts.total_uzs)} so'm`, WIDTH - 20) + "\n"
-        output += padRight("Jami qarz dollarda:", 20) + padLeft(`${formatUsd(oldDebts.total_uzs, exchangeRate)} USD`, WIDTH - 20) + "\n"
+        output += padRight("Jami qarz so'mda:", 20) + padLeft(`${formatNumber(previousDebtUzs)} so'm`, WIDTH - 20) + "\n"
+        output += padRight("Jami qarz dollarda:", 20) + padLeft(`${formatNumber(previousDebtUsd)} USD`, WIDTH - 20) + "\n"
     }
 
     output += "\n"

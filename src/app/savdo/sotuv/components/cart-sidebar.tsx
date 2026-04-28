@@ -27,9 +27,13 @@ interface CartSidebarProps {
   selectedClientId: number | null
   exchangeRate: number
   onUpdateQuantity: (productId: number, quantity: number) => void
+  onUpdateUnitPrice: (productId: number, unitPrice: number) => void
   getItemQuantityDraft: (productId: number) => string
+  getItemPriceDraft: (productId: number) => string
   onQuantityInputChange: (productId: number, value: string) => void
   onQuantityInputCommit: (productId: number, maxQuantity: number) => void
+  onPriceInputChange: (productId: number, value: string) => void
+  onPriceInputCommit: (productId: number) => void
   onRemoveItem: (productId: number) => void
   onClearCart: () => void
   onAddPayment: (method: PaymentMethod, currency: Currency, amount: string) => void
@@ -59,9 +63,13 @@ export function CartSidebar({
   selectedClientId,
   exchangeRate,
   onUpdateQuantity,
+  onUpdateUnitPrice,
   getItemQuantityDraft,
+  getItemPriceDraft,
   onQuantityInputChange,
   onQuantityInputCommit,
+  onPriceInputChange,
+  onPriceInputCommit,
   onRemoveItem,
   onClearCart,
   onAddPayment,
@@ -132,6 +140,7 @@ export function CartSidebar({
                   <tr className="text-xs">
                     <th className="text-left p-2 font-medium">Product</th>
                     <th className="text-center p-2 font-medium w-[120px]">Quantity</th>
+                    <th className="text-left p-2 font-medium w-[150px]">Price</th>
                     <th className="text-right p-2 font-medium w-[100px]">Total</th>
                     <th className="w-[40px]"></th>
                   </tr>
@@ -142,9 +151,13 @@ export function CartSidebar({
                       key={item.product.id}
                       item={item}
                       onUpdateQuantity={onUpdateQuantity}
+                      onUpdateUnitPrice={onUpdateUnitPrice}
                       quantityInputValue={getItemQuantityDraft(item.product.id)}
+                      priceInputValue={getItemPriceDraft(item.product.id)}
                       onQuantityInputChange={onQuantityInputChange}
                       onQuantityInputCommit={onQuantityInputCommit}
+                      onPriceInputChange={onPriceInputChange}
+                      onPriceInputCommit={onPriceInputCommit}
                       onRemove={onRemoveItem}
                     />
                   ))}

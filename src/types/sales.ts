@@ -55,6 +55,7 @@ export interface SaleProductsResponse {
 export interface CartItem {
   product: SaleProduct
   quantity: number
+  unitPrice: number
 }
 
 /**
@@ -73,6 +74,7 @@ export interface PaymentEntry {
 export interface SaleItemRequest {
   product_id: number
   quantity: number
+  discount_amount?: string
 }
 
 /**

@@ -36,6 +36,8 @@
     "quantity": "Quantity",
     "remove": "Remove",
     "price": "Price",
+    "catalogPrice": "Catalog",
+    "finalPrice": "Final",
     "total": "Total",
     "stockError": "Only {{stock}} items available in stock",
     "invalidQuantity": "Please enter a valid quantity",

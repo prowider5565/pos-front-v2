@@ -9,27 +9,50 @@ import type { CartItem as CartItemType } from "@/types/sales"
 interface CartItemProps {
   item: CartItemType
   onUpdateQuantity: (productId: number, quantity: number) => void
+  onUpdateUnitPrice: (productId: number, unitPrice: number) => void
   onRemove: (productId: number) => void
   quantityInputValue: string
+  priceInputValue: string
   onQuantityInputChange: (productId: number, value: string) => void
   onQuantityInputCommit: (productId: number, maxQuantity: number) => void
+  onPriceInputChange: (productId: number, value: string) => void
+  onPriceInputCommit: (productId: number) => void
 }
 
 export function CartItem({
   item,
   onUpdateQuantity,
+  onUpdateUnitPrice,
   onRemove,
   quantityInputValue,
+  priceInputValue,
   onQuantityInputChange,
   onQuantityInputCommit,
+  onPriceInputChange,
+  onPriceInputCommit,
 }: CartItemProps) {
   const { t } = useTranslation('sales')
   
-  const { product, quantity } = item
-  const total = product.sell_price * quantity
+  const { product, quantity, unitPrice } = item
+  const total = unitPrice * quantity
   
   const hasStockError = quantity > product.quantity
   const isAtMinQuantity = quantity <= 1
+
+  const handleDecimalChange = (
+    value: string,
+    onDraftChange: (productId: number, value: string) => void,
+    onValueChange: (productId: number, value: number) => void,
+  ) => {
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      onDraftChange(product.id, value)
+
+      const numericValue = parseFloat(value)
+      if (!Number.isNaN(numericValue) && numericValue >= 0) {
+        onValueChange(product.id, numericValue)
+      }
+    }
+  }
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -52,6 +75,10 @@ export function CartItem({
       e.preventDefault()
       e.currentTarget.blur()
     }
+  }
+
+  const handlePriceBlur = () => {
+    onPriceInputCommit(product.id)
   }
 
   const incrementQuantity = (e: React.MouseEvent) => {
@@ -77,9 +104,7 @@ export function CartItem({
       <td className="p-2">
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm line-clamp-1">{product.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {product.sell_price.toLocaleString()} UZS
-          </p>
+          <p className="text-xs text-muted-foreground">{t('cartItem.catalogPrice')}: {product.sell_price.toLocaleString()} UZS</p>
           {hasStockError && (
             <p className="text-xs text-destructive">
               {t('cartItem.stockError', { stock: product.quantity })}
@@ -117,6 +142,24 @@ export function CartItem({
           >
             <Plus className="h-3 w-3" />
           </Button>
+        </div>
+      </td>
+
+      <td className="p-2">
+        <div className="space-y-1">
+          <Input
+            type="text"
+            inputMode="decimal"
+            value={priceInputValue}
+            onChange={(e) => handleDecimalChange(e.target.value, onPriceInputChange, onUpdateUnitPrice)}
+            onBlur={handlePriceBlur}
+            onKeyDown={handleQuantityKeyDown}
+            className="h-7 text-xs px-2"
+            placeholder={t('cartItem.price')}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            {t('cartItem.finalPrice')}: {unitPrice.toLocaleString()} UZS
+          </p>
         </div>
       </td>
 

@@ -88,14 +88,18 @@ export default function SotuvPage() {
     cartItems,
     addToCart,
     updateQuantity,
+    updateUnitPrice,
     setQuantityDraft,
     commitQuantityDraft,
+    setPriceDraft,
+    commitPriceDraft,
     removeItem,
     clearCart,
     subtotal,
     isInCart,
     getItemQuantity,
     getItemQuantityDraft,
+    getItemPriceDraft,
   } = useSalesCart()
 
   // Payment management
@@ -187,14 +191,29 @@ export default function SotuvPage() {
 
   const finalTotalNumber = parseFloat(finalTotalUZS)
   const isFinalTotalValidNumber = !Number.isNaN(finalTotalNumber)
-  const isFinalTotalTooHigh = isFinalTotalValidNumber && finalTotalNumber > subtotal
+  const adjustedSubtotal = subtotal
+  const isFinalTotalTooHigh = isFinalTotalValidNumber && finalTotalNumber > adjustedSubtotal
 
-  const computedTotal = isFinalTotalValidNumber ? Math.max(0, Math.min(finalTotalNumber, subtotal)) : subtotal
-  const discountAmount = Math.max(0, subtotal - computedTotal)
+  const computedTotal = isFinalTotalValidNumber ? Math.max(0, Math.min(finalTotalNumber, adjustedSubtotal)) : adjustedSubtotal
+  const saleLevelDiscountAmount = Math.max(0, adjustedSubtotal - computedTotal)
 
   // Calculate totals
   const remaining = calculateRemaining(computedTotal, exchangeRate)
   const hasSelectedClient = selectedClientId !== null
+  const formatAmount = useCallback((value: number) => value.toFixed(2), [])
+
+  const buildSaleItems = useCallback(() => {
+    return cartItems.map(item => {
+      const unitDiscount = Math.max(0, item.product.sell_price - item.unitPrice)
+      const lineDiscount = unitDiscount * item.quantity
+
+      return {
+        product_id: item.product.id,
+        quantity: item.quantity,
+        discount_amount: formatAmount(lineDiscount),
+      }
+    })
+  }, [cartItems, formatAmount])
 
   const buildSalePayments = useCallback(() => {
     if (!hasSelectedClient) {
@@ -291,14 +310,11 @@ export default function SotuvPage() {
 
       // Prepare request data
       const saleData = {
-        items: cartItems.map(item => ({
-          product_id: item.product.id,
-          quantity: item.quantity,
-        })),
+        items: buildSaleItems(),
         payments: allPayments,
         exchange_rate: exchangeRate.toString(),
         client_id: selectedClientId || undefined,
-        discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
+        discount_amount: saleLevelDiscountAmount > 0 ? formatAmount(saleLevelDiscountAmount) : undefined,
         notes: notes.trim() ? notes.trim() : undefined,
       }
 
@@ -327,12 +343,15 @@ export default function SotuvPage() {
     payments,
     exchangeRate,
     selectedClientId,
-    discountAmount,
     remaining,
     hasSelectedClient,
     notes,
     isFinalTotalTooHigh,
     buildSalePayments,
+    buildSaleItems,
+    computedTotal,
+    saleLevelDiscountAmount,
+    formatAmount,
     t,
     handleClearCart,
     invalidateDebtQueries,
@@ -371,14 +390,11 @@ export default function SotuvPage() {
 
       // Prepare request data
       const saleData = {
-        items: cartItems.map(item => ({
-          product_id: item.product.id,
-          quantity: item.quantity,
-        })),
+        items: buildSaleItems(),
         payments: allPayments,
         exchange_rate: exchangeRate.toString(),
         client_id: selectedClientId || undefined,
-        discount_amount: discountAmount > 0 ? discountAmount.toString() : undefined,
+        discount_amount: saleLevelDiscountAmount > 0 ? formatAmount(saleLevelDiscountAmount) : undefined,
         notes: notes.trim() ? notes.trim() : undefined,
         needs_cheque: true, // Mark that cheque is needed
       }
@@ -418,12 +434,15 @@ export default function SotuvPage() {
     payments,
     exchangeRate,
     selectedClientId,
-    discountAmount,
     remaining,
     hasSelectedClient,
     notes,
     isFinalTotalTooHigh,
     buildSalePayments,
+    buildSaleItems,
+    computedTotal,
+    saleLevelDiscountAmount,
+    formatAmount,
     t,
     handleClearCart,
     invalidateDebtQueries,
@@ -495,9 +514,13 @@ export default function SotuvPage() {
           selectedClientId={selectedClientId}
           exchangeRate={exchangeRate}
           onUpdateQuantity={updateQuantity}
+          onUpdateUnitPrice={updateUnitPrice}
           getItemQuantityDraft={getItemQuantityDraft}
+          getItemPriceDraft={getItemPriceDraft}
           onQuantityInputChange={setQuantityDraft}
           onQuantityInputCommit={commitQuantityDraft}
+          onPriceInputChange={setPriceDraft}
+          onPriceInputCommit={commitPriceDraft}
           onRemoveItem={handleRemoveItem}
           onClearCart={handleClearCart}
           onAddPayment={addPayment}

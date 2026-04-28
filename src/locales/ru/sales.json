@@ -36,6 +36,8 @@
     "quantity": "Количество",
     "remove": "Удалить",
     "price": "Цена",
+    "catalogPrice": "Каталог",
+    "finalPrice": "Итоговая цена",
     "total": "Итого",
     "stockError": "На складе только {{stock}} шт.",
     "invalidQuantity": "Пожалуйста, введите корректное количество",

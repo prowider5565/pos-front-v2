@@ -7,6 +7,7 @@ import type { CartItem, SaleProduct } from '@/types/sales'
 export function useSalesCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [quantityDrafts, setQuantityDrafts] = useState<Record<number, string>>({})
+  const [priceDrafts, setPriceDrafts] = useState<Record<number, string>>({})
 
   /**
    * Add a product to cart or remove if already exists (toggle behavior)
@@ -20,7 +21,7 @@ export function useSalesCart() {
         return prev.filter(item => item.product.id !== product.id)
       } else {
         // Add new product with quantity 1
-        return [...prev, { product, quantity: 1 }]
+        return [...prev, { product, quantity: 1, unitPrice: product.sell_price }]
       }
     })
     setQuantityDrafts(prev => {
@@ -29,6 +30,15 @@ export function useSalesCart() {
         delete next[product.id]
       } else {
         next[product.id] = '1'
+      }
+      return next
+    })
+    setPriceDrafts(prev => {
+      const next = { ...prev }
+      if (next[product.id]) {
+        delete next[product.id]
+      } else {
+        next[product.id] = String(product.sell_price)
       }
       return next
     })
@@ -67,6 +77,11 @@ export function useSalesCart() {
       delete next[productId]
       return next
     })
+    setPriceDrafts(prev => {
+      const next = { ...prev }
+      delete next[productId]
+      return next
+    })
   }, [])
 
   /**
@@ -75,6 +90,7 @@ export function useSalesCart() {
   const clearCart = useCallback(() => {
     setCartItems([])
     setQuantityDrafts({})
+    setPriceDrafts({})
   }, [])
 
   const setQuantityDraft = useCallback((productId: number, value: string) => {
@@ -91,6 +107,65 @@ export function useSalesCart() {
     const item = cartItems.find(item => item.product.id === productId)
     return item ? String(item.quantity) : ''
   }, [cartItems, quantityDrafts])
+
+  const updateUnitPrice = useCallback((productId: number, unitPrice: number) => {
+    const safeUnitPrice = Math.max(0, unitPrice)
+
+    setPriceDrafts(prev => ({
+      ...prev,
+      [productId]: String(safeUnitPrice),
+    }))
+
+    setCartItems(prev =>
+      prev.map(item =>
+        item.product.id === productId
+          ? { ...item, unitPrice: safeUnitPrice }
+          : item
+      )
+    )
+  }, [])
+
+  const setPriceDraft = useCallback((productId: number, value: string) => {
+    setPriceDrafts(prev => ({
+      ...prev,
+      [productId]: value,
+    }))
+  }, [])
+
+  const getItemPriceDraft = useCallback((productId: number) => {
+    const draft = priceDrafts[productId]
+    if (draft !== undefined) return draft
+
+    const item = cartItems.find(cartItem => cartItem.product.id === productId)
+    return item ? String(item.unitPrice) : ''
+  }, [cartItems, priceDrafts])
+
+  const commitPriceDraft = useCallback((productId: number) => {
+    const draft = priceDrafts[productId]
+    const item = cartItems.find(cartItem => cartItem.product.id === productId)
+
+    if (!item) return
+
+    const trimmedDraft = draft?.trim() ?? String(item.unitPrice)
+    if (trimmedDraft === '') {
+      setPriceDrafts(prev => ({
+        ...prev,
+        [productId]: String(item.unitPrice),
+      }))
+      return
+    }
+
+    const parsedPrice = parseFloat(trimmedDraft)
+    if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+      setPriceDrafts(prev => ({
+        ...prev,
+        [productId]: String(item.unitPrice),
+      }))
+      return
+    }
+
+    updateUnitPrice(productId, parsedPrice)
+  }, [cartItems, priceDrafts, updateUnitPrice])
 
   const commitQuantityDraft = useCallback((productId: number, maxQuantity?: number) => {
     const draft = quantityDrafts[productId]
@@ -125,7 +200,7 @@ export function useSalesCart() {
    */
   const subtotal = useMemo(() => {
     return cartItems.reduce((sum, item) => {
-      return sum + (item.product.sell_price * item.quantity)
+      return sum + (item.unitPrice * item.quantity)
     }, 0)
   }, [cartItems])
 
@@ -157,6 +232,9 @@ export function useSalesCart() {
     updateQuantity,
     setQuantityDraft,
     commitQuantityDraft,
+    updateUnitPrice,
+    setPriceDraft,
+    commitPriceDraft,
     removeItem,
     clearCart,
     subtotal,
@@ -164,5 +242,6 @@ export function useSalesCart() {
     isInCart,
     getItemQuantity,
     getItemQuantityDraft,
+    getItemPriceDraft,
   }
 }

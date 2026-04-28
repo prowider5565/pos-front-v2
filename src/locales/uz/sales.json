@@ -36,6 +36,8 @@
     "quantity": "Miqdori",
     "remove": "O'chirish",
     "price": "Narxi",
+    "catalogPrice": "Katalog",
+    "finalPrice": "Yakuniy narx",
     "total": "Jami",
     "stockError": "Omborda faqat {{stock}} dona bor",
     "invalidQuantity": "Iltimos, to'g'ri miqdor kiriting",

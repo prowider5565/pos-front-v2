@@ -41,6 +41,16 @@ function formatCurrency(uzs: string, usd: string) {
   return parts.length > 0 ? parts.join(' / ') : '—'
 }
 
+function formatDate(dateString?: string) {
+  if (!dateString) return '—'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
 interface GroupedClientDebt {
   clientId: number
   clientName: string
@@ -187,19 +197,10 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                   {t('table.noResults')}
                 </TableCell>
               </TableRow>
-            ) : debtType === 'sale' ? (
+            ) : debtType === 'sale' && data ? (
               // Grouped sale debts by client
               groupSaleDebtsByClient(data.results).map((groupedClient) => {
                 const remaining = groupedClient.totalRemainingUzs + groupedClient.totalRemainingUsd
-                const formatDate = (dateString?: string) => {
-                  if (!dateString) return '—'
-                  const date = new Date(dateString)
-                  return date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                }
                 return (
                   <TableRow key={groupedClient.clientId} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(groupedClient.saleDebts[0], groupedClient)}>
                     <TableCell className="text-muted-foreground">
@@ -245,15 +246,6 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
               // Old debts - individual rows
               data?.results.map((client) => {
                 const remaining = parseFloat(client.debt_amounts.total_remaining.uzs_amount) + parseFloat(client.debt_amounts.total_remaining.usd_amount)
-                const formatDate = (dateString?: string) => {
-                  if (!dateString) return '—'
-                  const date = new Date(dateString)
-                  return date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                }
                 return (
                   <TableRow key={client.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(client)}>
                     <TableCell>

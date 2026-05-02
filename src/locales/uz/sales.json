@@ -37,6 +37,7 @@
     "remove": "O'chirish",
     "price": "Narxi",
     "catalogPrice": "Katalog",
+    "barcode": "Shtrix-kod",
     "finalPrice": "Yakuniy narx",
     "total": "Jami",
     "stockError": "Omborda faqat {{stock}} dona bor",
@@ -108,6 +109,8 @@
     "productAdded": "{{productName}} savatchaga qo'shildi",
     "productRemoved": "Mahsulot savatchadan o'chirildi",
     "cartCleared": "Savatcha tozalandi",
+    "barcodeProductNotFound": "{{barcode}} shtrix-kod bo'yicha mahsulot topilmadi",
+    "barcodeLookupFailed": "{{barcode}} shtrix-kodini qidirishda xatolik yuz berdi",
     "error": "Sotuvni yaratishda xatolik. Qaytadan urinib ko'ring.",
     "loadError": "Mahsulotlarni yuklashda xatolik. Qaytadan urinib ko'ring."
   },

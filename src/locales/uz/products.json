@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Mahsulot nomini kiriting",
   "productDescription": "Tavsif",
   "productDescriptionPlaceholder": "Mahsulot tavsifini kiriting (ixtiyoriy)",
+  "barcodeScanner": "Shtrix-kod",
+  "barcodeScannerPlaceholder": "Shtrix-kod qiymatini kiriting",
   "productType": "Mahsulot Turi",
   "selectProductType": "Mahsulot turini tanlang",
   "selectCategory": "Kategoriyani Tanlang",

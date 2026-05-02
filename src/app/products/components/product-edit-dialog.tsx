@@ -33,12 +33,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { productsService, type Category, type Product } from "@/services/products.service"
+import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
 
 // Form validation schema
 const productEditSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
-  product_type: z.enum(["KG", "PIECE", "WEIGHT"]),
+  barcode_number: z.string().optional(),
+  product_type: z.enum(["KG", "PIECE", "WEIGHT", "LITER"]),
   category: z.string().min(1, "Category is required"),
 })
 
@@ -66,8 +68,19 @@ export function ProductEditDialog({
     defaultValues: {
       name: "",
       description: "",
+      barcode_number: "",
       product_type: "PIECE",
       category: "",
+    },
+  })
+
+  useBarcodeScanner({
+    enabled: open,
+    onBarcode: (barcode) => {
+      form.setValue("barcode_number", barcode, {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
     },
   })
 
@@ -95,6 +108,7 @@ export function ProductEditDialog({
       form.reset({
         name: product.name,
         description: product.description || "",
+        barcode_number: product.barcode_number || "",
         product_type: product.product_type,
         category: String(product.category),
       })
@@ -110,6 +124,7 @@ export function ProductEditDialog({
       await productsService.updateProduct(product.id, {
         name: data.name,
         description: data.description || "",
+        barcode_number: data.barcode_number?.trim() || "",
         product_type: data.product_type,
         category: parseInt(data.category),
       })
@@ -182,6 +197,23 @@ export function ProductEditDialog({
                   </FormControl>
                   <FormMessage />
                 </FormItem>
+                )}
+              />
+
+            <FormField
+              control={form.control}
+              name="barcode_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('barcodeScanner')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('barcodeScannerPlaceholder')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
 
@@ -228,6 +260,7 @@ export function ProductEditDialog({
                         <SelectItem value="PIECE">{t('productTypes.PIECE')}</SelectItem>
                         <SelectItem value="KG">{t('productTypes.KG')}</SelectItem>
                         <SelectItem value="WEIGHT">{t('productTypes.WEIGHT')}</SelectItem>
+                        <SelectItem value="LITER">{t('productTypes.LITER')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Введите название продукта",
   "productDescription": "Описание",
   "productDescriptionPlaceholder": "Введите описание продукта (необязательно)",
+  "barcodeScanner": "Штрихкод",
+  "barcodeScannerPlaceholder": "Введите значение штрихкода",
   "productType": "Тип Продукта",
   "selectProductType": "Выберите тип продукта",
   "selectCategory": "Выберите Категорию",

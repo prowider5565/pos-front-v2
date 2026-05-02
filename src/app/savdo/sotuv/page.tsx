@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useEffectEvent } from "react"
 import { invoke } from "@tauri-apps/api/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeCustomizer } from "@/components/theme-customizer"
+import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
 import { useSidebarConfig } from "@/hooks/use-sidebar-config"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { ProductGrid } from "./components/product-grid"
@@ -18,6 +19,7 @@ import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
 import { debtsService } from "@/services/debts.service"
+import { productsService } from "@/services/products.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
 import type { SaleProduct, PaymentMethod, Currency, SaleDetail } from "@/types/sales"
 
@@ -87,6 +89,7 @@ export default function SotuvPage() {
   const {
     cartItems,
     addToCart,
+    addOrIncrementProduct,
     updateQuantity,
     updateUnitPrice,
     setQuantityDraft,
@@ -161,6 +164,26 @@ export default function SotuvPage() {
     toast.success(t('messages.productAdded', { productName: product.name }))
   }, [addToCart, t])
 
+  const handleBarcodeScan = useEffectEvent(async (barcode: string) => {
+    try {
+      const product = await productsService.lookupProductByBarcode(barcode)
+      addOrIncrementProduct(product)
+    } catch (error: any) {
+      console.error(`Failed to resolve barcode ${barcode}:`, error)
+
+      if (error?.response?.status === 404) {
+        toast.error(t('messages.barcodeProductNotFound', { barcode }))
+        return
+      }
+
+      toast.error(t('messages.barcodeLookupFailed', { barcode }))
+    }
+  })
+
+  useBarcodeScanner({
+    onBarcode: handleBarcodeScan,
+  })
+
   // Keep final total in sync with subtotal unless user overrides it
   useEffect(() => {
     if (!isFinalTotalDirty) {
@@ -204,7 +227,7 @@ export default function SotuvPage() {
 
   const buildSaleItems = useCallback(() => {
     return cartItems.map(item => {
-      const unitDiscount = Math.max(0, item.product.sell_price - item.unitPrice)
+      const unitDiscount = Math.max(0, (item.product.sell_price ?? 0) - item.unitPrice)
       const lineDiscount = unitDiscount * item.quantity
 
       return {
@@ -310,9 +333,13 @@ export default function SotuvPage() {
     }
 
     // Check stock
-    const hasStockErrors = cartItems.some(item => item.quantity > item.product.quantity)
+    const hasStockErrors = cartItems.some(
+      item => typeof item.product.quantity === 'number' && item.quantity > item.product.quantity
+    )
     if (hasStockErrors) {
-      const errorItem = cartItems.find(item => item.quantity > item.product.quantity)
+      const errorItem = cartItems.find(
+        item => typeof item.product.quantity === 'number' && item.quantity > item.product.quantity
+      )
       toast.error(t('validation.stockExceeded', { 
         productName: errorItem?.product.name,
         stock: errorItem?.product.quantity
@@ -390,9 +417,13 @@ export default function SotuvPage() {
     }
 
     // Check stock
-    const hasStockErrors = cartItems.some(item => item.quantity > item.product.quantity)
+    const hasStockErrors = cartItems.some(
+      item => typeof item.product.quantity === 'number' && item.quantity > item.product.quantity
+    )
     if (hasStockErrors) {
-      const errorItem = cartItems.find(item => item.quantity > item.product.quantity)
+      const errorItem = cartItems.find(
+        item => typeof item.product.quantity === 'number' && item.quantity > item.product.quantity
+      )
       toast.error(t('validation.stockExceeded', { 
         productName: errorItem?.product.name,
         stock: errorItem?.product.quantity

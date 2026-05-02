@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Enter product name",
   "productDescription": "Description",
   "productDescriptionPlaceholder": "Enter product description (optional)",
+  "barcodeScanner": "Barcode Scanner",
+  "barcodeScannerPlaceholder": "Enter barcode value",
   "productType": "Product Type",
   "selectProductType": "Select product type",
   "selectCategory": "Select Category",

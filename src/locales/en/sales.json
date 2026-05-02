@@ -37,6 +37,7 @@
     "remove": "Remove",
     "price": "Price",
     "catalogPrice": "Catalog",
+    "barcode": "Barcode",
     "finalPrice": "Final",
     "total": "Total",
     "stockError": "Only {{stock}} items available in stock",
@@ -108,6 +109,8 @@
     "productAdded": "{{productName}} added to cart",
     "productRemoved": "Product removed from cart",
     "cartCleared": "Cart cleared",
+    "barcodeProductNotFound": "No product found for barcode {{barcode}}",
+    "barcodeLookupFailed": "Failed to look up barcode {{barcode}}",
     "error": "Failed to create sale. Please try again.",
     "loadError": "Failed to load products. Please try again."
   },

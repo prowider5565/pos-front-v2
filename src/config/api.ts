@@ -50,6 +50,7 @@ export const API_ENDPOINTS = {
     BY_SUPPLIER: (supplierId: number) => `/products/suppliers/${supplierId}/products/`,
     DETAIL: (productId: number) => `/products/products/${productId}/`,
     BATCHES: (productId: number) => `/products/products/${productId}/batches/`,
+    BARCODE_LOOKUP: (barcode: string) => `/products/products/barcode/${encodeURIComponent(barcode)}/`,
   },
   
   // Debts endpoints

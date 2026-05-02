@@ -37,6 +37,7 @@
     "remove": "Удалить",
     "price": "Цена",
     "catalogPrice": "Каталог",
+    "barcode": "Штрихкод",
     "finalPrice": "Итоговая цена",
     "total": "Итого",
     "stockError": "На складе только {{stock}} шт.",
@@ -108,6 +109,8 @@
     "productAdded": "{{productName}} добавлен в корзину",
     "productRemoved": "Товар удален из корзины",
     "cartCleared": "Корзина очищена",
+    "barcodeProductNotFound": "Товар со штрихкодом {{barcode}} не найден",
+    "barcodeLookupFailed": "Не удалось найти товар по штрихкоду {{barcode}}",
     "error": "Не удалось создать продажу. Попробуйте снова.",
     "loadError": "Не удалось загрузить товары. Попробуйте снова."
   },

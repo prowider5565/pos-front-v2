@@ -43,11 +43,13 @@ import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
 import { SupplierFormDialog } from "@/app/suppliers/components/supplier-form-dialog"
 import apiClient from "@/lib/api-client"
+import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
 
 // Form validation schema
 const productCreateSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
+  barcode_number: z.string().optional(),
   product_type: z.enum(["KG", "PIECE", "WEIGHT", "LITER"]),
   category: z.string().min(1, "Category is required"),
   supplier: z.string().min(1, "Supplier is required"),
@@ -98,6 +100,7 @@ export function ProductCreateDialog({
     defaultValues: {
       name: "",
       description: "",
+      barcode_number: "",
       product_type: "PIECE" as const,
       category: "",
       supplier: supplierId ? String(supplierId) : "",
@@ -109,6 +112,16 @@ export function ProductCreateDialog({
       exchange_rate: getExchangeRate(),
       amount: "",
       method: "CASH" as const,
+    },
+  })
+
+  useBarcodeScanner({
+    enabled: open,
+    onBarcode: (barcode) => {
+      form.setValue("barcode_number", barcode, {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
     },
   })
 
@@ -346,6 +359,7 @@ export function ProductCreateDialog({
       const payload: any = {
         name: data.name,
         description: data.description || "",
+        barcode_number: data.barcode_number?.trim() || undefined,
         product_type: data.product_type,
         category: parseInt(data.category),
         supplier: parseInt(data.supplier),
@@ -447,6 +461,23 @@ export function ProductCreateDialog({
                         placeholder={t('productDescriptionPlaceholder')}
                         rows={3}
                         {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="barcode_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('barcodeScanner')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t('barcodeScannerPlaceholder')}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />

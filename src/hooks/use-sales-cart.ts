@@ -1,5 +1,44 @@
 import { useState, useMemo, useCallback } from 'react'
-import type { CartItem, SaleProduct } from '@/types/sales'
+import type { BarcodeLookupProduct, CartItem, CartProduct, SaleProduct } from '@/types/sales'
+
+type AddableProduct = SaleProduct | BarcodeLookupProduct
+
+const isBarcodeLookupProduct = (product: AddableProduct): product is BarcodeLookupProduct => {
+  return !('category' in product)
+}
+
+const toCartProduct = (product: AddableProduct): CartProduct => {
+  if (isBarcodeLookupProduct(product)) {
+    const sellPrice = product.sell_price ?? product.price ?? 0
+    const barcodeValue = product.barcode ?? product.barcode_number ?? null
+
+    return {
+      id: product.id,
+      name: product.name,
+      barcode: barcodeValue,
+      barcode_number: barcodeValue,
+      sell_price: sellPrice,
+      quantity: null,
+      cover_image: null,
+      category: null,
+      images: [],
+      source: 'barcode',
+    }
+  }
+
+  return {
+    id: product.id,
+    name: product.name,
+    barcode: product.barcode ?? product.barcode_number ?? null,
+    barcode_number: product.barcode_number ?? product.barcode ?? null,
+    sell_price: product.sell_price,
+    quantity: product.quantity,
+    cover_image: product.cover_image,
+    category: product.category,
+    images: product.images,
+    source: 'catalog',
+  }
+}
 
 /**
  * Custom hook for managing shopping cart state and operations
@@ -12,7 +51,7 @@ export function useSalesCart() {
   /**
    * Add a product to cart or remove if already exists (toggle behavior)
    */
-  const addToCart = useCallback((product: SaleProduct) => {
+  const toggleCartProduct = useCallback((product: SaleProduct) => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.product.id === product.id)
       
@@ -21,7 +60,7 @@ export function useSalesCart() {
         return prev.filter(item => item.product.id !== product.id)
       } else {
         // Add new product with quantity 1
-        return [...prev, { product, quantity: 1, unitPrice: product.sell_price }]
+        return [...prev, { product: toCartProduct(product), quantity: 1, unitPrice: product.sell_price }]
       }
     })
     setQuantityDrafts(prev => {
@@ -42,6 +81,51 @@ export function useSalesCart() {
       }
       return next
     })
+  }, [])
+
+  const addOrIncrementProduct = useCallback((product: AddableProduct) => {
+    const normalizedProduct = toCartProduct(product)
+
+    setCartItems(prev => {
+      const existingItem = prev.find(item => item.product.id === normalizedProduct.id)
+
+      if (existingItem) {
+        return prev.map(item =>
+          item.product.id === normalizedProduct.id
+            ? {
+                ...item,
+                product: { ...item.product, ...normalizedProduct },
+                quantity: item.quantity + 1,
+                unitPrice: item.unitPrice,
+              }
+            : item
+        )
+      }
+
+      return [
+        ...prev,
+        {
+          product: normalizedProduct,
+          quantity: 1,
+          unitPrice: normalizedProduct.sell_price,
+        },
+      ]
+    })
+
+    setQuantityDrafts(prev => {
+      const currentQuantity = parseInt(prev[normalizedProduct.id] ?? '', 10)
+      const nextQuantity = Number.isNaN(currentQuantity) ? 1 : currentQuantity + 1
+
+      return {
+        ...prev,
+        [normalizedProduct.id]: String(nextQuantity),
+      }
+    })
+
+    setPriceDrafts(prev => ({
+      ...prev,
+      [normalizedProduct.id]: prev[normalizedProduct.id] ?? String(normalizedProduct.sell_price),
+    }))
   }, [])
 
   /**
@@ -228,7 +312,8 @@ export function useSalesCart() {
 
   return {
     cartItems,
-    addToCart,
+    addToCart: toggleCartProduct,
+    addOrIncrementProduct,
     updateQuantity,
     setQuantityDraft,
     commitQuantityDraft,

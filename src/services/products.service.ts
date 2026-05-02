@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api-client'
 import { API_ENDPOINTS } from '@/config/api'
+import type { SaleProduct, SaleProductsResponse } from '@/types/sales'
 
 // TypeScript interfaces
 export interface ProductCategory {
@@ -18,10 +19,11 @@ export interface Product {
   id: number
   name: string
   description: string | null
-  product_type: 'PIECE' | 'WEIGHT' | 'KG'
+  product_type: 'PIECE' | 'WEIGHT' | 'KG' | 'LITER'
   category: number
   category_name: string
   supplier_name: string
+  barcode_number?: string | null
   images?: ProductImage[]
   sell_price?: number
   cover_image?: string
@@ -113,6 +115,28 @@ class ProductsService {
   async getProductDetail(productId: number): Promise<Product> {
     const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.DETAIL(productId))
     return response.data
+  }
+
+  async lookupProductByBarcode(barcode: string): Promise<SaleProduct> {
+    const normalizedBarcode = barcode.trim()
+    const response = await apiClient.get<SaleProductsResponse>(
+      API_ENDPOINTS.PRODUCTS.BARCODE_LOOKUP(normalizedBarcode)
+    )
+
+    const product = response.data.results?.[0]
+    if (!product) {
+      const error = new Error(`No product found for barcode ${normalizedBarcode}`) as Error & {
+        response?: { status: number }
+      }
+      error.response = { status: 404 }
+      throw error
+    }
+
+    return {
+      ...product,
+      barcode: product.barcode ?? product.barcode_number ?? normalizedBarcode,
+      barcode_number: product.barcode_number ?? product.barcode ?? normalizedBarcode,
+    }
   }
 
   /**
@@ -218,9 +242,10 @@ class ProductsService {
   async createProduct(data: {
     name: string
     description?: string
-    product_type: 'KG' | 'PIECE' | 'WEIGHT'
+    product_type: 'KG' | 'PIECE' | 'WEIGHT' | 'LITER'
     category: number
     supplier: number
+    barcode_number?: string
     images?: { url: string; is_main: boolean }[]
     batch: {
       quantity: number
@@ -248,8 +273,9 @@ class ProductsService {
   async updateProduct(productId: number, data: {
     name?: string
     description?: string
-    product_type?: 'KG' | 'PIECE' | 'WEIGHT'
+    product_type?: 'KG' | 'PIECE' | 'WEIGHT' | 'LITER'
     category?: number
+    barcode_number?: string
   }): Promise<Product> {
     const response = await apiClient.patch<Product>(
       `/products/products/${productId}/update/`,

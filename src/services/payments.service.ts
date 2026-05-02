@@ -91,7 +91,9 @@ export const paymentsService = {
     return apiService.get(`/payments/sale-payments/${saleId}/payments/`)
   },
   getClientSalePayments: async (saleIds: number[]): Promise<SalePaymentRecord[]> => {
-    const promises = saleIds.map(saleId => apiService.get(`/payments/sale-payments/${saleId}/payments/`))
+    const promises = saleIds.map(saleId =>
+      apiService.get<SalePaymentRecord[]>(`/payments/sale-payments/${saleId}/payments/`)
+    )
     const results = await Promise.all(promises)
     return results.flat()
   },

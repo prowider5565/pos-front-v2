@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { ProductCreateDialog } from '@/app/products/components/product-create-dialog'
 import { ClientFormDialog } from '@/app/clients/components/client-form-dialog'
-import { BatchImportDialog } from '@/components/batch-import-dialog'
+import { ImportBatchAccordionDialog } from './import-batch-accordion-dialog'
 
 export function QuickActionsBar() {
   const { t } = useTranslation('dashboard')
@@ -107,10 +107,9 @@ export function QuickActionsBar() {
       />
 
       {/* Batch Import Dialog */}
-      <BatchImportDialog
+      <ImportBatchAccordionDialog
         open={batchImportDialogOpen}
         onOpenChange={setBatchImportDialogOpen}
-        productId={null}
         onSuccess={() => {
           setBatchImportDialogOpen(false)
         }}

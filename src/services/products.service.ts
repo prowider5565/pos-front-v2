@@ -57,6 +57,30 @@ export interface ProductBatch {
   created_at: string
 }
 
+export interface BulkCreatedProductBatch {
+  id: number
+  product: {
+    id: number
+    name: string
+    description: string | null
+    barcode_number: string | null
+    product_type: string
+    category_name: string | null
+    supplier_name: string
+    images: ProductImage[]
+    created_at: string
+  }
+  quantity: number
+  buy_price: string
+  sell_price: string
+  created_at: string
+}
+
+export interface BulkCreateBatchesResponse {
+  count: number
+  results: BulkCreatedProductBatch[]
+}
+
 export interface ProductBatchesResponse {
   count: number
   current_page: number
@@ -182,6 +206,27 @@ class ProductsService {
   }): Promise<ProductBatch> {
     const response = await apiClient.post<ProductBatch>(
       '/products/products/batches/create/',
+      data
+    )
+    return response.data
+  }
+
+  async bulkCreateBatches(data: {
+    batches: Array<{
+      product: number
+      quantity: number
+      buy_price: string
+      sell_price: string
+      finance?: {
+        currency: 'UZS' | 'USD'
+        exchange_rate: string
+        amount?: string | null
+        method?: string | null
+      }
+    }>
+  }): Promise<BulkCreateBatchesResponse> {
+    const response = await apiClient.post<BulkCreateBatchesResponse>(
+      '/products/products/batches/bulk-create/',
       data
     )
     return response.data

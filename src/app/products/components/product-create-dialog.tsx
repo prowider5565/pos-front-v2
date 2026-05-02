@@ -401,9 +401,18 @@ export function ProductCreateDialog({
       console.error("Failed to create product:", error)
       
       // Parse backend errors
+      const barcodeErrors = error?.response?.data?.barcode_number
       const errorMessage = error?.response?.data?.detail || error?.message
-      
-      if (errorMessage && errorMessage.includes("Payment amount") && errorMessage.includes("cannot exceed")) {
+
+      if (Array.isArray(barcodeErrors) && barcodeErrors.length > 0) {
+        form.setError("barcode_number", {
+          type: "server",
+          message: t('barcodeNumberAlreadyExists'),
+        })
+        toast.error(t('common:messages.error'), {
+          description: t('barcodeNumberAlreadyExists')
+        })
+      } else if (errorMessage && errorMessage.includes("Payment amount") && errorMessage.includes("cannot exceed")) {
         toast.error(t('paymentExceedsCost'), {
           description: errorMessage
         })

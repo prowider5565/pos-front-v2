@@ -81,6 +81,7 @@
   "editProductDescription": "Update product information below",
   "productUpdatedSuccessfully": "Product updated successfully",
   "failedToUpdateProduct": "Failed to update product",
+  "barcodeNumberAlreadyExists": "A product with this barcode already exists",
   "archiveProduct": "Archive",
   "paymentDetails": "Payment Details",
   "paymentSummary": "Payment Summary"

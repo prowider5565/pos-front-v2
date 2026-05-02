@@ -81,6 +81,7 @@
   "editProductDescription": "Обновите информацию о продукте ниже",
   "productUpdatedSuccessfully": "Продукт успешно обновлен",
   "failedToUpdateProduct": "Не удалось обновить продукт",
+  "barcodeNumberAlreadyExists": "Товар с таким штрихкодом уже существует",
   "archiveProduct": "Архивировать",
   "paymentDetails": "Детали Платежа",
   "paymentSummary": "Сводка Платежа"

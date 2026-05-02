@@ -141,11 +141,22 @@ export function ProductEditDialog({
     } catch (error: any) {
       console.error("Failed to update product:", error)
       
+      const barcodeErrors = error?.response?.data?.barcode_number
       const errorMessage = error?.response?.data?.detail || error?.message
-      
-      toast.error(t('common:messages.error'), {
-        description: errorMessage || t('failedToUpdateProduct')
-      })
+
+      if (Array.isArray(barcodeErrors) && barcodeErrors.length > 0) {
+        form.setError("barcode_number", {
+          type: "server",
+          message: t('barcodeNumberAlreadyExists'),
+        })
+        toast.error(t('common:messages.error'), {
+          description: t('barcodeNumberAlreadyExists')
+        })
+      } else {
+        toast.error(t('common:messages.error'), {
+          description: errorMessage || t('failedToUpdateProduct')
+        })
+      }
     } finally {
       setIsLoading(false)
     }

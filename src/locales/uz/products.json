@@ -81,6 +81,7 @@
   "editProductDescription": "Quyida mahsulot ma'lumotlarini yangilang",
   "productUpdatedSuccessfully": "Mahsulot muvaffaqiyatli yangilandi",
   "failedToUpdateProduct": "Mahsulotni yangilab bo'lmadi",
+  "barcodeNumberAlreadyExists": "Bunday shtrix-kodli mahsulot allaqachon mavjud",
   "archiveProduct": "Arxivlash",
   "paymentDetails": "To'lov Ma'lumotlari",
   "paymentSummary": "To'lov Xulosasi"

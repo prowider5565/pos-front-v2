@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Mahsulot nomini kiriting",
   "productDescription": "Tavsif",
   "productDescriptionPlaceholder": "Mahsulot tavsifini kiriting (ixtiyoriy)",
+  "barcodeScanner": "Shtrix-kod",
+  "barcodeScannerPlaceholder": "Shtrix-kod qiymatini kiriting",
   "productType": "Mahsulot Turi",
   "selectProductType": "Mahsulot turini tanlang",
   "selectCategory": "Kategoriyani Tanlang",
@@ -79,6 +81,7 @@
   "editProductDescription": "Quyida mahsulot ma'lumotlarini yangilang",
   "productUpdatedSuccessfully": "Mahsulot muvaffaqiyatli yangilandi",
   "failedToUpdateProduct": "Mahsulotni yangilab bo'lmadi",
+  "barcodeNumberAlreadyExists": "Bunday shtrix-kodli mahsulot allaqachon mavjud",
   "archiveProduct": "Arxivlash",
   "paymentDetails": "To'lov Ma'lumotlari",
   "paymentSummary": "To'lov Xulosasi"

@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Enter product name",
   "productDescription": "Description",
   "productDescriptionPlaceholder": "Enter product description (optional)",
+  "barcodeScanner": "Barcode Scanner",
+  "barcodeScannerPlaceholder": "Enter barcode value",
   "productType": "Product Type",
   "selectProductType": "Select product type",
   "selectCategory": "Select Category",
@@ -79,6 +81,7 @@
   "editProductDescription": "Update product information below",
   "productUpdatedSuccessfully": "Product updated successfully",
   "failedToUpdateProduct": "Failed to update product",
+  "barcodeNumberAlreadyExists": "A product with this barcode already exists",
   "archiveProduct": "Archive",
   "paymentDetails": "Payment Details",
   "paymentSummary": "Payment Summary"

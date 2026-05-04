@@ -1,12 +1,17 @@
-use std::process::Command;
+mod scanner;
+
 use encoding_rs::IBM866;
+use scanner::manager::ScannerManager;
+use std::process::Command;
+use std::sync::Arc;
+use tauri::Manager;
 
 #[cfg(target_os = "windows")]
 use windows::{
     core::{Error as WinError, PWSTR},
     Win32::Graphics::Printing::{
-        ClosePrinter, DOC_INFO_1W, EndDocPrinter, EndPagePrinter, GetDefaultPrinterW, OpenPrinterW,
-        StartDocPrinterW, StartPagePrinter, WritePrinter,
+        ClosePrinter, EndDocPrinter, EndPagePrinter, GetDefaultPrinterW, OpenPrinterW,
+        StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W,
     },
 };
 
@@ -174,7 +179,10 @@ fn build_print_data(content: &str) -> Vec<u8> {
 
 #[tauri::command]
 fn print_receipt(content: String) -> Result<String, String> {
-    log::info!("Print command received with content length: {}", content.len());
+    log::info!(
+        "Print command received with content length: {}",
+        content.len()
+    );
     let print_data = build_print_data(&content);
 
     #[cfg(target_os = "windows")]
@@ -250,12 +258,8 @@ fn print_windows(content: &[u8]) -> Result<String, String> {
         }
 
         let mut printer = std::mem::zeroed();
-        OpenPrinterW(
-            PWSTR(printer_name.as_mut_ptr()),
-            &mut printer,
-            None,
-        )
-        .map_err(|e| format!("Failed to open printer: {}", e))?;
+        OpenPrinterW(PWSTR(printer_name.as_mut_ptr()), &mut printer, None)
+            .map_err(|e| format!("Failed to open printer: {}", e))?;
 
         let doc_name = to_wide("POS receipt");
         let raw = to_wide("RAW");
@@ -306,7 +310,10 @@ fn print_windows(content: &[u8]) -> Result<String, String> {
                 ));
             }
 
-            Ok(format!("RAW print sent to default printer ({} bytes)", written))
+            Ok(format!(
+                "RAW print sent to default printer ({} bytes)",
+                written
+            ))
         })();
 
         let _ = ClosePrinter(printer);
@@ -344,8 +351,8 @@ fn print_macos(content: &[u8]) -> Result<String, String> {
     use std::io::Write;
 
     let temp_path = std::env::temp_dir().join("receipt.prn");
-    let mut file = File::create(&temp_path)
-        .map_err(|e| format!("Failed to create temp file: {}", e))?;
+    let mut file =
+        File::create(&temp_path).map_err(|e| format!("Failed to create temp file: {}", e))?;
 
     file.write_all(content)
         .map_err(|e| format!("Failed to write to temp file: {}", e))?;
@@ -366,7 +373,7 @@ fn print_macos(content: &[u8]) -> Result<String, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
@@ -378,6 +385,10 @@ pub fn run() {
                 )?;
             }
 
+            let scanner_manager = ScannerManager::new();
+            scanner_manager.start(app.handle().clone());
+            app.manage(Arc::clone(&scanner_manager));
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -386,6 +397,17 @@ pub fn run() {
             open_telegram_link,
             check_telegram_installed
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+
+    app.run(|app_handle, event| {
+        if matches!(
+            event,
+            tauri::RunEvent::Exit | tauri::RunEvent::ExitRequested { .. }
+        ) {
+            if let Some(scanner_manager) = app_handle.try_state::<Arc<ScannerManager>>() {
+                scanner_manager.stop();
+            }
+        }
+    });
 }

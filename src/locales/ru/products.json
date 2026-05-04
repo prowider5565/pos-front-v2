@@ -51,6 +51,8 @@
   "productNamePlaceholder": "Введите название продукта",
   "productDescription": "Описание",
   "productDescriptionPlaceholder": "Введите описание продукта (необязательно)",
+  "barcodeScanner": "Штрихкод",
+  "barcodeScannerPlaceholder": "Введите значение штрихкода",
   "productType": "Тип Продукта",
   "selectProductType": "Выберите тип продукта",
   "selectCategory": "Выберите Категорию",
@@ -79,6 +81,7 @@
   "editProductDescription": "Обновите информацию о продукте ниже",
   "productUpdatedSuccessfully": "Продукт успешно обновлен",
   "failedToUpdateProduct": "Не удалось обновить продукт",
+  "barcodeNumberAlreadyExists": "Товар с таким штрихкодом уже существует",
   "archiveProduct": "Архивировать",
   "paymentDetails": "Детали Платежа",
   "paymentSummary": "Сводка Платежа"

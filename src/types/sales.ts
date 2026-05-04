@@ -31,10 +31,34 @@ export interface SaleProduct {
   id: number
   name: string
   quantity: number
-  category: ProductCategory
+  category: ProductCategory | null
   images: ProductImage[]
   sell_price: number
-  cover_image: string
+  cover_image: string | null
+  barcode?: string | null
+  barcode_number?: string | null
+}
+
+export interface BarcodeLookupProduct {
+  id: number
+  name: string
+  barcode?: string | null
+  barcode_number?: string | null
+  price?: number
+  sell_price?: number
+}
+
+export interface CartProduct {
+  id: number
+  name: string
+  sell_price: number
+  barcode?: string | null
+  barcode_number?: string | null
+  quantity?: number | null
+  category?: ProductCategory | null
+  images?: ProductImage[]
+  cover_image?: string | null
+  source: 'catalog' | 'barcode'
 }
 
 /**
@@ -53,7 +77,7 @@ export interface SaleProductsResponse {
  * Cart item structure (client-side)
  */
 export interface CartItem {
-  product: SaleProduct
+  product: CartProduct
   quantity: number
   unitPrice: number
 }

@@ -31,7 +31,7 @@ interface CartSidebarProps {
   getItemQuantityDraft: (productId: number) => string
   getItemPriceDraft: (productId: number) => string
   onQuantityInputChange: (productId: number, value: string) => void
-  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
+  onQuantityInputCommit: (productId: number, maxQuantity?: number) => void
   onPriceInputChange: (productId: number, value: string) => void
   onPriceInputCommit: (productId: number) => void
   onRemoveItem: (productId: number) => void
@@ -93,7 +93,9 @@ export function CartSidebar({
   }, 0)
 
   const remaining = Math.max(0, total - totalPayments)
-  const hasStockErrors = cartItems.some(item => item.quantity > item.product.quantity)
+  const hasStockErrors = cartItems.some(
+    item => typeof item.product.quantity === 'number' && item.quantity > item.product.quantity
+  )
 
   return (
     <Sidebar

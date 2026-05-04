@@ -14,7 +14,7 @@ interface CartItemProps {
   quantityInputValue: string
   priceInputValue: string
   onQuantityInputChange: (productId: number, value: string) => void
-  onQuantityInputCommit: (productId: number, maxQuantity: number) => void
+  onQuantityInputCommit: (productId: number, maxQuantity?: number) => void
   onPriceInputChange: (productId: number, value: string) => void
   onPriceInputCommit: (productId: number) => void
 }
@@ -35,8 +35,11 @@ export function CartItem({
   
   const { product, quantity, unitPrice } = item
   const total = unitPrice * quantity
-  
-  const hasStockError = quantity > product.quantity
+  const catalogPrice = product.sell_price ?? 0
+  const barcodeValue = product.barcode ?? product.barcode_number
+
+  const stockQuantity = typeof product.quantity === 'number' ? product.quantity : null
+  const hasStockError = stockQuantity !== null ? quantity > stockQuantity : false
   const isAtMinQuantity = quantity <= 1
 
   const handleDecimalChange = (
@@ -60,14 +63,14 @@ export function CartItem({
       onQuantityInputChange(product.id, value)
 
       const numericValue = parseInt(value, 10)
-      if (!Number.isNaN(numericValue) && numericValue > 0 && numericValue <= product.quantity) {
+      if (!Number.isNaN(numericValue) && numericValue > 0 && (stockQuantity === null || numericValue <= stockQuantity)) {
         onUpdateQuantity(product.id, numericValue)
       }
     }
   }
 
   const handleQuantityBlur = () => {
-    onQuantityInputCommit(product.id, product.quantity)
+    onQuantityInputCommit(product.id, product.quantity ?? undefined)
   }
 
   const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -104,7 +107,10 @@ export function CartItem({
       <td className="p-2">
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm line-clamp-1">{product.name}</p>
-          <p className="text-xs text-muted-foreground">{t('cartItem.catalogPrice')}: {product.sell_price.toLocaleString()} UZS</p>
+          <p className="text-xs text-muted-foreground">{t('cartItem.catalogPrice')}: {catalogPrice.toLocaleString()} UZS</p>
+          {barcodeValue && (
+            <p className="text-xs text-muted-foreground">{t('cartItem.barcode')}: {barcodeValue}</p>
+          )}
           {hasStockError && (
             <p className="text-xs text-destructive">
               {t('cartItem.stockError', { stock: product.quantity })}

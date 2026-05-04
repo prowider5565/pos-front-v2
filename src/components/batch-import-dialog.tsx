@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,6 +35,7 @@ import {
 import { Combobox } from "@/components/ui/combobox"
 import { productsService } from "@/services/products.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
+import type { SaleProduct } from "@/types/sales"
 
 const batchImportSchema = z.object({
   product_id: z.string().min(1, "Product is required"),
@@ -59,6 +59,20 @@ const batchImportSchema = z.object({
 })
 
 type BatchImportFormValues = z.infer<typeof batchImportSchema>
+export type BatchImportDraft = BatchImportFormValues
+
+const createDraftSignature = (draft: Partial<BatchImportDraft> | undefined) =>
+  JSON.stringify({
+    product_id: draft?.product_id ?? "",
+    qty: draft?.qty ?? "",
+    purchase_price: draft?.purchase_price ?? "",
+    sell_price: draft?.sell_price ?? "",
+    has_payment: draft?.has_payment ?? false,
+    currency: draft?.currency ?? "UZS",
+    exchange_rate: draft?.exchange_rate ?? "",
+    amount: draft?.amount ?? "",
+    method: draft?.method ?? "",
+  })
 
 interface BatchImportDialogProps {
   open: boolean
@@ -67,16 +81,34 @@ interface BatchImportDialogProps {
   onSuccess?: () => void
 }
 
-export function BatchImportDialog({
-  open,
-  onOpenChange,
+interface BatchImportFormProps {
+  productId?: number | null
+  initialProduct?: SaleProduct | null
+  products?: SaleProduct[]
+  mode?: 'single' | 'draft'
+  onSuccess?: () => void
+  onCancel?: () => void
+  onProductResolved?: (product: SaleProduct | null) => void
+  onDraftChange?: (draft: BatchImportDraft) => void
+}
+
+export function BatchImportForm({
   productId = null,
+  initialProduct = null,
+  products,
+  mode = 'single',
   onSuccess,
-}: BatchImportDialogProps) {
+  onCancel,
+  onProductResolved,
+  onDraftChange,
+}: BatchImportFormProps) {
   const { t } = useTranslation(['products', 'common'])
 
   const [purchasePriceUsdInput, setPurchasePriceUsdInput] = useState("")
   const [isPurchasePriceUsdEditing, setIsPurchasePriceUsdEditing] = useState(false)
+  const lastHydratedProductIdRef = useRef<number | null>(null)
+  const lastResolvedProductIdRef = useRef<number | null>(null)
+  const lastDraftSignatureRef = useRef<string | null>(null)
 
   const sanitizeDecimalInput = (value: string) => {
     const cleaned = value.replace(/[^0-9.]/g, '')
@@ -105,43 +137,103 @@ export function BatchImportDialog({
     },
   })
 
-  // Fetch products list (only if productId is not provided)
   const { data: productsData } = useQuery({
-    queryKey: ['products-for-sale'],
+    queryKey: ['products-for-sale-selector'],
     queryFn: async () => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/products/products/for-sale/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         },
       })
-      
+
       if (response.status === 401) {
-        // Redirect to login
         window.location.href = '/auth/sign-in'
         throw new Error('Unauthorized')
       }
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch products')
       }
-      
+
       return response.json()
     },
-    enabled: open && !productId,
+    enabled: !productId && !products,
   })
 
-  // Pre-fill exchange rate from localStorage when dialog opens
-  useEffect(() => {
-    if (open) {
-      const rate = getExchangeRateNumber()
-      form.setValue("exchange_rate", rate.toString())
-      
-      // If productId is provided, set it in the form
-      if (productId) {
-        form.setValue("product_id", String(productId))
-      }
+  const availableProducts = useMemo(() => {
+    if (products) return products
+
+    if (Array.isArray(productsData?.results)) {
+      return productsData.results as SaleProduct[]
     }
-  }, [open, productId, form])
+
+    if (Array.isArray(productsData)) {
+      return productsData as SaleProduct[]
+    }
+
+    return []
+  }, [products, productsData])
+
+  useEffect(() => {
+    const rate = getExchangeRateNumber()
+    form.setValue("exchange_rate", rate.toString())
+
+    if (productId) {
+      form.setValue("product_id", String(productId))
+    }
+  }, [productId, form])
+
+  const selectedProductId = useWatch({ control: form.control, name: "product_id" })
+  const draftValues = useWatch({ control: form.control })
+
+  const selectedProduct = useMemo(() => {
+    const normalizedProductId = Number(selectedProductId || productId || initialProduct?.id)
+
+    if (!Number.isInteger(normalizedProductId) || normalizedProductId <= 0) {
+      return initialProduct
+    }
+
+    return (
+      availableProducts.find((product) => product.id === normalizedProductId) ??
+      initialProduct
+    )
+  }, [availableProducts, initialProduct, productId, selectedProductId])
+
+  useEffect(() => {
+    const resolvedProductId = selectedProduct?.id ?? null
+
+    if (lastResolvedProductIdRef.current === resolvedProductId) {
+      return
+    }
+
+    lastResolvedProductIdRef.current = resolvedProductId
+    onProductResolved?.(selectedProduct ?? null)
+  }, [onProductResolved, selectedProduct])
+
+  useEffect(() => {
+    if (mode !== 'draft') return
+
+    const nextDraft = draftValues as BatchImportDraft
+    const nextSignature = createDraftSignature(nextDraft)
+
+    if (lastDraftSignatureRef.current === nextSignature) {
+      return
+    }
+
+    lastDraftSignatureRef.current = nextSignature
+    onDraftChange?.(nextDraft)
+  }, [draftValues, mode, onDraftChange])
+
+  const { data: latestBatchData } = useQuery({
+    queryKey: ['product-latest-batch', selectedProduct?.id],
+    queryFn: async () => {
+      if (!selectedProduct?.id) return null
+
+      const response = await productsService.getProductBatches(selectedProduct.id, 1)
+      return response.results[0] ?? null
+    },
+    enabled: !!selectedProduct?.id,
+  })
 
   const quantity = useWatch({ control: form.control, name: "qty" })
   const purchasePrice = useWatch({ control: form.control, name: "purchase_price" })
@@ -164,10 +256,36 @@ export function BatchImportDialog({
     setPurchasePriceUsdInput(exchangeRateNumber > 0 ? purchasePriceUsd.toFixed(2) : "")
   }, [purchasePrice, exchangeRateNumber, purchasePriceUsd, isPurchasePriceUsdEditing])
 
+  useEffect(() => {
+    if (!selectedProduct?.id) {
+      lastHydratedProductIdRef.current = null
+      return
+    }
+
+    if (lastHydratedProductIdRef.current === selectedProduct.id) {
+      return
+    }
+
+    form.setValue("product_id", String(selectedProduct.id), {
+      shouldDirty: false,
+      shouldTouch: false,
+    })
+    form.setValue("sell_price", String(selectedProduct.sell_price ?? ''), {
+      shouldDirty: false,
+      shouldTouch: false,
+    })
+    form.setValue("purchase_price", latestBatchData?.buy_price ?? '', {
+      shouldDirty: false,
+      shouldTouch: false,
+    })
+
+    lastHydratedProductIdRef.current = selectedProduct.id
+  }, [form, latestBatchData?.buy_price, selectedProduct])
+
   const calculations = useMemo(() => {
     const qty = parseFloat(quantity || "0") || 0
     const price = parseFloat(purchasePrice || "0") || 0
-    const rate = parseFloat(exchangeRate || "1") || 1
+    const rate = parseFloat(exchangeRate || '1') || 1
     const payment = parseFloat(paymentAmount || "0") || 0
 
     const totalCostUzs = qty * price
@@ -215,21 +333,30 @@ export function BatchImportDialog({
       toast.success(t('common:messages.success'), {
         description: "Batch imported successfully"
       })
-      form.reset()
-      onOpenChange(false)
+      form.reset({
+        product_id: productId ? String(productId) : "",
+        qty: "",
+        purchase_price: "",
+        sell_price: "",
+        has_payment: false,
+        currency: "UZS",
+        exchange_rate: getExchangeRateNumber().toString(),
+        amount: "",
+        method: "CASH",
+      })
       onSuccess?.()
     },
     onError: (error: any) => {
       console.error('Import batch error:', error)
       const errorData = error.data || error.response?.data
       let errorMessage = "Failed to import batch"
-      
+
       if (errorData?.detail) {
         errorMessage = errorData.detail
       } else if (errorData?.non_field_errors && Array.isArray(errorData.non_field_errors)) {
         errorMessage = errorData.non_field_errors.join(', ')
       }
-      
+
       toast.error(t('common:messages.error'), {
         description: errorMessage
       })
@@ -237,6 +364,10 @@ export function BatchImportDialog({
   })
 
   const onSubmit = (data: BatchImportFormValues) => {
+    if (mode === 'draft') {
+      return
+    }
+
     if (data.has_payment && calculations.isOverpayment) {
       toast.error(t('products:paymentExceedsCost'), {
         description: t('products:overpaymentWarning')
@@ -248,343 +379,354 @@ export function BatchImportDialog({
   }
 
   return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {!productId && (
+          <FormField
+            control={form.control}
+            name="product_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product</FormLabel>
+                <FormControl>
+                  <Combobox
+                    items={availableProducts.map((product) => ({
+                      value: String(product.id),
+                      label: product.name,
+                    }))}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select product"
+                    searchPlaceholder="Search product..."
+                    emptyText="No product found."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormField
+          control={form.control}
+          name="qty"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Quantity</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter quantity"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="exchange_rate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('products:exchangeRate')}</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter exchange rate"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="purchase_price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Purchase Price</FormLabel>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <FormDescription>UZS</FormDescription>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Enter purchase price"
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(sanitizeDecimalInput(e.target.value))
+                      }}
+                      onBlur={(e) => {
+                        field.onChange(formatTwoDecimals(e.target.value))
+                        field.onBlur()
+                      }}
+                    />
+                  </FormControl>
+                </div>
+
+                <div className="space-y-2">
+                  <FormDescription>USD</FormDescription>
+                  <Input
+                    type="text"
+                    placeholder="0.00"
+                    value={purchasePriceUsdInput}
+                    onFocus={() => setIsPurchasePriceUsdEditing(true)}
+                    onChange={(e) => {
+                      const rawValue = e.target.value
+                      setPurchasePriceUsdInput(rawValue)
+
+                      const sanitized = sanitizeDecimalInput(rawValue)
+                      if (!sanitized || sanitized === ".") {
+                        field.onChange("")
+                        return
+                      }
+
+                      const usdValue = parseFloat(sanitized)
+                      if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) return
+
+                      field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                    }}
+                    onBlur={(e) => {
+                      setIsPurchasePriceUsdEditing(false)
+                      const rawValue = e.target.value
+                      const sanitized = sanitizeDecimalInput(rawValue)
+                      if (!sanitized || sanitized === ".") {
+                        field.onChange("")
+                        setPurchasePriceUsdInput("")
+                        field.onBlur()
+                        return
+                      }
+
+                      const usdValue = parseFloat(sanitized)
+                      if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) {
+                        field.onBlur()
+                        return
+                      }
+
+                      field.onChange((usdValue * exchangeRateNumber).toFixed(2))
+                      setPurchasePriceUsdInput(usdValue.toFixed(2))
+                      field.onBlur()
+                    }}
+                  />
+                </div>
+              </div>
+              <FormDescription>
+                {t('products:exchangeRate')}: 1 USD = {exchangeRateNumber > 0 ? exchangeRateNumber.toLocaleString() : 0} UZS
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sell_price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sell Price</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter sell price"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="has_payment"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>{t('products:addPayment')}</FormLabel>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        {hasPayment && (
+          <div className="space-y-4 rounded-md border bg-muted/50 p-4">
+            <h4 className="text-sm font-medium">{t('products:paymentDetails')}</h4>
+
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('products:paymentAmount')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter payment amount"
+                          className={calculations.isOverpayment ? "border-red-500 focus-visible:ring-red-500" : ""}
+                          {...field}
+                        />
+                      </FormControl>
+                      {calculations.isOverpayment && (
+                        <p className="text-sm font-medium text-red-500">
+                          {t('products:overpaymentWarning')}
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('products:currency')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="UZS">UZS</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="method"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('products:paymentMethod')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="CASH">{t('products:paymentMethods.CASH')}</SelectItem>
+                          <SelectItem value="CARD">{t('products:paymentMethods.CARD')}</SelectItem>
+                          <SelectItem value="TRANSFER">{t('products:paymentMethods.TRANSFER')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showPaymentSummary && (
+          <div className="space-y-2 rounded-md border p-4">
+            <h4 className="text-sm font-semibold">{t('products:paymentSummary')}</h4>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('products:totalCost')} (UZS):</span>
+                <span className="font-medium">{calculations.totalCostUzs.toLocaleString()} UZS</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('products:totalCost')} (USD):</span>
+                <span className="font-medium">${calculations.totalCostUsd.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('products:paidAmount')} (UZS):</span>
+                <span className="font-medium">{calculations.paidAmountUzs.toLocaleString()} UZS</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('products:paidAmount')} (USD):</span>
+                <span className="font-medium">${calculations.paidAmountUsd.toLocaleString()}</span>
+              </div>
+              {!calculations.isOverpayment ? (
+                <>
+                  <div className="flex justify-between font-semibold text-primary">
+                    <span>{t('products:remainingDebt')} (UZS):</span>
+                    <span>{calculations.remainingDebtUzs.toLocaleString()} UZS</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-primary">
+                    <span>{t('products:remainingDebt')} (USD):</span>
+                    <span>${calculations.remainingDebtUsd.toLocaleString()}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex justify-between font-semibold text-red-500">
+                  <span>{t('products:overpaymentWarning')}</span>
+                  <span>+{Math.abs(calculations.remainingDebtUzs).toLocaleString()} UZS</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {mode === 'single' && (
+          <div className="flex justify-end gap-2">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" disabled={mutation.isPending || (hasPayment && calculations.isOverpayment)}>
+              {mutation.isPending ? "Importing..." : "Import Batch"}
+            </Button>
+          </div>
+        )}
+      </form>
+    </Form>
+  )
+}
+
+export function BatchImportDialog({
+  open,
+  onOpenChange,
+  productId = null,
+  onSuccess,
+}: BatchImportDialogProps) {
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Import Product Batch</DialogTitle>
         </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Product Selector - Only show if productId is not provided */}
-            {!productId && (
-              <FormField
-                control={form.control}
-                name="product_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product</FormLabel>
-                    <FormControl>
-                      <Combobox
-                        items={
-                          Array.isArray(productsData?.results)
-                            ? productsData.results.map((product: any) => ({
-                                value: String(product.id),
-                                label: product.name,
-                              }))
-                            : Array.isArray(productsData)
-                            ? productsData.map((product: any) => ({
-                                value: String(product.id),
-                                label: product.name,
-                              }))
-                            : []
-                        }
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Select product"
-                        searchPlaceholder="Search product..."
-                        emptyText="No product found."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            <FormField
-              control={form.control}
-              name="qty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Quantity</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter quantity"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="exchange_rate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('products:exchangeRate')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter exchange rate"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="purchase_price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Purchase Price</FormLabel>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <FormDescription>UZS</FormDescription>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Enter purchase price"
-                          value={field.value}
-                          onChange={(e) => {
-                            field.onChange(sanitizeDecimalInput(e.target.value))
-                          }}
-                          onBlur={(e) => {
-                            field.onChange(formatTwoDecimals(e.target.value))
-                            field.onBlur()
-                          }}
-                        />
-                      </FormControl>
-                    </div>
-
-                    <div className="space-y-2">
-                      <FormDescription>USD</FormDescription>
-                      <Input
-                        type="text"
-                        placeholder="0.00"
-                        value={purchasePriceUsdInput}
-                        onFocus={() => setIsPurchasePriceUsdEditing(true)}
-                        onChange={(e) => {
-                          const rawValue = e.target.value
-                          setPurchasePriceUsdInput(rawValue)
-
-                          const sanitized = sanitizeDecimalInput(rawValue)
-                          if (!sanitized || sanitized === ".") {
-                            field.onChange("")
-                            return
-                          }
-
-                          const usdValue = parseFloat(sanitized)
-                          if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) return
-
-                          field.onChange((usdValue * exchangeRateNumber).toFixed(2))
-                        }}
-                        onBlur={(e) => {
-                          setIsPurchasePriceUsdEditing(false)
-                          const rawValue = e.target.value
-                          const sanitized = sanitizeDecimalInput(rawValue)
-                          if (!sanitized || sanitized === ".") {
-                            field.onChange("")
-                            setPurchasePriceUsdInput("")
-                            field.onBlur()
-                            return
-                          }
-
-                          const usdValue = parseFloat(sanitized)
-                          if (Number.isNaN(usdValue) || exchangeRateNumber <= 0) {
-                            field.onBlur()
-                            return
-                          }
-
-                          field.onChange((usdValue * exchangeRateNumber).toFixed(2))
-                          setPurchasePriceUsdInput(usdValue.toFixed(2))
-                          field.onBlur()
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <FormDescription>
-                    {t('products:exchangeRate')}: 1 USD = {exchangeRateNumber > 0 ? exchangeRateNumber.toLocaleString() : 0} UZS
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="sell_price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sell Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter sell price"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="has_payment"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>{t('products:addPayment')}</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            {hasPayment && (
-              <div className="space-y-4 rounded-md border bg-muted/50 p-4">
-                <h4 className="text-sm font-medium">{t('products:paymentDetails')}</h4>
-
-                <div className="grid grid-cols-12 gap-3">
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t('products:paymentAmount')}</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="Enter payment amount"
-                              className={calculations.isOverpayment ? "border-red-500 focus-visible:ring-red-500" : ""}
-                              {...field}
-                            />
-                          </FormControl>
-                          {calculations.isOverpayment && (
-                            <p className="text-sm font-medium text-red-500">
-                              {t('products:overpaymentWarning')}
-                            </p>
-                          )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-3">
-                    <FormField
-                      control={form.control}
-                      name="currency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t('products:currency')}</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="UZS">UZS</SelectItem>
-                              <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-3">
-                    <FormField
-                      control={form.control}
-                      name="method"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t('products:paymentMethod')}</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="CASH">{t('products:paymentMethods.CASH')}</SelectItem>
-                              <SelectItem value="CARD">{t('products:paymentMethods.CARD')}</SelectItem>
-                              <SelectItem value="TRANSFER">{t('products:paymentMethods.TRANSFER')}</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showPaymentSummary && (
-              <div className="space-y-2 rounded-md border p-4">
-                <h4 className="text-sm font-semibold">{t('products:paymentSummary')}</h4>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('products:totalCost')} (UZS):</span>
-                    <span className="font-medium">{calculations.totalCostUzs.toLocaleString()} UZS</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('products:totalCost')} (USD):</span>
-                    <span className="font-medium">${calculations.totalCostUsd.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('products:paidAmount')} (UZS):</span>
-                    <span className="font-medium">{calculations.paidAmountUzs.toLocaleString()} UZS</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('products:paidAmount')} (USD):</span>
-                    <span className="font-medium">${calculations.paidAmountUsd.toLocaleString()}</span>
-                  </div>
-                  {!calculations.isOverpayment ? (
-                    <>
-                      <div className="flex justify-between font-semibold text-primary">
-                        <span>{t('products:remainingDebt')} (UZS):</span>
-                        <span>{calculations.remainingDebtUzs.toLocaleString()} UZS</span>
-                      </div>
-                      <div className="flex justify-between font-semibold text-primary">
-                        <span>{t('products:remainingDebt')} (USD):</span>
-                        <span>${calculations.remainingDebtUsd.toLocaleString()}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between font-semibold text-red-500">
-                      <span>{t('products:overpaymentWarning')}</span>
-                      <span>+{Math.abs(calculations.remainingDebtUzs).toLocaleString()} UZS</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending || (hasPayment && calculations.isOverpayment)}>
-                {mutation.isPending ? "Importing..." : "Import Batch"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <BatchImportForm
+          productId={productId}
+          onCancel={() => onOpenChange(false)}
+          onSuccess={() => {
+            onOpenChange(false)
+            onSuccess?.()
+          }}
+        />
       </DialogContent>
     </Dialog>
   )

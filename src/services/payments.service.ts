@@ -93,7 +93,7 @@ export const paymentsService = {
   getClientSalePayments: async (saleIds: number[]): Promise<SalePaymentRecord[]> => {
     const promises = saleIds.map(saleId => apiService.get(`/payments/sale-payments/${saleId}/payments/`))
     const results = await Promise.all(promises)
-    return results.flat()
+    return (results as SalePaymentRecord[][]).flat()
   },
   makeNewSupplierDebtProductPayment: async (data: {
     product_id: number

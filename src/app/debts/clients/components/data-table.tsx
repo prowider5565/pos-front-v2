@@ -19,6 +19,7 @@ import { SalePaymentDialog } from '@/components/sale-payment-dialog'
 import { ClientSalePaymentDialog } from '@/components/client-sale-payment-dialog'
 import { PaymentHistoryDialog } from '@/components/payment-history-dialog'
 import { TBAPaymentsDialog } from '@/components/tba-payments-dialog'
+import { formatShortDate } from '@/lib/date-utils'
 import type { ClientDebt, ClientDebtsResponse } from '@/types/debts'
 
 interface DataTableProps {
@@ -187,23 +188,14 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
                   {t('table.noResults')}
                 </TableCell>
               </TableRow>
-            ) : debtType === 'sale' ? (
+            ) : debtType === 'sale' && data ? (
               // Grouped sale debts by client
               groupSaleDebtsByClient(data.results).map((groupedClient) => {
                 const remaining = groupedClient.totalRemainingUzs + groupedClient.totalRemainingUsd
-                const formatDate = (dateString?: string) => {
-                  if (!dateString) return '—'
-                  const date = new Date(dateString)
-                  return date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                }
                 return (
                   <TableRow key={groupedClient.clientId} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(groupedClient.saleDebts[0], groupedClient)}>
                     <TableCell className="text-muted-foreground">
-                      {formatDate(groupedClient.latestCreatedAt)}
+                      {groupedClient.latestCreatedAt ? formatShortDate(groupedClient.latestCreatedAt) : '—'}
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">
@@ -245,15 +237,6 @@ export function DataTable({ data, isLoading, page: _page, search, debtType, onPa
               // Old debts - individual rows
               data?.results.map((client) => {
                 const remaining = parseFloat(client.debt_amounts.total_remaining.uzs_amount) + parseFloat(client.debt_amounts.total_remaining.usd_amount)
-                const formatDate = (dateString?: string) => {
-                  if (!dateString) return '—'
-                  const date = new Date(dateString)
-                  return date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                }
                 return (
                   <TableRow key={client.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(client)}>
                     <TableCell>

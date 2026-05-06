@@ -179,6 +179,10 @@ export const buildChequeText = ({
                 "│" + padLeft(lineIndex === 0 ? itemPrice : "", priceCol) +
                 "│" + padLeft(lineIndex === 0 ? itemSum : "", sumCol) + "│\n"
         })
+
+        if (index < itemsToDisplay.length - 1) {
+            output += buildHorizontalRule("├", "┼", "┤", columnWidths)
+        }
     })
 
     output += buildHorizontalRule("└", "┴", "┘", columnWidths)

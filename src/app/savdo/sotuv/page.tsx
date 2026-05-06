@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useEffectEvent } from "react"
+import { useState, useEffect, useCallback, useEffectEvent, useRef } from "react"
 import { invoke } from "@tauri-apps/api/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
@@ -19,7 +19,6 @@ import { useSalesCart } from "@/hooks/use-sales-cart"
 import { useSalesPayments } from "@/hooks/use-sales-payments"
 import { salesService } from "@/services/sales.service"
 import { debtsService } from "@/services/debts.service"
-import { productsService } from "@/services/products.service"
 import { getExchangeRateNumber } from "@/lib/exchange-rate-storage"
 import type { SaleProduct, PaymentMethod, Currency, SaleDetail } from "@/types/sales"
 
@@ -29,6 +28,25 @@ export default function SotuvPage() {
   const { t } = useTranslation('sales')
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const barcodeProductMapRef = useRef<Map<string, SaleProduct>>(new Map())
+
+  const normalizeBarcode = useCallback((barcode: string | null | undefined) => barcode?.trim() ?? "", [])
+
+  const registerLoadedProducts = useCallback((products: SaleProduct[]) => {
+    if (products.length === 0) return
+
+    const barcodeProductMap = barcodeProductMapRef.current
+
+    products.forEach((product) => {
+      const productBarcodes = [product.barcode, product.barcode_number]
+        .map(normalizeBarcode)
+        .filter(Boolean)
+
+      productBarcodes.forEach((barcode) => {
+        barcodeProductMap.set(barcode, product)
+      })
+    })
+  }, [normalizeBarcode])
 
   const getApiErrorMessage = (error: any) => {
     const data = error?.response?.data
@@ -164,20 +182,16 @@ export default function SotuvPage() {
     toast.success(t('messages.productAdded', { productName: product.name }))
   }, [addToCart, t])
 
-  const handleBarcodeScan = useEffectEvent(async (barcode: string) => {
-    try {
-      const product = await productsService.lookupProductByBarcode(barcode)
-      addOrIncrementProduct(product)
-    } catch (error: any) {
-      console.error(`Failed to resolve barcode ${barcode}:`, error)
+  const handleBarcodeScan = useEffectEvent((barcode: string) => {
+    const normalizedBarcode = normalizeBarcode(barcode)
+    const product = barcodeProductMapRef.current.get(normalizedBarcode)
 
-      if (error?.response?.status === 404) {
-        toast.error(t('messages.barcodeProductNotFound', { barcode }))
-        return
-      }
-
-      toast.error(t('messages.barcodeLookupFailed', { barcode }))
+    if (!product) {
+      toast.error(t('messages.barcodeProductNotFound', { barcode }))
+      return
     }
+
+    addOrIncrementProduct(product)
   })
 
   useBarcodeScanner({
@@ -540,6 +554,7 @@ export default function SotuvPage() {
           <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-4">
             <ProductGrid
               onAddToCart={handleAddToCart}
+              onProductsLoaded={registerLoadedProducts}
               isInCart={isInCart}
               onUpdateQuantity={updateQuantity}
               getItemQuantity={getItemQuantity}

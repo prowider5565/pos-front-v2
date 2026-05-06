@@ -20,6 +20,7 @@ import { toast } from "sonner"
 
 interface ProductGridProps {
   onAddToCart: (product: SaleProduct) => void
+  onProductsLoaded?: (products: SaleProduct[]) => void
   isInCart: (productId: number) => boolean
   onUpdateQuantity: (productId: number, quantity: number) => void
   getItemQuantity: (productId: number) => number
@@ -31,6 +32,7 @@ interface ProductGridProps {
 
 export function ProductGrid({
   onAddToCart,
+  onProductsLoaded,
   isInCart,
   onUpdateQuantity,
   getItemQuantity,
@@ -70,6 +72,8 @@ export function ProductGrid({
         category: selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
       })
 
+      onProductsLoaded?.(response.results)
+
       if (isInitial || isFirstLoad) {
         setProducts(response.results)
       } else {
@@ -91,7 +95,7 @@ export function ProductGrid({
         setLoadingMore(false)
       }
     }
-  }, [searchQuery, selectedCategory, t])
+  }, [onProductsLoaded, searchQuery, selectedCategory, t])
 
   // Track if this is the first load
   const isFirstLoadRef = useRef(true)

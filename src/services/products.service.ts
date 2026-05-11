@@ -1,6 +1,7 @@
 import apiClient from '@/lib/api-client'
 import { API_ENDPOINTS } from '@/config/api'
 import type { SaleProduct, SaleProductsResponse } from '@/types/sales'
+import axios from 'axios'
 
 // TypeScript interfaces
 export interface ProductCategory {
@@ -258,6 +259,77 @@ class ProductsService {
       }
     )
     return response.data
+  }
+
+  /**
+   * Update category name
+   */
+  async updateCategory(categoryId: number, data: { name: string }): Promise<Category> {
+    const endpoints = [
+      `/products/categories/${categoryId}/`,
+      `/products/categories/${categoryId}/update/`,
+    ]
+
+    let lastError: unknown
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.patch<Category>(endpoint, data)
+        return response.data
+      } catch (error) {
+        lastError = error
+
+        if (!axios.isAxiosError(error)) {
+          throw error
+        }
+
+        const status = error.response?.status
+        if (status !== 404 && status !== 405) {
+          throw error
+        }
+      }
+    }
+
+    throw lastError
+  }
+
+  /**
+   * Update category image
+   */
+  async updateCategoryImage(categoryId: number, imageFile: File): Promise<Category> {
+    const formData = new FormData()
+    formData.append('image', imageFile)
+
+    const endpoints = [
+      `/products/categories/${categoryId}/image/`,
+      `/products/products/categories/${categoryId}/image/`,
+    ]
+
+    let lastError: unknown
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.patch<Category>(endpoint, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        return response.data
+      } catch (error) {
+        lastError = error
+
+        if (!axios.isAxiosError(error)) {
+          throw error
+        }
+
+        const status = error.response?.status
+        if (status !== 404 && status !== 405) {
+          throw error
+        }
+      }
+    }
+
+    throw lastError
   }
 
   /**

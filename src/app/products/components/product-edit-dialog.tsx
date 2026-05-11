@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ChangeEvent } from "react"
 import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { Pencil, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
@@ -34,6 +36,7 @@ import {
 } from "@/components/ui/select"
 import { productsService, type Category, type Product } from "@/services/products.service"
 import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
+import { API_BASE_URL } from "@/config/api"
 
 // Form validation schema
 const productEditSchema = z.object({
@@ -53,6 +56,18 @@ interface ProductEditDialogProps {
   onSuccess?: () => void
 }
 
+interface ApiErrorResponse {
+  response?: {
+    data?: {
+      barcode_number?: string[]
+      detail?: string
+      image?: string[]
+      name?: string[]
+    }
+  }
+  message?: string
+}
+
 export function ProductEditDialog({ 
   open, 
   onOpenChange, 
@@ -62,6 +77,11 @@ export function ProductEditDialog({
   const { t } = useTranslation(['products', 'common'])
   const [isLoading, setIsLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
+  const [showCategoryEditDialog, setShowCategoryEditDialog] = useState(false)
+  const [categoryName, setCategoryName] = useState("")
+  const [categoryImage, setCategoryImage] = useState<File | null>(null)
+  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null)
+  const [isCategorySaving, setIsCategorySaving] = useState(false)
 
   const form = useForm<ProductEditFormValues>({
     resolver: zodResolver(productEditSchema),
@@ -84,7 +104,18 @@ export function ProductEditDialog({
     },
   })
 
-  // Fetch categories on mount
+  const refreshCategories = async () => {
+    try {
+      const response = await productsService.getCategories()
+      setCategories(response.results)
+    } catch (error) {
+      console.error("Failed to fetch categories:", error)
+      toast.error(t('common:messages.error'), {
+        description: "Failed to load categories"
+      })
+    }
+  }
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -97,6 +128,7 @@ export function ProductEditDialog({
         })
       }
     }
+
     if (open) {
       fetchCategories()
     }
@@ -114,6 +146,129 @@ export function ProductEditDialog({
       })
     }
   }, [product, open, form])
+
+  useEffect(() => {
+    return () => {
+      if (categoryImagePreview) {
+        URL.revokeObjectURL(categoryImagePreview)
+      }
+    }
+  }, [categoryImagePreview])
+
+  const currentCategoryId = formCategoryValueToNumber(form.watch("category"))
+  const selectedCategory = categories.find((category) => category.id === currentCategoryId) || null
+  const categoryImageUrl = categoryImagePreview || getCategoryImageUrl(selectedCategory?.image)
+
+  function formCategoryValueToNumber(value: string): number | null {
+    if (!value) return null
+    const parsedValue = Number(value)
+    return Number.isNaN(parsedValue) ? null : parsedValue
+  }
+
+  function getCategoryImageUrl(imagePath?: string): string | null {
+    if (!imagePath) return null
+    return imagePath.startsWith("http") ? imagePath : `${API_BASE_URL}${imagePath}`
+  }
+
+  const resetCategoryEditor = () => {
+    setCategoryName(selectedCategory?.name || "")
+    setCategoryImage(null)
+    setCategoryImagePreview((currentPreview) => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview)
+      }
+      return null
+    })
+  }
+
+  const handleOpenCategoryEditor = () => {
+    if (!selectedCategory) {
+      toast.error(t('common:messages.error'), {
+        description: "Please select a category first"
+      })
+      return
+    }
+
+    resetCategoryEditor()
+    setShowCategoryEditDialog(true)
+  }
+
+  const handleCategoryImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setCategoryImage(file)
+    setCategoryImagePreview((currentPreview) => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview)
+      }
+      return URL.createObjectURL(file)
+    })
+  }
+
+  const handleRemoveCategoryImage = () => {
+    setCategoryImage(null)
+    setCategoryImagePreview((currentPreview) => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview)
+      }
+      return null
+    })
+  }
+
+  const handleCategoryUpdate = async () => {
+    if (!selectedCategory) return
+
+    const trimmedName = categoryName.trim()
+    if (!trimmedName) {
+      toast.error(t('common:messages.error'), {
+        description: "Category name is required"
+      })
+      return
+    }
+
+    setIsCategorySaving(true)
+    try {
+      const shouldUpdateName = trimmedName !== selectedCategory.name
+      const shouldUpdateImage = Boolean(categoryImage)
+
+      if (shouldUpdateName) {
+        await productsService.updateCategory(selectedCategory.id, { name: trimmedName })
+      }
+
+      if (shouldUpdateImage && categoryImage) {
+        await productsService.updateCategoryImage(selectedCategory.id, categoryImage)
+      }
+
+      await refreshCategories()
+      form.setValue("category", String(selectedCategory.id), {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+
+      toast.success(t('common:messages.success'), {
+        description: "Category updated successfully"
+      })
+
+      setShowCategoryEditDialog(false)
+      resetCategoryEditor()
+    } catch (error: unknown) {
+      console.error("Failed to update category:", error)
+      const apiError = error as ApiErrorResponse
+      const errorMessage =
+        apiError.response?.data?.detail ||
+        apiError.response?.data?.name?.[0] ||
+        apiError.response?.data?.image?.[0] ||
+        apiError.message ||
+        "Failed to update category"
+
+      toast.error(t('common:messages.error'), {
+        description: errorMessage
+      })
+    } finally {
+      setIsCategorySaving(false)
+    }
+  }
 
   // Form submission handler
   const onSubmit = async (data: ProductEditFormValues) => {
@@ -138,11 +293,12 @@ export function ProductEditDialog({
       if (onSuccess) {
         onSuccess()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update product:", error)
-      
-      const barcodeErrors = error?.response?.data?.barcode_number
-      const errorMessage = error?.response?.data?.detail || error?.message
+
+      const apiError = error as ApiErrorResponse
+      const barcodeErrors = apiError.response?.data?.barcode_number
+      const errorMessage = apiError.response?.data?.detail || apiError.message
 
       if (Array.isArray(barcodeErrors) && barcodeErrors.length > 0) {
         form.setError("barcode_number", {
@@ -236,20 +392,32 @@ export function ProductEditDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('category')}</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="cursor-pointer">
-                          <SelectValue placeholder={t('selectCategory')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={String(category.id)}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="cursor-pointer">
+                            <SelectValue placeholder={t('selectCategory')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={String(category.id)}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0"
+                        onClick={handleOpenCategoryEditor}
+                        disabled={!field.value || isLoading}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -302,6 +470,94 @@ export function ProductEditDialog({
           </form>
         </Form>
       </DialogContent>
+
+      <Dialog
+        open={showCategoryEditDialog}
+        onOpenChange={(nextOpen) => {
+          setShowCategoryEditDialog(nextOpen)
+          if (!nextOpen) {
+            resetCategoryEditor()
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+            <DialogDescription>
+              Update the selected category name and image
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label htmlFor="edit-category-name" className="text-sm font-medium">
+                Category Name
+              </label>
+              <Input
+                id="edit-category-name"
+                value={categoryName}
+                onChange={(event) => setCategoryName(event.target.value)}
+                placeholder="Enter category name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="edit-category-image" className="text-sm font-medium">
+                Category Image
+              </label>
+              <Input
+                id="edit-category-image"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.gif,.svg,.bmp"
+                onChange={handleCategoryImageSelect}
+                className="cursor-pointer"
+              />
+            </div>
+
+            {categoryImageUrl && (
+              <div className="relative h-28 w-28 overflow-hidden rounded-lg border bg-muted">
+                <img
+                  src={categoryImageUrl}
+                  alt={categoryName || selectedCategory?.name || "Category image"}
+                  className="h-full w-full object-cover"
+                />
+                {categoryImagePreview && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                    onClick={handleRemoveCategoryImage}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowCategoryEditDialog(false)
+                resetCategoryEditor()
+              }}
+              disabled={isCategorySaving}
+            >
+              {t('common:actions.cancel')}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCategoryUpdate}
+              disabled={isCategorySaving}
+            >
+              {isCategorySaving ? t('common:actions.saving') : t('common:actions.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }

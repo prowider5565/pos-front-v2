@@ -21,8 +21,9 @@ export interface Product {
   name: string
   description: string | null
   product_type: 'PIECE' | 'WEIGHT' | 'KG' | 'LITER'
-  category: number
-  category_name: string
+  category: number | null
+  category_name: string | null
+  category_image?: string | null
   supplier_name: string
   barcode_number?: string | null
   images?: ProductImage[]
@@ -113,6 +114,11 @@ export interface ImageUploadResponse {
     url: string
     is_main: boolean
   }[]
+}
+
+export interface ProductImageUploadResponse {
+  product_id: number
+  images: ProductImage[]
 }
 
 class ProductsService {
@@ -330,6 +336,34 @@ class ProductsService {
     }
 
     throw lastError
+  }
+
+  /**
+   * Add images to an existing product
+   */
+  async addProductImages(productId: number, images: File[]): Promise<ProductImageUploadResponse> {
+    const formData = new FormData()
+    images.forEach((image) => {
+      formData.append('images', image)
+    })
+
+    const response = await apiClient.post<ProductImageUploadResponse>(
+      `/media/products/${productId}/images/`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
+  }
+
+  /**
+   * Delete a product image
+   */
+  async deleteProductImage(imageId: number): Promise<void> {
+    await apiClient.delete(`/media/product-images/${imageId}/delete/`)
   }
 
   /**

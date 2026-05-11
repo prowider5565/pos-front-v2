@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Pencil, X } from "lucide-react"
+import { Pencil, Plus, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { productsService, type Category, type Product } from "@/services/products.service"
+import { productsService, type Category, type Product, type ProductImage } from "@/services/products.service"
 import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
 import { API_BASE_URL } from "@/config/api"
 
@@ -82,6 +82,11 @@ export function ProductEditDialog({
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null)
   const [isCategorySaving, setIsCategorySaving] = useState(false)
+  const [productImages, setProductImages] = useState<ProductImage[]>([])
+  const [pendingImages, setPendingImages] = useState<File[]>([])
+  const [pendingImagePreviews, setPendingImagePreviews] = useState<string[]>([])
+  const [isUploadingImages, setIsUploadingImages] = useState(false)
+  const [deletingImageIds, setDeletingImageIds] = useState<number[]>([])
 
   const form = useForm<ProductEditFormValues>({
     resolver: zodResolver(productEditSchema),
@@ -137,15 +142,32 @@ export function ProductEditDialog({
   // Populate form when product changes
   useEffect(() => {
     if (product && open) {
+      const productCategoryValue = product.category ? String(product.category) : ""
+
       form.reset({
         name: product.name,
         description: product.description || "",
         barcode_number: product.barcode_number || "",
         product_type: product.product_type,
-        category: String(product.category),
+        category: productCategoryValue,
       })
+      setProductImages(product.images || [])
     }
   }, [product, open, form])
+
+  useEffect(() => {
+    if (!open || !product || !product.category || categories.length === 0) return
+
+    const expectedCategoryValue = String(product.category)
+    const hasMatchingCategory = categories.some((category) => String(category.id) === expectedCategoryValue)
+
+    if (hasMatchingCategory) {
+      form.setValue("category", expectedCategoryValue, {
+        shouldDirty: false,
+        shouldTouch: false,
+      })
+    }
+  }, [categories, open, product, form])
 
   useEffect(() => {
     return () => {
@@ -155,8 +177,23 @@ export function ProductEditDialog({
     }
   }, [categoryImagePreview])
 
+  useEffect(() => {
+    return () => {
+      pendingImagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
+    }
+  }, [pendingImagePreviews])
+
   const currentCategoryId = formCategoryValueToNumber(form.watch("category"))
-  const selectedCategory = categories.find((category) => category.id === currentCategoryId) || null
+  const selectedCategory =
+    categories.find((category) => category.id === currentCategoryId) ||
+    (product?.category
+      ? {
+          id: product.category,
+          name: product.category_name || "",
+          image: product.category_image || undefined,
+          created_at: "",
+        }
+      : null)
   const categoryImageUrl = categoryImagePreview || getCategoryImageUrl(selectedCategory?.image)
 
   function formCategoryValueToNumber(value: string): number | null {
@@ -214,6 +251,92 @@ export function ProductEditDialog({
       }
       return null
     })
+  }
+
+  const handlePendingImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+
+    const selectedFiles = Array.from(files)
+    const totalImages = productImages.length + pendingImages.length + selectedFiles.length
+
+    if (totalImages > 15) {
+      toast.error(t('common:messages.error'), {
+        description: t('maxImages')
+      })
+      return
+    }
+
+    setPendingImages((currentImages) => [...currentImages, ...selectedFiles])
+    setPendingImagePreviews((currentPreviews) => [
+      ...currentPreviews,
+      ...selectedFiles.map((file) => URL.createObjectURL(file)),
+    ])
+
+    event.target.value = ""
+  }
+
+  const handleRemovePendingImage = (index: number) => {
+    const previewToRemove = pendingImagePreviews[index]
+    if (previewToRemove) {
+      URL.revokeObjectURL(previewToRemove)
+    }
+
+    setPendingImages((currentImages) => currentImages.filter((_, imageIndex) => imageIndex !== index))
+    setPendingImagePreviews((currentPreviews) => currentPreviews.filter((_, previewIndex) => previewIndex !== index))
+  }
+
+  const handleUploadProductImages = async () => {
+    if (!product || pendingImages.length === 0) return
+
+    setIsUploadingImages(true)
+    try {
+      const response = await productsService.addProductImages(product.id, pendingImages)
+      setProductImages((currentImages) => [...currentImages, ...response.images])
+      pendingImagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
+      setPendingImages([])
+      setPendingImagePreviews([])
+
+      toast.success(t('common:messages.success'), {
+        description: "Product images added successfully"
+      })
+
+      onSuccess?.()
+    } catch (error) {
+      console.error("Failed to add product images:", error)
+      const apiError = error as ApiErrorResponse
+      const errorMessage = apiError.response?.data?.detail || apiError.message || t('failedToUploadImages')
+
+      toast.error(t('common:messages.error'), {
+        description: errorMessage
+      })
+    } finally {
+      setIsUploadingImages(false)
+    }
+  }
+
+  const handleDeleteProductImage = async (imageId: number) => {
+    setDeletingImageIds((currentIds) => [...currentIds, imageId])
+    try {
+      await productsService.deleteProductImage(imageId)
+      setProductImages((currentImages) => currentImages.filter((image) => image.id !== imageId))
+
+      toast.success(t('common:messages.success'), {
+        description: "Product image deleted successfully"
+      })
+
+      onSuccess?.()
+    } catch (error) {
+      console.error("Failed to delete product image:", error)
+      const apiError = error as ApiErrorResponse
+      const errorMessage = apiError.response?.data?.detail || apiError.message || "Failed to delete product image"
+
+      toast.error(t('common:messages.error'), {
+        description: errorMessage
+      })
+    } finally {
+      setDeletingImageIds((currentIds) => currentIds.filter((currentId) => currentId !== imageId))
+    }
   }
 
   const handleCategoryUpdate = async () => {
@@ -384,6 +507,100 @@ export function ProductEditDialog({
               )}
             />
 
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <FormLabel>{t('images')}</FormLabel>
+                <span className="text-sm text-muted-foreground">
+                  {t('imagesSelected', { count: productImages.length + pendingImages.length })}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <Input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp,.gif,.svg,.bmp"
+                  multiple
+                  onChange={handlePendingImageSelect}
+                  disabled={isUploadingImages || productImages.length + pendingImages.length >= 15}
+                  className="cursor-pointer"
+                />
+
+                {pendingImages.length > 0 && (
+                  <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                    <span className="text-sm text-muted-foreground">
+                      {pendingImages.length} image(s) ready to upload
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleUploadProductImages}
+                      disabled={isUploadingImages}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      {isUploadingImages ? t('common:actions.saving') : t('common:buttons.add')}
+                    </Button>
+                  </div>
+                )}
+
+                {(productImages.length > 0 || pendingImagePreviews.length > 0) && (
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                    {productImages.map((image) => {
+                      const imageUrl = image.url.startsWith("http") ? image.url : `${API_BASE_URL}${image.url}`
+                      const isDeleting = deletingImageIds.includes(image.id)
+
+                      return (
+                        <div key={image.id} className="relative group">
+                          <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
+                            <img
+                              src={imageUrl}
+                              alt={product?.name || "Product image"}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                            onClick={() => handleDeleteProductImage(image.id)}
+                            disabled={isDeleting}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                          {image.is_main && (
+                            <div className="absolute bottom-1 left-1 rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                              {t('mainImage')}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {pendingImagePreviews.map((previewUrl, index) => (
+                      <div key={previewUrl} className="relative group">
+                        <div className="aspect-square overflow-hidden rounded-lg border border-dashed bg-muted">
+                          <img
+                            src={previewUrl}
+                            alt={`Pending upload ${index + 1}`}
+                            className="h-full w-full object-cover opacity-80"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                          onClick={() => handleRemovePendingImage(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Category and Product Type - horizontal layout */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -393,7 +610,11 @@ export function ProductEditDialog({
                   <FormItem>
                     <FormLabel>{t('category')}</FormLabel>
                     <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        key={`${field.value || "empty"}-${categories.length}`}
+                        onValueChange={field.onChange}
+                        value={field.value || undefined}
+                      >
                         <FormControl>
                           <SelectTrigger className="cursor-pointer">
                             <SelectValue placeholder={t('selectCategory')} />

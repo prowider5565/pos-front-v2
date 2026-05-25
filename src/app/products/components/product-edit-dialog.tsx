@@ -37,6 +37,7 @@ import {
 import { productsService, type Category, type Product, type ProductImage } from "@/services/products.service"
 import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
 import { API_BASE_URL } from "@/config/api"
+import apiClient from "@/lib/api-client"
 
 // Form validation schema
 const productEditSchema = z.object({
@@ -78,9 +79,13 @@ export function ProductEditDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [showCategoryEditDialog, setShowCategoryEditDialog] = useState(false)
+  const [showCategoryCreateDialog, setShowCategoryCreateDialog] = useState(false)
   const [categoryName, setCategoryName] = useState("")
+  const [newCategoryName, setNewCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null)
+  const [newCategoryImage, setNewCategoryImage] = useState<File | null>(null)
+  const [newCategoryImagePreview, setNewCategoryImagePreview] = useState<string | null>(null)
   const [isCategorySaving, setIsCategorySaving] = useState(false)
   const [productImages, setProductImages] = useState<ProductImage[]>([])
   const [pendingImages, setPendingImages] = useState<File[]>([])
@@ -179,6 +184,14 @@ export function ProductEditDialog({
 
   useEffect(() => {
     return () => {
+      if (newCategoryImagePreview) {
+        URL.revokeObjectURL(newCategoryImagePreview)
+      }
+    }
+  }, [newCategoryImagePreview])
+
+  useEffect(() => {
+    return () => {
       pendingImagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
     }
   }, [pendingImagePreviews])
@@ -251,6 +264,73 @@ export function ProductEditDialog({
       }
       return null
     })
+  }
+
+  const handleNewCategoryImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setNewCategoryImage(file)
+    setNewCategoryImagePreview((currentPreview) => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview)
+      }
+      return URL.createObjectURL(file)
+    })
+  }
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast.error(t('common:messages.error'), {
+        description: "Category name is required"
+      })
+      return
+    }
+
+    setIsCategorySaving(true)
+    try {
+      const response = await apiClient.post('/products/categories/create/', { name: newCategoryName.trim() })
+      const newCategory = response.data
+
+      if (newCategoryImage && newCategory.id) {
+        try {
+          await productsService.uploadCategoryImage(newCategory.id, newCategoryImage)
+        } catch (imageError) {
+          console.error("Failed to upload category image:", imageError)
+          toast.warning("Warning", {
+            description: "Category created but image upload failed"
+          })
+        }
+      }
+
+      toast.success(t('common:messages.success'), {
+        description: "Category created successfully"
+      })
+
+      setNewCategoryName("")
+      setNewCategoryImage(null)
+      if (newCategoryImagePreview) {
+        URL.revokeObjectURL(newCategoryImagePreview)
+        setNewCategoryImagePreview(null)
+      }
+      setShowCategoryCreateDialog(false)
+      await refreshCategories()
+
+      // Auto-select the newly created category
+      if (newCategory.id) {
+        form.setValue("category", String(newCategory.id), {
+          shouldDirty: true,
+          shouldTouch: true,
+        })
+      }
+    } catch (error) {
+      console.error("Failed to create category:", error)
+      toast.error(t('common:messages.error'), {
+        description: "Failed to create category"
+      })
+    } finally {
+      setIsCategorySaving(false)
+    }
   }
 
   const handlePendingImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -601,22 +681,22 @@ export function ProductEditDialog({
               </div>
             </div>
 
-            {/* Category and Product Type - horizontal layout */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Category and Product Type - stacked layout */}
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="min-w-0 overflow-hidden">
                     <FormLabel>{t('category')}</FormLabel>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 min-w-0">
                       <Select
                         key={`${field.value || "empty"}-${categories.length}`}
                         onValueChange={field.onChange}
                         value={field.value || undefined}
                       >
                         <FormControl>
-                          <SelectTrigger className="cursor-pointer">
+                          <SelectTrigger className="cursor-pointer min-w-0 flex-1 [&>span]:truncate [&>span]:block [&>span]:max-w-[calc(100%-20px)]">
                             <SelectValue placeholder={t('selectCategory')} />
                           </SelectTrigger>
                         </FormControl>
@@ -632,9 +712,20 @@ export function ProductEditDialog({
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="shrink-0"
+                        className="shrink-0 h-9 w-9"
+                        onClick={() => setShowCategoryCreateDialog(true)}
+                        title="Create new category"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0 h-9 w-9"
                         onClick={handleOpenCategoryEditor}
                         disabled={!field.value || isLoading}
+                        title="Edit selected category"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -775,6 +866,115 @@ export function ProductEditDialog({
               disabled={isCategorySaving}
             >
               {isCategorySaving ? t('common:actions.saving') : t('common:actions.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Category Dialog */}
+      <Dialog
+        open={showCategoryCreateDialog}
+        onOpenChange={(nextOpen) => {
+          setShowCategoryCreateDialog(nextOpen)
+          if (!nextOpen) {
+            setNewCategoryName("")
+            setNewCategoryImage(null)
+            if (newCategoryImagePreview) {
+              URL.revokeObjectURL(newCategoryImagePreview)
+              setNewCategoryImagePreview(null)
+            }
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Category</DialogTitle>
+            <DialogDescription>
+              Enter a name for the new category
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label htmlFor="new-category-name" className="text-sm font-medium">
+                Category Name
+              </label>
+              <Input
+                id="new-category-name"
+                value={newCategoryName}
+                onChange={(event) => setNewCategoryName(event.target.value)}
+                placeholder="Enter category name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleCreateCategory()
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="new-category-image" className="text-sm font-medium">
+                Category Image (Optional)
+              </label>
+              <Input
+                id="new-category-image"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.gif,.svg,.bmp"
+                onChange={handleNewCategoryImageSelect}
+                className="cursor-pointer"
+              />
+            </div>
+
+            {newCategoryImagePreview && (
+              <div className="relative h-28 w-28 overflow-hidden rounded-lg border bg-muted">
+                <img
+                  src={newCategoryImagePreview}
+                  alt="New category preview"
+                  className="h-full w-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                  onClick={() => {
+                    setNewCategoryImage(null)
+                    if (newCategoryImagePreview) {
+                      URL.revokeObjectURL(newCategoryImagePreview)
+                      setNewCategoryImagePreview(null)
+                    }
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowCategoryCreateDialog(false)
+                setNewCategoryName("")
+                setNewCategoryImage(null)
+                if (newCategoryImagePreview) {
+                  URL.revokeObjectURL(newCategoryImagePreview)
+                  setNewCategoryImagePreview(null)
+                }
+              }}
+              disabled={isCategorySaving}
+            >
+              {t('common:actions.cancel')}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCreateCategory}
+              disabled={!newCategoryName.trim() || isCategorySaving}
+            >
+              {isCategorySaving ? t('common:actions.saving') : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -696,7 +696,7 @@ export function ProductEditDialog({
                         value={field.value || undefined}
                       >
                         <FormControl>
-                          <SelectTrigger className="cursor-pointer min-w-0 flex-1 [&>span]:truncate [&>span]:block [&>span]:max-w-[calc(100%-20px)]">
+                          <SelectTrigger className="cursor-pointer min-w-0 w-0 flex-1">
                             <SelectValue placeholder={t('selectCategory')} />
                           </SelectTrigger>
                         </FormControl>

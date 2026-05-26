@@ -42,16 +42,6 @@ function formatCurrency(uzs: string, usd: string) {
   return parts.length > 0 ? parts.join(' / ') : '—'
 }
 
-function formatDate(dateString?: string) {
-  if (!dateString) return '—'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
 interface GroupedClientDebt {
   clientId: number
   clientName: string

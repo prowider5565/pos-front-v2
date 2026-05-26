@@ -2,7 +2,7 @@ import apiClient from '@/lib/api-client'
 import { API_ENDPOINTS } from '@/config/api'
 import type { SaleProduct, SaleProductsResponse } from '@/types/sales'
 import axios from 'axios'
-import { compressCategoryImage, compressProductImage, compressProductImages } from '@/lib/image-compression'
+import { compressCategoryImage, compressProductImages } from '@/lib/image-compression'
 
 // TypeScript interfaces
 export interface ProductCategory {

@@ -2,6 +2,7 @@ import apiClient from '@/lib/api-client'
 import { API_ENDPOINTS } from '@/config/api'
 import type { SaleProduct, SaleProductsResponse } from '@/types/sales'
 import axios from 'axios'
+import { compressCategoryImage, compressProductImage, compressProductImages } from '@/lib/image-compression'
 
 // TypeScript interfaces
 export interface ProductCategory {
@@ -251,9 +252,10 @@ class ProductsService {
    * Upload category image
    */
   async uploadCategoryImage(categoryId: number, imageFile: File): Promise<{ image: string }> {
+    const compressed = await compressCategoryImage(imageFile)
     const formData = new FormData()
     formData.append('category_id', categoryId.toString())
-    formData.append('image', imageFile)
+    formData.append('image', compressed)
     
     const response = await apiClient.post<{ image: string }>(
       '/media/category-image/',
@@ -303,8 +305,9 @@ class ProductsService {
    * Update category image
    */
   async updateCategoryImage(categoryId: number, imageFile: File): Promise<Category> {
+    const compressed = await compressCategoryImage(imageFile)
     const formData = new FormData()
-    formData.append('image', imageFile)
+    formData.append('image', compressed)
 
     const endpoints = [
       `/products/categories/${categoryId}/image/`,
@@ -342,8 +345,9 @@ class ProductsService {
    * Add images to an existing product
    */
   async addProductImages(productId: number, images: File[]): Promise<ProductImageUploadResponse> {
+    const compressed = await compressProductImages(images)
     const formData = new FormData()
-    images.forEach((image) => {
+    compressed.forEach((image) => {
       formData.append('images', image)
     })
 
@@ -370,8 +374,9 @@ class ProductsService {
    * Upload product images
    */
   async uploadImages(images: File[]): Promise<ImageUploadResponse> {
+    const compressed = await compressProductImages(images)
     const formData = new FormData()
-    images.forEach((image) => {
+    compressed.forEach((image) => {
       formData.append('images', image)
     })
     

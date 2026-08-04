@@ -18,11 +18,17 @@
     "fullName": "To'liq ism",
     "fullNamePlaceholder": "To'liq ismni kiriting",
     "phoneNumber": "Telefon raqami",
-    "phoneNumberPlaceholder": "Telefon raqamini kiriting"
+    "phoneNumberPlaceholder": "Telefon raqamini kiriting",
+    "telegramId": "Telegram ID",
+    "telegramIdPlaceholder": "Raqamli Telegram ID'ni kiriting",
+    "telegramIdRequired": "Telegram ID kiritish majburiy",
+    "telegramIdInvalid": "Telegram ID musbat butun son bo'lishi kerak",
+    "telegramIdHelp": "Telegram ID'ni bilish uchun Telegram'da <botLink>@userinfobot</botLink> botini oching va Start tugmasini bosing. Bot raqamli ID'ni yuboradi."
   },
   "messages": {
     "clientCreated": "Mijoz muvaffaqiyatli yaratildi",
     "clientUpdated": "Mijoz muvaffaqiyatli yangilandi",
-    "clientDeleted": "Mijoz muvaffaqiyatli o'chirildi"
+    "clientDeleted": "Mijoz muvaffaqiyatli o'chirildi",
+    "telegramIdAlreadyExists": "Bu Telegram ID ma'lumotlar bazasida allaqachon mavjud"
   }
 }

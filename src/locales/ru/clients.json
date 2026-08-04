@@ -18,11 +18,17 @@
     "fullName": "Полное имя",
     "fullNamePlaceholder": "Введите полное имя",
     "phoneNumber": "Номер телефона",
-    "phoneNumberPlaceholder": "Введите номер телефона"
+    "phoneNumberPlaceholder": "Введите номер телефона",
+    "telegramId": "Telegram ID",
+    "telegramIdPlaceholder": "Введите числовой Telegram ID",
+    "telegramIdRequired": "Telegram ID обязателен",
+    "telegramIdInvalid": "Telegram ID должен быть положительным целым числом",
+    "telegramIdHelp": "Чтобы узнать Telegram ID, откройте <botLink>@userinfobot</botLink> в Telegram и нажмите «Старт». Бот отправит числовой ID."
   },
   "messages": {
     "clientCreated": "Клиент успешно создан",
     "clientUpdated": "Клиент успешно обновлен",
-    "clientDeleted": "Клиент успешно удален"
+    "clientDeleted": "Клиент успешно удален",
+    "telegramIdAlreadyExists": "Этот Telegram ID уже существует в базе данных"
   }
 }

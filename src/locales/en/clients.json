@@ -18,11 +18,17 @@
     "fullName": "Full Name",
     "fullNamePlaceholder": "Enter full name",
     "phoneNumber": "Phone Number",
-    "phoneNumberPlaceholder": "Enter phone number"
+    "phoneNumberPlaceholder": "Enter phone number",
+    "telegramId": "Telegram ID",
+    "telegramIdPlaceholder": "Enter numeric Telegram ID",
+    "telegramIdRequired": "Telegram ID is required",
+    "telegramIdInvalid": "Telegram ID must be a positive integer",
+    "telegramIdHelp": "To find the Telegram ID, open <botLink>@userinfobot</botLink> in Telegram and tap Start. The bot will send the numeric ID."
   },
   "messages": {
     "clientCreated": "Client created successfully",
     "clientUpdated": "Client updated successfully",
-    "clientDeleted": "Client deleted successfully"
+    "clientDeleted": "Client deleted successfully",
+    "telegramIdAlreadyExists": "This Telegram ID already exists in the database"
   }
 }

@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, lazy, Suspense } from "react"
-import { useTranslation } from "react-i18next"
+import { useEffect, lazy, Suspense, useMemo } from "react"
+import { Trans, useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import axios from "axios"
 import { z } from "zod"
 import { toast } from "sonner"
 import 'react-phone-number-input/style.css'
@@ -21,6 +22,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,6 +34,7 @@ import { clientsService, type Client } from "@/services/clients.service"
 const clientFormSchema = z.object({
   full_name: z.string().min(1, "Full name is required"),
   phone_number: z.string().min(1, "Phone number is required"),
+  telegram_id: z.number().optional(),
 })
 
 type ClientFormValues = z.infer<typeof clientFormSchema>
@@ -45,12 +48,34 @@ interface ClientFormDialogProps {
 
 export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: ClientFormDialogProps) {
   const { t } = useTranslation(['clients', 'common'])
+  const formSchema = useMemo(
+    () => clientFormSchema.superRefine((data, context) => {
+      if (!client && data.telegram_id === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["telegram_id"],
+          message: t('form.telegramIdRequired'),
+        })
+      } else if (
+        data.telegram_id !== undefined &&
+        (!Number.isInteger(data.telegram_id) || data.telegram_id <= 0)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["telegram_id"],
+          message: t('form.telegramIdInvalid'),
+        })
+      }
+    }),
+    [client, t]
+  )
 
   const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientFormSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       full_name: "",
       phone_number: "",
+      telegram_id: undefined,
     },
   })
 
@@ -60,28 +85,39 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
         form.reset({
           full_name: client.full_name,
           phone_number: client.phone_number,
+          telegram_id: undefined,
         })
       } else {
         form.reset({
           full_name: "",
           phone_number: "",
+          telegram_id: undefined,
         })
       }
     }
-  }, [open, client])
+  }, [open, client, form])
 
   const onSubmit = async (data: ClientFormValues) => {
     try {
-      const payload = {
-        full_name: data.full_name,
-        phone_number: data.phone_number,
-      }
-
       if (client) {
-        await clientsService.updateClient(client.id, payload)
+        await clientsService.updateClient(client.id, {
+          full_name: data.full_name,
+          phone_number: data.phone_number,
+        })
         toast.success(t('messages.clientUpdated'))
       } else {
-        await clientsService.createClient(payload)
+        if (data.telegram_id === undefined) {
+          form.setError('telegram_id', {
+            message: t('form.telegramIdRequired'),
+          })
+          return
+        }
+
+        await clientsService.createClient({
+          full_name: data.full_name,
+          phone_number: data.phone_number,
+          telegram_id: data.telegram_id,
+        })
         toast.success(t('messages.clientCreated'))
       }
 
@@ -89,6 +125,18 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
       onSuccess()
     } catch (error) {
       console.error("Failed to save client:", error)
+
+      if (
+        !client &&
+        axios.isAxiosError<{ status?: string }>(error) &&
+        error.response?.data?.status === 'invalid_telegram_id'
+      ) {
+        const message = t('messages.telegramIdAlreadyExists')
+        form.setError('telegram_id', { type: 'server', message })
+        toast.error(message)
+        return
+      }
+
       toast.error(t('common:messages.error'), {
         description: client ? "Failed to update client" : "Failed to create client"
       })
@@ -145,6 +193,53 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                 </FormItem>
               )}
             />
+
+            {!client && (
+              <FormField
+                control={form.control}
+                name="telegram_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('form.telegramId')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        step={1}
+                        inputMode="numeric"
+                        placeholder={t('form.telegramIdPlaceholder')}
+                        value={field.value ?? ""}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                        onChange={(event) => {
+                          field.onChange(
+                            event.target.value === "" ? undefined : event.target.valueAsNumber
+                          )
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      <Trans
+                        i18nKey="form.telegramIdHelp"
+                        ns="clients"
+                        components={{
+                          botLink: (
+                            <a
+                              href="https://t.me/userinfobot"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-primary underline underline-offset-4"
+                            />
+                          ),
+                        }}
+                      />
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button

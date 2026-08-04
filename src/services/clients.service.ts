@@ -12,6 +12,7 @@ export interface Client {
   id: number
   full_name: string
   phone_number: string
+  telegram_id?: number
   old_debt?: ClientOldDebt | null
   deleted?: boolean
   created_at: string
@@ -21,6 +22,7 @@ export interface Client {
 export interface CreateClientData {
   full_name: string
   phone_number: string
+  telegram_id: number
   old_debt?: {
     amount: string
     exchange_rate: string
